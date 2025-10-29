@@ -11,15 +11,19 @@ type NavLink = {
   children?: Array<{ href: string; label: string }>;
 };
 
-const navLinks: NavLink[] = [
+const baseNavLinks: NavLink[] = [
   { href: "/", label: "Überblick" },
-  { href: "/dashboard", label: "Dashboard" },
+  {
+    href: "/dashboard/data",
+    label: "Daten",
+    children: [
+      { href: "/dashboard/media", label: "Medien" },
+      { href: "/dashboard/equipment", label: "Ausrüstung" },
+      { href: "/dashboard/sites", label: "Tauchplätze" }
+    ]
+  },
   { href: "/dashboard/dives", label: "Tauchgänge" },
-  { href: "/dashboard/equipment", label: "Ausrüstung" },
-  { href: "/dashboard/media", label: "Medien" },
-  { href: "/dashboard/sites", label: "Tauchplätze" },
-  { href: "/dashboard/members", label: "Mitglieder" },
-  { href: "/dashboard/search", label: "Suche" },
+  { href: "/dashboard", label: "Dashboard" },
   {
     href: "/dashboard/community",
     label: "Community",
@@ -27,14 +31,17 @@ const navLinks: NavLink[] = [
       { href: "/dashboard/community/blog", label: "Blog" },
       { href: "/dashboard/community/forum", label: "Forum" }
     ]
-  }
+  },
+  { href: "/dashboard/search", label: "Suche" }
 ];
+
+const adminOnlyLinks: NavLink[] = [{ href: "/dashboard/members", label: "Mitglieder" }];
+
+const navLinks: NavLink[] = [...baseNavLinks, ...adminOnlyLinks];
 
 export function SiteHeader() {
   const { currentUser, logout } = useAuth();
-  const visibleLinks = currentUser?.role === "admin"
-    ? navLinks
-    : navLinks.filter((item) => item.href !== "/dashboard/members");
+  const visibleLinks = currentUser?.role === "admin" ? navLinks : baseNavLinks;
 
   return (
     <header className="border-b border-slate-200 bg-white/80 backdrop-blur">
