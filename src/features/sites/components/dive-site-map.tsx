@@ -22,13 +22,17 @@ type MapView = {
   zoom: number;
 };
 
+type DiveSiteMapProps = {
+  mode?: "visited" | "all";
+};
+
 const difficultyColor: Record<DiveSite["difficulty"], string> = {
   Beginner: "#38BDF8",
   Fortgeschritten: "#0EA5E9",
   Pro: "#0369A1"
 };
 
-function DiveSiteMapComponent() {
+function DiveSiteMapComponent({ mode = "visited" }: DiveSiteMapProps) {
   const { diveSites, diveLogs } = useDemoData();
   const { currentUser } = useAuth();
 
@@ -48,22 +52,31 @@ function DiveSiteMapComponent() {
     return ids;
   }, [diveLogs, currentUser?.id]);
 
-  const visibleSites = useMemo(() => {
-    if (visitedSiteIds.size === 0) {
-      return [] as DiveSite[];
-    }
-    return diveSites.filter((site) => visitedSiteIds.has(site.id));
-  }, [diveSites, visitedSiteIds]);
-
   const markers = useMemo<SiteMarker[]>(() => {
-    return visibleSites.map((site) => ({
-      id: site.id,
-      name: site.name,
-      latitude: site.coordinates.latitude,
-      longitude: site.coordinates.longitude,
-      difficulty: site.difficulty
-    }));
-  }, [visibleSites]);
+    if (mode === "all") {
+      return diveSites.map((site) => ({
+        id: site.id,
+        name: site.name,
+        latitude: site.coordinates.latitude,
+        longitude: site.coordinates.longitude,
+        difficulty: site.difficulty
+      }));
+    }
+
+    if (!currentUser?.id || visitedSiteIds.size === 0) {
+      return [];
+    }
+
+    return diveSites
+      .filter((site) => visitedSiteIds.has(site.id))
+      .map((site) => ({
+        id: site.id,
+        name: site.name,
+        latitude: site.coordinates.latitude,
+        longitude: site.coordinates.longitude,
+        difficulty: site.difficulty
+      }));
+  }, [mode, diveSites, visitedSiteIds, currentUser?.id]);
 
   const initialView = useMemo<MapView>(() => calculateInitialView(markers), [markers]);
 
@@ -115,7 +128,15 @@ function DiveSiteMapComponent() {
     setView(calculateInitialView(markers));
   }, [markers]);
 
-  if (!currentUser?.id || markers.length === 0) {
+  const headerTitle = mode === "all"
+    ? "Übersichtskarte der Tauchplätze"
+    : "Karte der besuchten Spots";
+
+  const headerDescription = mode === "all"
+    ? "Alle im System hinterlegten Spots auf einen Blick. Wähle einen Marker, um Details einzublenden."
+    : "Jeder Marker entspricht einem Tauchplatz aus deinem Logbuch. Wähle einen Eintrag, um die Karte automatisch auf diesen Spot zu fokussieren.";
+
+  if (mode === "visited" && (!currentUser?.id || markers.length === 0)) {
     return (
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <header className="flex flex-col gap-1">
@@ -130,15 +151,25 @@ function DiveSiteMapComponent() {
     );
   }
 
+  if (mode === "all" && markers.length === 0) {
+    return (
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <header className="flex flex-col gap-1">
+          <h2 className="text-lg font-semibold text-slate-900">Übersichtskarte der Tauchplätze</h2>
+          <p className="text-xs text-slate-500">
+            Es wurden noch keine Tauchplätze angelegt. Füge einen Spot hinzu, um ihn hier zu sehen.
+          </p>
+        </header>
+      </section>
+    );
+  }
+
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
-          <h2 className="text-lg font-semibold text-slate-900">Karte der besuchten Spots</h2>
-          <p className="text-xs text-slate-500">
-            Jeder Marker entspricht einem Tauchplatz aus deinem Logbuch.
-            Wähle einen Eintrag, um die Karte automatisch auf diesen Spot zu fokussieren.
-          </p>
+          <h2 className="text-lg font-semibold text-slate-900">{headerTitle}</h2>
+          <p className="text-xs text-slate-500">{headerDescription}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-500">
           <span className="flex items-center gap-1">

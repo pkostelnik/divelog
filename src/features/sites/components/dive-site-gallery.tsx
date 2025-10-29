@@ -1,10 +1,19 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ChangeEvent,
+  type FormEvent
+} from "react";
 
 import type { DiveSite, MediaItem } from "@/data/mock-data";
 import { useDemoData } from "@/providers/demo-data-provider";
+import { useAuth } from "@/providers/auth-provider";
+import { DiveSiteMap } from "./dive-site-map";
 
 const difficultyOptions: DiveSite["difficulty"][] = [
   "Beginner",
@@ -19,9 +28,14 @@ type DiveSiteFormState = {
   highlight: string;
   latitude: string;
   longitude: string;
+  ownerId?: string;
 };
 
-function createSiteFormState(initial?: DiveSite): DiveSiteFormState {
+type DiveSiteGalleryProps = {
+  showCreateForm?: boolean;
+};
+
+function createSiteFormState(initial?: DiveSite, defaults?: { ownerId?: string }): DiveSiteFormState {
   if (initial) {
     return {
       name: initial.name,
@@ -29,7 +43,8 @@ function createSiteFormState(initial?: DiveSite): DiveSiteFormState {
       difficulty: initial.difficulty,
       highlight: initial.highlight,
       latitude: formatCoordinate(initial.coordinates.latitude),
-      longitude: formatCoordinate(initial.coordinates.longitude)
+      longitude: formatCoordinate(initial.coordinates.longitude),
+      ownerId: initial.ownerId
     };
   }
 
@@ -39,11 +54,15 @@ function createSiteFormState(initial?: DiveSite): DiveSiteFormState {
     difficulty: "Beginner",
     highlight: "",
     latitude: "",
-    longitude: ""
+    longitude: "",
+    ownerId: defaults?.ownerId
   };
 }
 
-export function DiveSiteGallery() {
+export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps) {
+  const { currentUser } = useAuth();
+  const currentUserId = currentUser?.id ?? null;
+  const canManageAll = currentUser?.role === "admin";
   const {
     favoriteSiteIds,
     toggleFavoriteSite,
@@ -57,12 +76,44 @@ export function DiveSiteGallery() {
   } = useDemoData();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<DiveSiteFormState>(() => createSiteFormState());
-  const [newForm, setNewForm] = useState<DiveSiteFormState>(() => createSiteFormState());
+  const [newForm, setNewForm] = useState<DiveSiteFormState>(() =>
+    createSiteFormState(undefined, { ownerId: currentUserId ?? undefined })
+  );
 
   const highlightMedia = useMemo(() => mediaItems.slice(0, 2), [mediaItems]);
   const sortedSites = useMemo(() => [...diveSites].sort((a, b) => a.name.localeCompare(b.name)), [diveSites]);
 
+  useEffect(() => {
+    if (!currentUser) {
+      setNewForm(createSiteFormState());
+      return;
+    }
+
+    setNewForm((previous) => ({
+      ...previous,
+      ownerId: currentUser.id
+    }));
+  }, [currentUser]);
+
+  const canModifySite = useCallback(
+    (site: DiveSite) => {
+      if (canManageAll) {
+        return true;
+      }
+      if (!currentUserId) {
+        return false;
+      }
+      return site.ownerId === currentUserId;
+    },
+    [canManageAll, currentUserId]
+  );
+
   const beginEdit = (site: DiveSite) => {
+    if (!canModifySite(site)) {
+      window.alert("Dir fehlen die Rechte, um diesen Tauchplatz zu bearbeiten.");
+      return;
+    }
+
     setEditingId(site.id);
     setForm(createSiteFormState(site));
   };
@@ -105,7 +156,22 @@ export function DiveSiteGallery() {
       return;
     }
 
-    updateDiveSite(editingId, payload);
+    const target = diveSites.find((site) => site.id === editingId);
+    if (!target) {
+      cancelEdit();
+      return;
+    }
+
+    if (!canModifySite(target)) {
+      window.alert("Dir fehlen die Rechte, um diesen Tauchplatz zu aktualisieren.");
+      cancelEdit();
+      return;
+    }
+
+    updateDiveSite(editingId, {
+      ...payload,
+      ownerId: target.ownerId
+    });
     cancelEdit();
   };
 
@@ -117,11 +183,32 @@ export function DiveSiteGallery() {
       return;
     }
 
-    addDiveSite(payload);
-    setNewForm(createSiteFormState());
+    if (!currentUser) {
+      window.alert("Bitte melde dich an, um neue Tauchplätze einzutragen.");
+      return;
+    }
+
+    const ownerId = currentUser.id;
+
+    addDiveSite({
+      ...payload,
+      ownerId
+    });
+    setNewForm(createSiteFormState(undefined, { ownerId }));
   };
 
   const handleDelete = (id: string) => {
+    const target = diveSites.find((site) => site.id === id);
+
+    if (!target) {
+      return;
+    }
+
+    if (!canModifySite(target)) {
+      window.alert("Dir fehlen die Rechte, um diesen Tauchplatz zu löschen.");
+      return;
+    }
+
     const confirmed = typeof window !== "undefined"
       ? window.confirm("Soll dieser Tauchplatz wirklich gelöscht werden?")
       : true;
@@ -140,96 +227,107 @@ export function DiveSiteGallery() {
     <div className="grid gap-8 md:grid-cols-2">
       <div className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold text-slate-900">Favorisierte Spots</h2>
-        <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
-          <h3 className="text-sm font-semibold text-slate-900">Neuen Tauchplatz anlegen</h3>
-          <form className="mt-3 space-y-3" onSubmit={handleCreate}>
-            <div className="grid gap-3 md:grid-cols-2">
+        {showCreateForm && (
+          <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
+            <h3 className="text-sm font-semibold text-slate-900">Neuen Tauchplatz anlegen</h3>
+            <form className="mt-3 space-y-3" onSubmit={handleCreate}>
+              <div className="grid gap-3 md:grid-cols-2">
+                <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
+                  Name
+                  <input
+                    name="name"
+                    value={newForm.name}
+                    onChange={handleNewFormChange}
+                    placeholder="Spot-Bezeichnung"
+                    className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                    required
+                  />
+                </label>
+                <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
+                  Land / Region
+                  <input
+                    name="country"
+                    value={newForm.country}
+                    onChange={handleNewFormChange}
+                    placeholder="z. B. Indonesien"
+                    className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                    required
+                  />
+                </label>
+              </div>
               <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-                Name
-                <input
-                  name="name"
-                  value={newForm.name}
+                Schwierigkeit
+                <select
+                  name="difficulty"
+                  value={newForm.difficulty}
                   onChange={handleNewFormChange}
-                  placeholder="Spot-Bezeichnung"
-                  className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                  className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-600 shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                >
+                  {difficultyOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
+                Besonderheit
+                <textarea
+                  name="highlight"
+                  value={newForm.highlight}
+                  onChange={handleNewFormChange}
+                  placeholder="Was macht den Spot besonders?"
+                  className="min-h-[80px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                   required
                 />
               </label>
-              <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-                Land / Region
-                <input
-                  name="country"
-                  value={newForm.country}
-                  onChange={handleNewFormChange}
-                  placeholder="z. B. Indonesien"
-                  className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
-                  required
-                />
-              </label>
-            </div>
-            <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-              Schwierigkeit
-              <select
-                name="difficulty"
-                value={newForm.difficulty}
-                onChange={handleNewFormChange}
-                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-600 shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
-              >
-                {difficultyOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-              Besonderheit
-              <textarea
-                name="highlight"
-                value={newForm.highlight}
-                onChange={handleNewFormChange}
-                placeholder="Was macht den Spot besonders?"
-                className="min-h-[80px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
-                required
-              />
-            </label>
-            <div className="grid gap-3 md:grid-cols-2">
-              <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-                Breitengrad
-                <input
-                  name="latitude"
-                  value={newForm.latitude}
-                  onChange={handleNewFormChange}
-                  placeholder="z. B. 7.7783"
-                  inputMode="decimal"
-                  className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
-                  required
-                />
-              </label>
-              <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-                Längengrad
-                <input
-                  name="longitude"
-                  value={newForm.longitude}
-                  onChange={handleNewFormChange}
-                  placeholder="z. B. 98.3834"
-                  inputMode="decimal"
-                  className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
-                  required
-                />
-              </label>
-            </div>
-            <button
-              type="submit"
-              className="inline-flex items-center rounded-xl bg-ocean-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-ocean-700"
-            >
-              Tauchplatz hinzufügen
-            </button>
-          </form>
-        </section>
+              <div className="grid gap-3 md:grid-cols-2">
+                <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
+                  Breitengrad
+                  <input
+                    name="latitude"
+                    value={newForm.latitude}
+                    onChange={handleNewFormChange}
+                    placeholder="z. B. 7.7783"
+                    inputMode="decimal"
+                    className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                    required
+                  />
+                </label>
+                <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
+                  Längengrad
+                  <input
+                    name="longitude"
+                    value={newForm.longitude}
+                    onChange={handleNewFormChange}
+                    placeholder="z. B. 98.3834"
+                    inputMode="decimal"
+                    className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                    required
+                  />
+                </label>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={!currentUser}
+                  className="inline-flex items-center rounded-xl bg-ocean-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-ocean-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Tauchplatz hinzufügen
+                </button>
+              </div>
+              {!currentUser && (
+                <p className="text-xs font-normal text-slate-500">
+                  Melde dich an, um neue Tauchplätze einzutragen.
+                </p>
+              )}
+            </form>
+          </section>
+        )}
         <ul className="space-y-3">
           {sortedSites.map((site) => {
             const isEditing = editingId === site.id;
+            const userCanModify = canModifySite(site);
 
             return (
               <li
@@ -328,13 +426,15 @@ export function DiveSiteGallery() {
                       >
                         Abbrechen
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(site.id)}
-                        className="text-rose-600 underline-offset-2 hover:underline"
-                      >
-                        Löschen
-                      </button>
+                      {userCanModify && (
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(site.id)}
+                          className="text-rose-600 underline-offset-2 hover:underline"
+                        >
+                          Löschen
+                        </button>
+                      )}
                     </div>
                   </form>
                 ) : (
@@ -362,20 +462,28 @@ export function DiveSiteGallery() {
                           ? "Aus Favoriten entfernen"
                           : "Zu Favoriten hinzufügen"}
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => beginEdit(site)}
-                        className="text-slate-600 underline-offset-2 hover:underline"
-                      >
-                        Bearbeiten
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(site.id)}
-                        className="text-rose-600 underline-offset-2 hover:underline"
-                      >
-                        Löschen
-                      </button>
+                      {userCanModify ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => beginEdit(site)}
+                            className="text-slate-600 underline-offset-2 hover:underline"
+                          >
+                            Bearbeiten
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(site.id)}
+                            className="text-rose-600 underline-offset-2 hover:underline"
+                          >
+                            Löschen
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-xs font-normal text-slate-400">
+                          Änderungen nur durch Besitzer:innen oder Admins.
+                        </span>
+                      )}
                     </div>
                   </>
                 )}
@@ -385,6 +493,7 @@ export function DiveSiteGallery() {
         </ul>
       </div>
       <div className="flex flex-col gap-4">
+        <DiveSiteMap mode="all" />
         <h2 className="text-lg font-semibold text-slate-900">Medien Highlights</h2>
         <div className="grid gap-4">
           {highlightMedia.map((item) => (
@@ -495,7 +604,8 @@ function formStateToPayload(state: DiveSiteFormState) {
     coordinates: {
       latitude,
       longitude
-    }
+    },
+    ownerId: state.ownerId
   } satisfies Omit<DiveSite, "id">;
 }
 

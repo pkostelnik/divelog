@@ -690,7 +690,8 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
         coordinates: {
           latitude: action.payload.coordinates.latitude,
           longitude: action.payload.coordinates.longitude
-        }
+        },
+        ownerId: action.payload.ownerId
       };
 
       return {
@@ -702,14 +703,24 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
       const { id, data } = action.payload;
       return {
         ...state,
-        diveSites: state.diveSites.map((site) =>
-          site.id === id
-            ? {
-                ...data,
-                id
-              }
-            : site
-        )
+        diveSites: state.diveSites.map((site) => {
+          if (site.id !== id) {
+            return site;
+          }
+
+          return {
+            id,
+            name: data.name,
+            country: data.country,
+            difficulty: data.difficulty,
+            highlight: data.highlight,
+            coordinates: {
+              latitude: data.coordinates.latitude,
+              longitude: data.coordinates.longitude
+            },
+            ownerId: data.ownerId ?? site.ownerId
+          } satisfies DiveSite;
+        })
       };
     }
     case "REMOVE_DIVE_SITE": {
@@ -726,6 +737,7 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
         id,
         title: action.payload.title,
         author: action.payload.author,
+          ownerId: action.payload.ownerId,
         url: action.payload.url,
         type: action.payload.type,
         source: action.payload.source,
@@ -748,6 +760,7 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
             item.id === id
               ? {
                   ...data,
+                    ownerId: data.ownerId,
                   id
                 }
               : item
@@ -821,8 +834,8 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
 
       const sanitizedCommunityPosts = state.communityPosts
         .filter((post) => post.authorId !== action.payload.memberId)
-        .map((post) => {
-          const comments = post.comments.map((comment) => {
+        .map((post): typeof post => {
+          const comments = post.comments.map((comment): typeof comment => {
             if (comment.authorId !== action.payload.memberId) {
               return comment;
             }
@@ -843,8 +856,8 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
 
       const sanitizedForumThreads = state.forumThreads
         .filter((thread) => thread.authorId !== action.payload.memberId)
-        .map((thread) => {
-          const replies = thread.replies.map((reply) => {
+        .map((thread): typeof thread => {
+          const replies = thread.replies.map((reply): typeof reply => {
             if (reply.authorId !== action.payload.memberId) {
               return reply;
             }
@@ -862,11 +875,24 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
           };
         });
 
+      const sanitizedMedia = state.mediaItems.filter((item) => item.ownerId !== action.payload.memberId);
+      const sanitizedFavoriteMedia = state.favoriteMediaIds.filter((mediaId) =>
+        sanitizedMedia.some((mediaItem) => mediaItem.id === mediaId)
+      );
+      const sanitizedDiveSites = state.diveSites.filter((site) => site.ownerId !== action.payload.memberId);
+      const sanitizedFavoriteSites = state.favoriteSiteIds.filter((siteId) =>
+        sanitizedDiveSites.some((site) => site.id === siteId)
+      );
+
       return {
         ...state,
         diveLogs: filteredDiveLogs,
         communityPosts: sanitizedCommunityPosts,
-        forumThreads: sanitizedForumThreads
+        forumThreads: sanitizedForumThreads,
+        mediaItems: sanitizedMedia,
+        favoriteMediaIds: sanitizedFavoriteMedia,
+        diveSites: sanitizedDiveSites,
+        favoriteSiteIds: sanitizedFavoriteSites
       };
     }
     default:

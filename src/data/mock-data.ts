@@ -31,12 +31,14 @@ export type DiveSite = {
     latitude: number;
     longitude: number;
   };
+  ownerId?: string;
 };
 
 export type MediaItem = {
   id: string;
   title: string;
   author: string;
+  ownerId?: string;
   url: string;
   type: "image" | "video";
   source: "url" | "upload";
@@ -205,7 +207,8 @@ export const diveSites: DiveSite[] = [
     coordinates: {
       latitude: 7.7783,
       longitude: 98.3834
-    }
+    },
+    ownerId: "member-01"
   },
   {
     id: "site-02",
@@ -216,7 +219,8 @@ export const diveSites: DiveSite[] = [
     coordinates: {
       latitude: 64.255,
       longitude: -21.123
-    }
+    },
+    ownerId: "member-02"
   },
   {
     id: "site-03",
@@ -227,7 +231,8 @@ export const diveSites: DiveSite[] = [
     coordinates: {
       latitude: 27.8117,
       longitude: 33.9224
-    }
+    },
+    ownerId: "member-03"
   },
   {
     id: "site-04",
@@ -238,7 +243,8 @@ export const diveSites: DiveSite[] = [
     coordinates: {
       latitude: 28.4636,
       longitude: -16.2518
-    }
+    },
+    ownerId: "member-01"
   },
   {
     id: "site-05",
@@ -249,7 +255,8 @@ export const diveSites: DiveSite[] = [
     coordinates: {
       latitude: 27.2579,
       longitude: 33.8116
-    }
+    },
+    ownerId: "member-02"
   },
   {
     id: "site-06",
@@ -260,7 +267,8 @@ export const diveSites: DiveSite[] = [
     coordinates: {
       latitude: 28.571,
       longitude: 34.5361
-    }
+    },
+    ownerId: "member-03"
   }
 ];
 
@@ -268,7 +276,8 @@ export const media: MediaItem[] = [
   {
     id: "media-01",
     title: "Walhai in freier Wildbahn",
-    author: "Chris Dalton",
+    author: "Lena Hartmann",
+    ownerId: "member-01",
     url: "https://images.unsplash.com/photo-1505761671935-60b3a7427bad",
     type: "image",
     source: "url"
@@ -276,7 +285,8 @@ export const media: MediaItem[] = [
   {
     id: "media-02",
     title: "Team Dive @ Silfra",
-    author: "Mara Keller",
+    author: "Armin Keller",
+    ownerId: "member-02",
     url: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
     type: "image",
     source: "url"
@@ -284,7 +294,8 @@ export const media: MediaItem[] = [
   {
     id: "media-03",
     title: "Korallengarten Panorama",
-    author: "Samira Feld",
+    author: "Noah Weiss",
+    ownerId: "member-03",
     url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
     type: "image",
     source: "url"
@@ -292,7 +303,8 @@ export const media: MediaItem[] = [
   {
     id: "media-04",
     title: "Schwarm im Morgenlicht (Video)",
-    author: "DiveLog Studio",
+    author: "Armin Keller",
+    ownerId: "member-02",
     url: "https://storage.googleapis.com/coverr-main/mp4/Mt_Baker.mp4",
     type: "video",
     source: "url"

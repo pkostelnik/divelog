@@ -15,15 +15,6 @@ type NavLink = {
 
 const baseNavLinks: NavLink[] = [
   { href: "/dashboard", label: "Dashboard" },
-  {
-    href: "/dashboard/data",
-    label: "Daten",
-    children: [
-      { href: "/dashboard/media", label: "Medien" },
-      { href: "/dashboard/equipment", label: "Ausrüstung" },
-      { href: "/dashboard/sites", label: "Tauchplätze" }
-    ]
-  },
   { href: "/dashboard/dives", label: "Tauchgänge" },
   {
     href: "/dashboard/community",
@@ -31,6 +22,15 @@ const baseNavLinks: NavLink[] = [
     children: [
       { href: "/dashboard/community/blog", label: "Blog" },
       { href: "/dashboard/community/forum", label: "Forum" }
+    ]
+  },
+  {
+    href: "/dashboard/data",
+    label: "Inhalte",
+    children: [
+      { href: "/dashboard/media", label: "Medien" },
+      { href: "/dashboard/equipment", label: "Ausrüstung" },
+      { href: "/dashboard/sites", label: "Tauchplätze" }
     ]
   },
   { href: "/dashboard/search", label: "Suche" }

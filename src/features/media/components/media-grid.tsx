@@ -14,6 +14,7 @@ import {
 import { createPortal } from "react-dom";
 
 import type { MediaItem } from "@/data/mock-data";
+import { useAuth } from "@/providers/auth-provider";
 import { useDemoData } from "@/providers/demo-data-provider";
 
 type MediaFormState = {
@@ -23,6 +24,11 @@ type MediaFormState = {
   source: MediaItem["source"];
   url: string;
   fileName?: string;
+  ownerId?: string;
+};
+
+type MediaGridProps = {
+  showCreateForm?: boolean;
 };
 
 const MAX_UPLOAD_SIZE_BYTES = 12 * 1024 * 1024;
@@ -33,10 +39,14 @@ const initialMediaForm: MediaFormState = {
   type: "image",
   source: "url",
   url: "",
-  fileName: undefined
+  fileName: undefined,
+  ownerId: undefined
 };
 
-function createMediaForm(initial?: MediaItem): MediaFormState {
+function createMediaForm(
+  initial?: MediaItem,
+  defaults?: { ownerId?: string; author?: string }
+): MediaFormState {
   if (initial) {
     return {
       title: initial.title,
@@ -44,13 +54,21 @@ function createMediaForm(initial?: MediaItem): MediaFormState {
       type: initial.type,
       source: initial.source,
       url: initial.url,
-      fileName: initial.fileName
+      fileName: initial.fileName,
+      ownerId: initial.ownerId
     };
   }
-  return { ...initialMediaForm };
+  return {
+    ...initialMediaForm,
+    ownerId: defaults?.ownerId ?? initialMediaForm.ownerId,
+    author: defaults?.author ?? initialMediaForm.author
+  };
 }
 
-export function MediaGrid() {
+export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
+  const { currentUser } = useAuth();
+  const currentUserId = currentUser?.id ?? null;
+  const canManageAll = currentUser?.role === "admin";
   const {
     mediaItems,
     addMediaItem,
@@ -61,7 +79,12 @@ export function MediaGrid() {
   } = useDemoData();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<MediaFormState>(() => createMediaForm());
-  const [newForm, setNewForm] = useState<MediaFormState>(() => createMediaForm());
+  const [newForm, setNewForm] = useState<MediaFormState>(() =>
+    createMediaForm(undefined, {
+      ownerId: currentUserId ?? undefined,
+      author: currentUser?.name
+    })
+  );
   const [previewItem, setPreviewItem] = useState<MediaItem | null>(null);
 
   const sortedMedia = useMemo(() => {
@@ -75,6 +98,32 @@ export function MediaGrid() {
   const closePreview = useCallback(() => {
     setPreviewItem(null);
   }, []);
+
+  useEffect(() => {
+    if (!currentUser) {
+      setNewForm(createMediaForm());
+      return;
+    }
+
+    setNewForm((previous) => ({
+      ...previous,
+      ownerId: currentUser.id,
+      author: previous.author.trim().length > 0 ? previous.author : currentUser.name
+    }));
+  }, [currentUser]);
+
+  const canModifyMedia = useCallback(
+    (item: MediaItem) => {
+      if (canManageAll) {
+        return true;
+      }
+      if (!currentUserId) {
+        return false;
+      }
+      return item.ownerId === currentUserId;
+    },
+    [canManageAll, currentUserId]
+  );
 
   const handleFieldChange = (
     setter: Dispatch<SetStateAction<MediaFormState>>
@@ -164,19 +213,33 @@ export function MediaGrid() {
       return;
     }
 
+    if (!currentUser) {
+      window.alert("Bitte melde dich an, um neue Medien hinzuzufügen.");
+      return;
+    }
+
+    const ownerId = currentUser.id;
+    const authorName = newForm.author.trim().length > 0 ? newForm.author : currentUser.name;
+
     addMediaItem({
       title: newForm.title,
-      author: newForm.author,
+      author: authorName,
+      ownerId,
       type: newForm.type,
       source: newForm.source,
       url: newForm.url,
       fileName: newForm.fileName
     });
 
-  setNewForm(createMediaForm());
+    setNewForm(createMediaForm(undefined, { ownerId, author: currentUser.name }));
   };
 
   const startEdit = (item: MediaItem) => {
+    if (!canModifyMedia(item)) {
+      window.alert("Dir fehlen die Rechte, um dieses Medium zu bearbeiten.");
+      return;
+    }
+
     setEditingId(item.id);
     setForm(createMediaForm(item));
   };
@@ -201,9 +264,22 @@ export function MediaGrid() {
       return;
     }
 
+    const target = mediaItems.find((item) => item.id === editingId);
+    if (!target) {
+      cancelEdit();
+      return;
+    }
+
+    if (!canModifyMedia(target)) {
+      window.alert("Dir fehlen die Rechte, um dieses Medium zu aktualisieren.");
+      cancelEdit();
+      return;
+    }
+
     updateMediaItem(editingId, {
       title: form.title,
       author: form.author,
+      ownerId: target.ownerId,
       type: form.type,
       source: form.source,
       url: form.url,
@@ -213,6 +289,17 @@ export function MediaGrid() {
   };
 
   const handleDelete = (id: string) => {
+    const target = mediaItems.find((item) => item.id === id);
+
+    if (!target) {
+      return;
+    }
+
+    if (!canModifyMedia(target)) {
+      window.alert("Dir fehlen die Rechte, um dieses Medium zu löschen.");
+      return;
+    }
+
     const confirmed = typeof window === "undefined"
       ? true
       : window.confirm("Soll dieses Medium wirklich gelöscht werden?");
@@ -229,103 +316,112 @@ export function MediaGrid() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
-        <h2 className="text-sm font-semibold text-slate-900">Neues Medium hinzufügen</h2>
-        <form onSubmit={handleCreate} className="mt-3 grid gap-3 md:grid-cols-3">
-          <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-            Titel
-            <input
-              name="title"
-              value={newForm.title}
-              onChange={handleFieldChange(setNewForm)}
-              placeholder="Bezeichnung des Mediums"
-              className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
-              required
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-            Autor:in
-            <input
-              name="author"
-              value={newForm.author}
-              onChange={handleFieldChange(setNewForm)}
-              placeholder="Urheber oder Quelle"
-              className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
-              required
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-            Medientyp
-            <select
-              name="type"
-              value={newForm.type}
-              onChange={handleFieldChange(setNewForm)}
-              className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
-            >
-              <option value="image">Bild</option>
-              <option value="video">Video</option>
-            </select>
-          </label>
-          <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-            Quelle
-            <select
-              name="source"
-              value={newForm.source}
-              onChange={handleFieldChange(setNewForm)}
-              className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
-            >
-              <option value="url">Externer Link</option>
-              <option value="upload">Datei-Upload</option>
-            </select>
-          </label>
-          {newForm.source === "url" ? (
-            <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600 md:col-span-3">
-              Medien-URL
+      {showCreateForm && (
+        <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
+          <h2 className="text-sm font-semibold text-slate-900">Neues Medium hinzufügen</h2>
+          <form onSubmit={handleCreate} className="mt-3 grid gap-3 md:grid-cols-3">
+            <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
+              Titel
               <input
-                name="url"
-                value={newForm.url}
+                name="title"
+                value={newForm.title}
                 onChange={handleFieldChange(setNewForm)}
-                placeholder="https://..."
+                placeholder="Bezeichnung des Mediums"
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
-                required={newForm.source === "url"}
+                required
               />
             </label>
-          ) : (
-            <div className="md:col-span-3 flex flex-col gap-2 text-xs font-semibold text-slate-600">
-              <label className="flex flex-col gap-1">
-                Datei hochladen
+            <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
+              Autor:in
+              <input
+                name="author"
+                value={newForm.author}
+                onChange={handleFieldChange(setNewForm)}
+                placeholder="Urheber oder Quelle"
+                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                required
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
+              Medientyp
+              <select
+                name="type"
+                value={newForm.type}
+                onChange={handleFieldChange(setNewForm)}
+                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+              >
+                <option value="image">Bild</option>
+                <option value="video">Video</option>
+              </select>
+            </label>
+            <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
+              Quelle
+              <select
+                name="source"
+                value={newForm.source}
+                onChange={handleFieldChange(setNewForm)}
+                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+              >
+                <option value="url">Externer Link</option>
+                <option value="upload">Datei-Upload</option>
+              </select>
+            </label>
+            {newForm.source === "url" ? (
+              <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600 md:col-span-3">
+                Medien-URL
                 <input
-                  type="file"
-                  accept={newForm.type === "video" ? "video/*" : "image/*"}
-                  onChange={handleFileChange(setNewForm)}
-                  className="cursor-pointer rounded-xl border border-dashed border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none"
+                  name="url"
+                  value={newForm.url}
+                  onChange={handleFieldChange(setNewForm)}
+                  placeholder="https://..."
+                  className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                  required={newForm.source === "url"}
                 />
               </label>
-              {newForm.fileName ? (
-                <span className="text-xs font-normal text-slate-500">
-                  Ausgewählte Datei: {newForm.fileName}
-                </span>
-              ) : (
-                <span className="text-xs font-normal text-slate-500">
-                  Noch keine Datei ausgewählt
-                </span>
-              )}
+            ) : (
+              <div className="md:col-span-3 flex flex-col gap-2 text-xs font-semibold text-slate-600">
+                <label className="flex flex-col gap-1">
+                  Datei hochladen
+                  <input
+                    type="file"
+                    accept={newForm.type === "video" ? "video/*" : "image/*"}
+                    onChange={handleFileChange(setNewForm)}
+                    className="cursor-pointer rounded-xl border border-dashed border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none"
+                  />
+                </label>
+                {newForm.fileName ? (
+                  <span className="text-xs font-normal text-slate-500">
+                    Ausgewählte Datei: {newForm.fileName}
+                  </span>
+                ) : (
+                  <span className="text-xs font-normal text-slate-500">
+                    Noch keine Datei ausgewählt
+                  </span>
+                )}
+              </div>
+            )}
+            <div className="md:col-span-3 flex justify-end">
+              <button
+                type="submit"
+                disabled={!currentUser}
+                className="inline-flex items-center rounded-xl bg-ocean-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-ocean-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Medium speichern
+              </button>
             </div>
-          )}
-          <div className="md:col-span-3 flex justify-end">
-            <button
-              type="submit"
-              className="inline-flex items-center rounded-xl bg-ocean-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-ocean-700"
-            >
-              Medium speichern
-            </button>
-          </div>
-        </form>
-      </section>
+            {!currentUser && (
+              <p className="md:col-span-3 text-xs font-normal text-slate-500">
+                Melde dich an, um neue Medien hinzuzufügen.
+              </p>
+            )}
+          </form>
+        </section>
+      )}
 
       <div className="grid gap-6 sm:grid-cols-2">
         {sortedMedia.map((item) => {
           const isEditing = editingId === item.id;
+          const userCanModify = canModifyMedia(item);
 
           return (
             <figure
@@ -435,13 +531,15 @@ export function MediaGrid() {
                       >
                         Abbrechen
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(item.id)}
-                        className="text-rose-600 underline-offset-2 hover:underline"
-                      >
-                        Löschen
-                      </button>
+                      {userCanModify && (
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(item.id)}
+                          className="text-rose-600 underline-offset-2 hover:underline"
+                        >
+                          Löschen
+                        </button>
+                      )}
                     </div>
                   </form>
                 ) : (
@@ -464,20 +562,28 @@ export function MediaGrid() {
                           ? "Favorit gespeichert"
                           : "Als Favorit merken"}
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => startEdit(item)}
-                        className="text-slate-600 underline-offset-2 hover:underline"
-                      >
-                        Bearbeiten
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(item.id)}
-                        className="text-rose-600 underline-offset-2 hover:underline"
-                      >
-                        Löschen
-                      </button>
+                      {userCanModify ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => startEdit(item)}
+                            className="text-slate-600 underline-offset-2 hover:underline"
+                          >
+                            Bearbeiten
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(item.id)}
+                            className="text-rose-600 underline-offset-2 hover:underline"
+                          >
+                            Löschen
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-xs font-normal text-slate-400">
+                          Änderungen nur durch Besitzer:innen oder Admins.
+                        </span>
+                      )}
                     </div>
                   </div>
                 )}
