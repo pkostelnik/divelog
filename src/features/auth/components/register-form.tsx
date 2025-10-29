@@ -4,35 +4,58 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/providers/auth-provider";
+import { useI18n } from "@/providers/i18n-provider";
+import { type SupportedLocale } from "@/i18n/translations";
 import { socialProviders, type SocialProviderId } from "./social-providers";
+
+type RegisterFormState = {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  city: string;
+  favoriteDiveSite: string;
+  preferredLocale: SupportedLocale;
+};
 
 export function RegisterForm() {
   const router = useRouter();
   const { register, currentUser } = useAuth();
-  const [form, setForm] = useState({
+  const { t, availableLocales, locale } = useI18n();
+  const [form, setForm] = useState<RegisterFormState>({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
     city: "",
-    favoriteDiveSite: ""
+    favoriteDiveSite: "",
+    preferredLocale: locale
   });
   const [error, setError] = useState<string | null>(null);
   const [passwordMismatch, setPasswordMismatch] = useState(false);
   const [status, setStatus] = useState<"idle" | "submitting">("idle");
 
-  const handleChange = (field: keyof typeof form) => (value: string) => {
+  const handleChange = (field: Exclude<keyof RegisterFormState, "preferredLocale">) => (value: string) => {
     setForm((previous) => ({
       ...previous,
       [field]: value
     }));
     setError(null);
+
     if (field === "confirmPassword") {
       setPasswordMismatch(value !== form.password);
     }
     if (field === "password") {
       setPasswordMismatch(form.confirmPassword !== value && form.confirmPassword.length > 0);
     }
+  };
+
+  const handleLocaleChange = (nextLocale: SupportedLocale) => {
+    setForm((previous) => ({
+      ...previous,
+      preferredLocale: nextLocale
+    }));
+    setError(null);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -42,7 +65,7 @@ export function RegisterForm() {
     }
 
     if (form.password !== form.confirmPassword) {
-      setError("Passwörter stimmen nicht überein.");
+      setError(t("auth.register.passwordConfirm.error"));
       return;
     }
 
@@ -52,11 +75,12 @@ export function RegisterForm() {
       email: form.email,
       password: form.password,
       city: form.city,
-      favoriteDiveSite: form.favoriteDiveSite
+      favoriteDiveSite: form.favoriteDiveSite,
+      preferredLocale: form.preferredLocale
     });
 
     if (!result.success) {
-      setError(result.error ?? "Registrierung fehlgeschlagen.");
+      setError(result.error ?? t("auth.register.error.generic"));
       setStatus("idle");
       return;
     }
@@ -72,12 +96,11 @@ export function RegisterForm() {
   };
 
   if (currentUser) {
+    const message = t("auth.register.already.description").replace("{name}", currentUser.name);
     return (
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">Bereits angemeldet</h2>
-        <p className="mt-2 text-sm text-slate-600">
-          Du bist aktuell als {currentUser.name} angemeldet. Besuche deine persönliche Seite oder melde dich ab, um einen neuen Account anzulegen.
-        </p>
+        <h2 className="text-lg font-semibold text-slate-900">{t("auth.register.already.title")}</h2>
+        <p className="mt-2 text-sm text-slate-600">{message}</p>
       </div>
     );
   }
@@ -85,79 +108,94 @@ export function RegisterForm() {
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
       <header className="mb-4 space-y-1">
-        <h1 className="text-xl font-semibold text-slate-900">Registrierung</h1>
-        <p className="text-sm text-slate-700">
-          Erstelle einen kostenlosen Demo-Zugang und sichere dir Zugriff auf Mitgliederfunktionen.
-        </p>
+        <h1 className="text-xl font-semibold text-slate-900">{t("auth.register.heading")}</h1>
+        <p className="text-sm text-slate-700">{t("auth.register.subtitle")}</p>
       </header>
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-700">
-            Name
+            {t("auth.register.name.label")}
             <input
               value={form.name}
               onChange={(event) => handleChange("name")(event.target.value)}
-              placeholder="Vor- und Nachname"
+              placeholder={t("auth.register.name.placeholder")}
               className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
               required
             />
           </label>
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-700">
-            Wohnort
+            {t("auth.register.city.label")}
             <input
               value={form.city}
               onChange={(event) => handleChange("city")(event.target.value)}
-              placeholder="Wo bist du zuhause?"
+              placeholder={t("auth.register.city.placeholder")}
               className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
             />
           </label>
         </div>
         <label className="flex flex-col gap-2 text-xs font-semibold text-slate-700">
-          E-Mail
+          {t("auth.register.locale.label")}
+          <select
+            value={form.preferredLocale}
+            onChange={(event) => handleLocaleChange(event.target.value as SupportedLocale)}
+            className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+          >
+            {availableLocales.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.flag} {option.label}
+              </option>
+            ))}
+          </select>
+          <span className="text-[11px] font-normal text-slate-500">
+            {t("auth.register.locale.helper")}
+          </span>
+        </label>
+        <label className="flex flex-col gap-2 text-xs font-semibold text-slate-700">
+          {t("auth.register.email.label")}
           <input
             type="email"
             value={form.email}
             onChange={(event) => handleChange("email")(event.target.value)}
-            placeholder="du@beispiel.de"
+            placeholder={t("auth.register.email.placeholder")}
             className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
             required
           />
         </label>
         <label className="flex flex-col gap-2 text-xs font-semibold text-slate-700">
-          Passwort
+          {t("auth.register.password.label")}
           <input
             type="password"
             value={form.password}
             onChange={(event) => handleChange("password")(event.target.value)}
-            placeholder="Mindestens 6 Zeichen"
+            placeholder={t("auth.register.password.placeholder")}
             minLength={6}
             className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
             required
           />
         </label>
         <label className="flex flex-col gap-2 text-xs font-semibold text-slate-700">
-          Passwort bestätigen
+          {t("auth.register.passwordConfirm.label")}
           <input
             type="password"
             value={form.confirmPassword}
             onChange={(event) => handleChange("confirmPassword")(event.target.value)}
-            placeholder="Passwort erneut eingeben"
+            placeholder={t("auth.register.passwordConfirm.placeholder")}
             minLength={6}
             className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
             required
           />
           {passwordMismatch && (
             <span className="text-xs font-normal text-rose-600">
-              Eingabe stimmt nicht mit dem Passwort überein.
+              {t("auth.register.passwordConfirm.error")}
             </span>
           )}
         </label>
         <label className="flex flex-col gap-2 text-xs font-semibold text-slate-700">
-          Lieblingstauchplatz (optional)
+          {t("auth.register.favoriteSite.label")}
           <input
             value={form.favoriteDiveSite}
             onChange={(event) => handleChange("favoriteDiveSite")(event.target.value)}
-            placeholder="z. B. Shark Point, Thailand"
+            placeholder={t("auth.register.favoriteSite.placeholder")}
             className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
           />
         </label>
@@ -168,20 +206,20 @@ export function RegisterForm() {
             className="rounded-xl bg-ocean-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-ocean-700 disabled:cursor-not-allowed disabled:opacity-70"
             disabled={status === "submitting" || passwordMismatch}
           >
-            {status === "submitting" ? "Wird erstellt..." : "Zugang anlegen"}
+            {status === "submitting" ? t("auth.register.submit.progress") : t("auth.register.submit.idle")}
           </button>
           <button
             type="button"
             onClick={() => router.push("/auth/login")}
             className="rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-400 hover:text-slate-900"
           >
-            Abbrechen
+            {t("auth.register.cancel")}
           </button>
         </div>
       </form>
       <div className="mt-6 space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">
-          Schnell registrieren
+          {t("auth.register.social.heading")}
         </p>
         <div className="grid gap-2 sm:grid-cols-2">
           {socialProviders.map((provider, index) => {
@@ -200,7 +238,7 @@ export function RegisterForm() {
           })}
         </div>
         <p className="text-[11px] text-slate-500">
-          Diese Demo leitet Social-Registrierungen zum Login weiter. Echte OAuth-Flows können später ergänzt werden.
+          {t("auth.register.social.description")}
         </p>
       </div>
     </section>

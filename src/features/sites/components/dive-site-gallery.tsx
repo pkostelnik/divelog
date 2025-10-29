@@ -13,13 +13,10 @@ import {
 import type { DiveSite, MediaItem } from "@/data/mock-data";
 import { useDemoData } from "@/providers/demo-data-provider";
 import { useAuth } from "@/providers/auth-provider";
+import { useI18n } from "@/providers/i18n-provider";
 import { DiveSiteMap } from "./dive-site-map";
 
-const difficultyOptions: DiveSite["difficulty"][] = [
-  "Beginner",
-  "Fortgeschritten",
-  "Pro"
-];
+const difficultyValues: DiveSite["difficulty"][] = ["Beginner", "Fortgeschritten", "Pro"];
 
 type DiveSiteFormState = {
   name: string;
@@ -33,6 +30,12 @@ type DiveSiteFormState = {
 
 type DiveSiteGalleryProps = {
   showCreateForm?: boolean;
+};
+
+type CoordinateValidationMessages = {
+  invalid: string;
+  latitudeRange: string;
+  longitudeRange: string;
 };
 
 function createSiteFormState(initial?: DiveSite, defaults?: { ownerId?: string }): DiveSiteFormState {
@@ -63,6 +66,7 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
   const { currentUser } = useAuth();
   const currentUserId = currentUser?.id ?? null;
   const canManageAll = currentUser?.role === "admin";
+  const { t } = useI18n();
   const {
     favoriteSiteIds,
     toggleFavoriteSite,
@@ -78,6 +82,38 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
   const [form, setForm] = useState<DiveSiteFormState>(() => createSiteFormState());
   const [newForm, setNewForm] = useState<DiveSiteFormState>(() =>
     createSiteFormState(undefined, { ownerId: currentUserId ?? undefined })
+  );
+
+  const difficultyOptions = useMemo(
+    () =>
+      difficultyValues.map((value) => ({
+        value,
+        label:
+          value === "Beginner"
+            ? t("dashboard.sites.difficulty.beginner")
+            : value === "Fortgeschritten"
+              ? t("dashboard.sites.difficulty.advanced")
+              : t("dashboard.sites.difficulty.pro")
+      })),
+    [t]
+  );
+
+  const difficultyLabelMap = useMemo<Record<DiveSite["difficulty"], string>>(
+    () => ({
+      Beginner: t("dashboard.sites.difficulty.beginner"),
+      Fortgeschritten: t("dashboard.sites.difficulty.advanced"),
+      Pro: t("dashboard.sites.difficulty.pro")
+    }),
+    [t]
+  );
+
+  const coordinateMessages = useMemo<CoordinateValidationMessages>(
+    () => ({
+      invalid: t("dashboard.sites.alerts.validation.coordinates"),
+      latitudeRange: t("dashboard.sites.alerts.validation.latitudeRange"),
+      longitudeRange: t("dashboard.sites.alerts.validation.longitudeRange")
+    }),
+    [t]
   );
 
   const highlightMedia = useMemo(() => mediaItems.slice(0, 2), [mediaItems]);
@@ -110,7 +146,7 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
 
   const beginEdit = (site: DiveSite) => {
     if (!canModifySite(site)) {
-      window.alert("Dir fehlen die Rechte, um diesen Tauchplatz zu bearbeiten.");
+      window.alert(t("dashboard.sites.alerts.permission.edit"));
       return;
     }
 
@@ -151,7 +187,7 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
       return;
     }
 
-    const payload = formStateToPayload(form);
+  const payload = formStateToPayload(form, coordinateMessages);
     if (!payload) {
       return;
     }
@@ -163,7 +199,7 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
     }
 
     if (!canModifySite(target)) {
-      window.alert("Dir fehlen die Rechte, um diesen Tauchplatz zu aktualisieren.");
+      window.alert(t("dashboard.sites.alerts.permission.update"));
       cancelEdit();
       return;
     }
@@ -178,13 +214,13 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
   const handleCreate = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const payload = formStateToPayload(newForm);
+  const payload = formStateToPayload(newForm, coordinateMessages);
     if (!payload) {
       return;
     }
 
     if (!currentUser) {
-      window.alert("Bitte melde dich an, um neue Tauchplätze einzutragen.");
+      window.alert(t("dashboard.sites.alerts.loginRequired"));
       return;
     }
 
@@ -205,12 +241,12 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
     }
 
     if (!canModifySite(target)) {
-      window.alert("Dir fehlen die Rechte, um diesen Tauchplatz zu löschen.");
+      window.alert(t("dashboard.sites.alerts.permission.delete"));
       return;
     }
 
     const confirmed = typeof window !== "undefined"
-      ? window.confirm("Soll dieser Tauchplatz wirklich gelöscht werden?")
+      ? window.confirm(t("dashboard.sites.alerts.confirmDelete"))
       : true;
 
     if (!confirmed) {
@@ -226,37 +262,37 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
   return (
     <div className="grid gap-8 md:grid-cols-2">
       <div className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold text-slate-900">Favorisierte Spots</h2>
+        <h2 className="text-lg font-semibold text-slate-900">{t("dashboard.sites.favorites.heading")}</h2>
         {showCreateForm && (
           <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
-            <h3 className="text-sm font-semibold text-slate-900">Neuen Tauchplatz anlegen</h3>
+            <h3 className="text-sm font-semibold text-slate-900">{t("dashboard.sites.create.heading")}</h3>
             <form className="mt-3 space-y-3" onSubmit={handleCreate}>
               <div className="grid gap-3 md:grid-cols-2">
                 <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-                  Name
+                  {t("dashboard.sites.form.fields.name.label")}
                   <input
                     name="name"
                     value={newForm.name}
                     onChange={handleNewFormChange}
-                    placeholder="Spot-Bezeichnung"
+                    placeholder={t("dashboard.sites.form.fields.name.placeholder")}
                     className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                     required
                   />
                 </label>
                 <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-                  Land / Region
+                  {t("dashboard.sites.form.fields.country.label")}
                   <input
                     name="country"
                     value={newForm.country}
                     onChange={handleNewFormChange}
-                    placeholder="z. B. Indonesien"
+                    placeholder={t("dashboard.sites.form.fields.country.placeholder")}
                     className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                     required
                   />
                 </label>
               </div>
               <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-                Schwierigkeit
+                {t("dashboard.sites.form.fields.difficulty.label")}
                 <select
                   name="difficulty"
                   value={newForm.difficulty}
@@ -264,43 +300,43 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
                   className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-600 shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                 >
                   {difficultyOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
+                    <option key={option.value} value={option.value}>
+                      {option.label}
                     </option>
                   ))}
                 </select>
               </label>
               <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-                Besonderheit
+                {t("dashboard.sites.form.fields.highlight.label")}
                 <textarea
                   name="highlight"
                   value={newForm.highlight}
                   onChange={handleNewFormChange}
-                  placeholder="Was macht den Spot besonders?"
+                  placeholder={t("dashboard.sites.form.fields.highlight.placeholder")}
                   className="min-h-[80px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                   required
                 />
               </label>
               <div className="grid gap-3 md:grid-cols-2">
                 <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-                  Breitengrad
+                  {t("dashboard.sites.form.fields.latitude.label")}
                   <input
                     name="latitude"
                     value={newForm.latitude}
                     onChange={handleNewFormChange}
-                    placeholder="z. B. 7.7783"
+                    placeholder={t("dashboard.sites.form.fields.latitude.placeholder")}
                     inputMode="decimal"
                     className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                     required
                   />
                 </label>
                 <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-                  Längengrad
+                  {t("dashboard.sites.form.fields.longitude.label")}
                   <input
                     name="longitude"
                     value={newForm.longitude}
                     onChange={handleNewFormChange}
-                    placeholder="z. B. 98.3834"
+                    placeholder={t("dashboard.sites.form.fields.longitude.placeholder")}
                     inputMode="decimal"
                     className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                     required
@@ -313,12 +349,12 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
                   disabled={!currentUser}
                   className="inline-flex items-center rounded-xl bg-ocean-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-ocean-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Tauchplatz hinzufügen
+                  {t("dashboard.sites.create.submit")}
                 </button>
               </div>
               {!currentUser && (
                 <p className="text-xs font-normal text-slate-500">
-                  Melde dich an, um neue Tauchplätze einzutragen.
+                  {t("dashboard.sites.create.loginHint")}
                 </p>
               )}
             </form>
@@ -338,29 +374,29 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
                   <form onSubmit={handleSubmit} className="space-y-3">
                     <div className="grid gap-3 md:grid-cols-2">
                       <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-                        Name
+                        {t("dashboard.sites.form.fields.name.label")}
                         <input
                           name="name"
                           value={form.name}
                           onChange={handleFormChange}
-                          placeholder="Tauchplatz"
+                          placeholder={t("dashboard.sites.form.fields.name.placeholder")}
                           className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                           required
                         />
                       </label>
                       <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-                        Land / Region
+                        {t("dashboard.sites.form.fields.country.label")}
                         <input
                           name="country"
                           value={form.country}
                           onChange={handleFormChange}
-                          placeholder="z. B. Indonesien"
+                          placeholder={t("dashboard.sites.form.fields.country.placeholder")}
                           className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                           required
                         />
                       </label>
                       <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-                        Schwierigkeit
+                        {t("dashboard.sites.form.fields.difficulty.label")}
                         <select
                           name="difficulty"
                           value={form.difficulty}
@@ -368,44 +404,44 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
                           className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-600 shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                         >
                           {difficultyOptions.map((option) => (
-                            <option key={option} value={option}>
-                              {option}
+                            <option key={option.value} value={option.value}>
+                              {option.label}
                             </option>
                           ))}
                         </select>
                       </label>
                     </div>
                     <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-                      Besonderheit
+                      {t("dashboard.sites.form.fields.highlight.label")}
                       <textarea
                         name="highlight"
                         value={form.highlight}
                         onChange={handleFormChange}
-                        placeholder="Was macht den Spot besonders?"
+                        placeholder={t("dashboard.sites.form.fields.highlight.placeholder")}
                         className="min-h-[90px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                         required
                       />
                     </label>
                     <div className="grid gap-3 md:grid-cols-2">
                       <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-                        Breitengrad
+                        {t("dashboard.sites.form.fields.latitude.label")}
                         <input
                           name="latitude"
                           value={form.latitude}
                           onChange={handleFormChange}
-                          placeholder="z. B. 7.7783"
+                          placeholder={t("dashboard.sites.form.fields.latitude.placeholder")}
                           inputMode="decimal"
                           className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                           required
                         />
                       </label>
                       <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-                        Längengrad
+                        {t("dashboard.sites.form.fields.longitude.label")}
                         <input
                           name="longitude"
                           value={form.longitude}
                           onChange={handleFormChange}
-                          placeholder="z. B. 98.3834"
+                          placeholder={t("dashboard.sites.form.fields.longitude.placeholder")}
                           inputMode="decimal"
                           className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                           required
@@ -417,14 +453,14 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
                         type="submit"
                         className="inline-flex items-center rounded-xl bg-ocean-600 px-4 py-2 text-white shadow-sm transition hover:bg-ocean-700"
                       >
-                        Änderungen speichern
+                        {t("dashboard.sites.edit.submit")}
                       </button>
                       <button
                         type="button"
                         onClick={cancelEdit}
                         className="text-slate-500 underline-offset-2 hover:underline"
                       >
-                        Abbrechen
+                        {t("dashboard.sites.actions.cancel")}
                       </button>
                       {userCanModify && (
                         <button
@@ -432,7 +468,7 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
                           onClick={() => handleDelete(site.id)}
                           className="text-rose-600 underline-offset-2 hover:underline"
                         >
-                          Löschen
+                          {t("dashboard.sites.actions.delete")}
                         </button>
                       )}
                     </div>
@@ -444,11 +480,13 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
                         <p className="text-sm font-semibold text-slate-900">{site.name}</p>
                         <p className="text-xs text-slate-500">{site.country}</p>
                         <p className="text-[11px] text-slate-400">
-                          GPS: {site.coordinates.latitude.toFixed(5)}°, {site.coordinates.longitude.toFixed(5)}°
+                          {t("dashboard.sites.site.meta.coordinates")
+                            .replace("{latitude}", site.coordinates.latitude.toFixed(5))
+                            .replace("{longitude}", site.coordinates.longitude.toFixed(5))}
                         </p>
                       </div>
                       <span className="rounded-full bg-ocean-50 px-3 py-1 text-xs font-semibold text-ocean-700">
-                        {site.difficulty}
+                        {difficultyLabelMap[site.difficulty]}
                       </span>
                     </div>
                     <p className="mt-3 text-sm text-slate-600">{site.highlight}</p>
@@ -459,8 +497,8 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
                         className="text-ocean-700 underline-offset-2 hover:underline"
                       >
                         {favoriteSiteIds.includes(site.id)
-                          ? "Aus Favoriten entfernen"
-                          : "Zu Favoriten hinzufügen"}
+                          ? t("dashboard.sites.actions.favorite.remove")
+                          : t("dashboard.sites.actions.favorite.add")}
                       </button>
                       {userCanModify ? (
                         <>
@@ -469,19 +507,19 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
                             onClick={() => beginEdit(site)}
                             className="text-slate-600 underline-offset-2 hover:underline"
                           >
-                            Bearbeiten
+                            {t("dashboard.sites.actions.edit")}
                           </button>
                           <button
                             type="button"
                             onClick={() => handleDelete(site.id)}
                             className="text-rose-600 underline-offset-2 hover:underline"
                           >
-                            Löschen
+                            {t("dashboard.sites.actions.delete")}
                           </button>
                         </>
                       ) : (
                         <span className="text-xs font-normal text-slate-400">
-                          Änderungen nur durch Besitzer:innen oder Admins.
+                          {t("dashboard.sites.actions.permissionNotice")}
                         </span>
                       )}
                     </div>
@@ -494,23 +532,30 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
       </div>
       <div className="flex flex-col gap-4">
         <DiveSiteMap mode="all" />
-        <h2 className="text-lg font-semibold text-slate-900">Medien Highlights</h2>
+        <h2 className="text-lg font-semibold text-slate-900">{t("dashboard.sites.media.heading")}</h2>
         <div className="grid gap-4">
           {highlightMedia.map((item) => (
             <figure
               key={item.id}
               className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
             >
-              <MediaHighlightPreview item={item} />
+              <MediaHighlightPreview
+                item={item}
+                unsupportedMessage={t("dashboard.media.preview.unsupported")}
+              />
               <figcaption className="px-4 py-3 text-sm text-slate-600">
                 <p className="font-semibold text-slate-900">{item.title}</p>
-                <p className="text-xs text-slate-500">von {item.author}</p>
+                <p className="text-xs text-slate-500">
+                  {t("dashboard.media.labels.author").replace("{name}", item.author)}
+                </p>
                 <button
                   type="button"
                   onClick={() => toggleFavoriteMedia(item.id)}
                   className="mt-2 text-xs font-semibold text-ocean-700 underline-offset-2 hover:underline"
                 >
-                  {favoriteMediaIds.includes(item.id) ? "Favorit gespeichert" : "Als Favorit merken"}
+                  {favoriteMediaIds.includes(item.id)
+                    ? t("dashboard.media.actions.favorite.saved")
+                    : t("dashboard.media.actions.favorite.add")}
                 </button>
               </figcaption>
             </figure>
@@ -521,7 +566,7 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
   );
 }
 
-function MediaHighlightPreview({ item }: { item: MediaItem }) {
+function MediaHighlightPreview({ item, unsupportedMessage }: { item: MediaItem; unsupportedMessage: string }) {
   if (item.type === "video") {
     return (
       <video
@@ -529,7 +574,7 @@ function MediaHighlightPreview({ item }: { item: MediaItem }) {
         className="h-48 w-full bg-slate-900 object-cover"
         src={item.url}
       >
-        Ihr Browser unterstützt kein eingebettetes Video.
+        {unsupportedMessage}
       </video>
     );
   }
@@ -572,27 +617,27 @@ function isOptimizableImageUrl(url: string): boolean {
 
     return parsed.hostname === "images.unsplash.com";
   } catch (error) {
-    console.warn("Konnte Bild-URL nicht prüfen", error);
+  console.warn("Could not validate image URL", error);
     return false;
   }
 }
 
-function formStateToPayload(state: DiveSiteFormState) {
+function formStateToPayload(state: DiveSiteFormState, messages: CoordinateValidationMessages) {
   const latitude = parseCoordinate(state.latitude);
   const longitude = parseCoordinate(state.longitude);
 
   if (latitude === null || longitude === null) {
-    window.alert("Bitte gültige GPS-Koordinaten eingeben.");
+    window.alert(messages.invalid);
     return null;
   }
 
   if (latitude < -90 || latitude > 90) {
-    window.alert("Breitengrad muss zwischen -90 und 90 liegen.");
+    window.alert(messages.latitudeRange);
     return null;
   }
 
   if (longitude < -180 || longitude > 180) {
-    window.alert("Längengrad muss zwischen -180 und 180 liegen.");
+    window.alert(messages.longitudeRange);
     return null;
   }
 

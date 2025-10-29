@@ -1,27 +1,34 @@
+"use client";
+
+import { useMemo } from "react";
 import Link from "next/link";
 
-const communitySections = [
-  {
-    title: "Community Blog",
-    description: "Lesen und teilen von Erfahrungsberichten, Tipps und Inspirationen deiner Crew.",
-    href: "/dashboard/community/blog",
-    cta: "Blog entdecken"
-  },
-  {
-    title: "Community Forum",
-    description: "Starte Diskussionen, erhalte Antworten auf Fachfragen und vernetze dich mit anderen Members.",
-    href: "/dashboard/community/forum",
-    cta: "Forum öffnen"
-  }
-];
+import { useI18n } from "@/providers/i18n-provider";
 
 export default function DashboardCommunityPage() {
+  const { t } = useI18n();
+
+  const communitySections = useMemo(() => ([
+    {
+      title: t("dashboard.community.sections.blog.title"),
+      description: t("dashboard.community.sections.blog.description"),
+      href: "/dashboard/community/blog",
+      cta: t("dashboard.community.sections.blog.cta")
+    },
+    {
+      title: t("dashboard.community.sections.forum.title"),
+      description: t("dashboard.community.sections.forum.description"),
+      href: "/dashboard/community/forum",
+      cta: t("dashboard.community.sections.forum.cta")
+    }
+  ]), [t]);
+
   return (
     <div className="space-y-8">
       <header className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Community</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">{t("dashboard.community.heading")}</h1>
         <p className="text-sm text-slate-600">
-          Willkommen im Community-Hub. Wähle zwischen Blog und Forum, um Stories zu entdecken oder aktiv in den Austausch zu gehen.
+          {t("dashboard.community.description")}
         </p>
       </header>
       <div className="grid gap-6 md:grid-cols-2">
@@ -33,7 +40,7 @@ export default function DashboardCommunityPage() {
           >
             <div className="space-y-3">
               <p className="text-xs font-semibold uppercase tracking-wide text-ocean-600">
-                Community Bereich
+                {t("dashboard.community.sectionBadge")}
               </p>
               <h2 className="text-xl font-semibold text-slate-900">{section.title}</h2>
               <p className="text-sm text-slate-600">{section.description}</p>

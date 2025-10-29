@@ -6,6 +6,7 @@ import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from "re
 import type { DiveSite } from "@/data/mock-data";
 import { useDemoData } from "@/providers/demo-data-provider";
 import { useAuth } from "@/providers/auth-provider";
+import { useI18n } from "@/providers/i18n-provider";
 
 const GEOJSON_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
@@ -35,6 +36,16 @@ const difficultyColor: Record<DiveSite["difficulty"], string> = {
 function DiveSiteMapComponent({ mode = "visited" }: DiveSiteMapProps) {
   const { diveSites, diveLogs } = useDemoData();
   const { currentUser } = useAuth();
+  const { t } = useI18n();
+
+  const difficultyLabelMap = useMemo<Record<DiveSite["difficulty"], string>>(
+    () => ({
+      Beginner: t("dashboard.sites.difficulty.beginner"),
+      Fortgeschritten: t("dashboard.sites.difficulty.advanced"),
+      Pro: t("dashboard.sites.difficulty.pro")
+    }),
+    [t]
+  );
 
   const visitedSiteIds = useMemo(() => {
     if (!currentUser?.id) {
@@ -129,22 +140,22 @@ function DiveSiteMapComponent({ mode = "visited" }: DiveSiteMapProps) {
   }, [markers]);
 
   const headerTitle = mode === "all"
-    ? "Übersichtskarte der Tauchplätze"
-    : "Karte der besuchten Spots";
+    ? t("dashboard.sites.map.heading.all")
+    : t("dashboard.sites.map.heading.visited");
 
   const headerDescription = mode === "all"
-    ? "Alle im System hinterlegten Spots auf einen Blick. Wähle einen Marker, um Details einzublenden."
-    : "Jeder Marker entspricht einem Tauchplatz aus deinem Logbuch. Wähle einen Eintrag, um die Karte automatisch auf diesen Spot zu fokussieren.";
+    ? t("dashboard.sites.map.description.all")
+    : t("dashboard.sites.map.description.visited");
 
   if (mode === "visited" && (!currentUser?.id || markers.length === 0)) {
     return (
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <header className="flex flex-col gap-1">
-          <h2 className="text-lg font-semibold text-slate-900">Karte der besuchten Spots</h2>
+          <h2 className="text-lg font-semibold text-slate-900">{t("dashboard.sites.map.heading.visited")}</h2>
           <p className="text-xs text-slate-500">
             {currentUser?.id
-              ? "Du hast noch keine Tauchgänge mit einem Spot verknüpft."
-              : "Bitte anmelden, um deine verknüpften Tauchspots zu sehen."}
+              ? t("dashboard.sites.map.empty.visited.authenticated")
+              : t("dashboard.sites.map.empty.visited.unauthenticated")}
           </p>
         </header>
       </section>
@@ -155,10 +166,8 @@ function DiveSiteMapComponent({ mode = "visited" }: DiveSiteMapProps) {
     return (
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <header className="flex flex-col gap-1">
-          <h2 className="text-lg font-semibold text-slate-900">Übersichtskarte der Tauchplätze</h2>
-          <p className="text-xs text-slate-500">
-            Es wurden noch keine Tauchplätze angelegt. Füge einen Spot hinzu, um ihn hier zu sehen.
-          </p>
+          <h2 className="text-lg font-semibold text-slate-900">{t("dashboard.sites.map.heading.all")}</h2>
+          <p className="text-xs text-slate-500">{t("dashboard.sites.map.empty.all")}</p>
         </header>
       </section>
     );
@@ -173,20 +182,20 @@ function DiveSiteMapComponent({ mode = "visited" }: DiveSiteMapProps) {
         </div>
         <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-500">
           <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-[#38BDF8]" /> Beginner
+            <span className="h-2 w-2 rounded-full bg-[#38BDF8]" /> {difficultyLabelMap.Beginner}
           </span>
           <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-[#0EA5E9]" /> Fortgeschritten
+            <span className="h-2 w-2 rounded-full bg-[#0EA5E9]" /> {difficultyLabelMap.Fortgeschritten}
           </span>
           <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-[#0369A1]" /> Pro
+            <span className="h-2 w-2 rounded-full bg-[#0369A1]" /> {difficultyLabelMap.Pro}
           </span>
           <button
             type="button"
             onClick={handleResetView}
             className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-600 transition hover:border-ocean-300 hover:text-ocean-700"
           >
-            Ansicht zurücksetzen
+            {t("dashboard.sites.map.actions.reset")}
           </button>
         </div>
       </header>
@@ -241,7 +250,12 @@ function DiveSiteMapComponent({ mode = "visited" }: DiveSiteMapProps) {
                     {isActive && (
                       <circle r={10} fill="none" stroke="rgba(14,116,144,0.4)" strokeWidth={2} />
                     )}
-                    <title>{`${marker.name} · ${marker.latitude.toFixed(2)}°, ${marker.longitude.toFixed(2)}°`}</title>
+                    <title>
+                      {t("dashboard.sites.map.tooltip")
+                        .replace("{name}", marker.name)
+                        .replace("{latitude}", marker.latitude.toFixed(2))
+                        .replace("{longitude}", marker.longitude.toFixed(2))}
+                    </title>
                   </g>
                 </Marker>
               );
@@ -266,7 +280,10 @@ function DiveSiteMapComponent({ mode = "visited" }: DiveSiteMapProps) {
                 >
                   <p className="text-sm font-semibold text-slate-800">{marker.name}</p>
                   <p>
-                    {marker.latitude.toFixed(2)}°, {marker.longitude.toFixed(2)}° · {marker.difficulty}
+                    {t("dashboard.sites.map.list.coordinates")
+                      .replace("{latitude}", marker.latitude.toFixed(2))
+                      .replace("{longitude}", marker.longitude.toFixed(2))
+                      .replace("{difficulty}", difficultyLabelMap[marker.difficulty])}
                   </p>
                 </button>
               </li>
@@ -276,23 +293,25 @@ function DiveSiteMapComponent({ mode = "visited" }: DiveSiteMapProps) {
         {activeSite && (
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-              Ausgewählter Spot
+              {t("dashboard.sites.map.selected.label")}
             </p>
             <h3 className="mt-1 text-lg font-semibold text-slate-900">{activeSite.name}</h3>
             <dl className="mt-3 space-y-2">
               <div className="flex justify-between gap-4">
-                <dt className="text-xs font-semibold text-slate-500">Schwierigkeit</dt>
-                <dd className="text-xs font-semibold text-ocean-700">{activeSite.difficulty}</dd>
+                <dt className="text-xs font-semibold text-slate-500">{t("dashboard.sites.map.selected.difficulty")}</dt>
+                <dd className="text-xs font-semibold text-ocean-700">{difficultyLabelMap[activeSite.difficulty]}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-xs font-semibold text-slate-500">Koordinaten</dt>
+                <dt className="text-xs font-semibold text-slate-500">{t("dashboard.sites.map.selected.coordinates")}</dt>
                 <dd className="text-xs">
-                  {activeSite.latitude.toFixed(4)}°, {activeSite.longitude.toFixed(4)}°
+                  {t("dashboard.sites.map.selected.coordinatesValue")
+                    .replace("{latitude}", activeSite.latitude.toFixed(4))
+                    .replace("{longitude}", activeSite.longitude.toFixed(4))}
                 </dd>
               </div>
             </dl>
             <p className="mt-3 text-xs text-slate-500">
-              Nutze die Karte, um weitere Spots zu erkunden oder die Ansicht zurückzusetzen, wenn du dich verfahren hast.
+              {t("dashboard.sites.map.selected.helper")}
             </p>
           </div>
         )}

@@ -1,3 +1,5 @@
+import { type SupportedLocale } from "@/i18n/translations";
+
 export type DiveLogPreview = {
   id: string;
   logNumber: number;
@@ -97,6 +99,7 @@ export type MemberProfile = {
   certifications: string[];
   favoriteDiveSite: string;
   completedDives: number;
+  preferredLocale: SupportedLocale;
 };
 
 export type ForumCategory = {
@@ -490,7 +493,8 @@ export const members: MemberProfile[] = [
       "Rescue Diver mit Fokus auf Unterwasserfotografie und wöchentliche Trainings im Freiwasser.",
     certifications: ["Rescue Diver", "Nitrox", "Dry Suit"],
     favoriteDiveSite: "Silfra-Spalte",
-    completedDives: 84
+    completedDives: 84,
+    preferredLocale: "de"
   },
   {
     id: "member-02",
@@ -504,7 +508,8 @@ export const members: MemberProfile[] = [
       "Technischer Taucher und Ausbildungsleiter. Organisiert Wracktouren und Mixed-Gas Workshops.",
     certifications: ["Instructor", "Trimix", "Full Cave"],
     favoriteDiveSite: "SS Thistlegorm",
-    completedDives: 212
+    completedDives: 212,
+    preferredLocale: "en"
   },
   {
     id: "member-03",
@@ -517,7 +522,36 @@ export const members: MemberProfile[] = [
     about: "Open Water Instructor mit Leidenschaft für Meeresbiologie und Reef Check.",
     certifications: ["Instructor", "Deep", "Night"],
     favoriteDiveSite: "Shark Point",
-    completedDives: 134
+    completedDives: 134,
+    preferredLocale: "de"
+  },
+  {
+    id: "member-demo-de",
+    name: "Demo Account (DE)",
+    email: "demo-de@divelog.studio",
+    password: "demo-de",
+    role: "member",
+    joinedAt: "2025-01-05T09:00:00Z",
+    city: "",
+    about: "Quickstart-Demo für die deutschsprachige Oberfläche.",
+    certifications: [],
+    favoriteDiveSite: "",
+    completedDives: 0,
+    preferredLocale: "de"
+  },
+  {
+    id: "member-demo-en",
+    name: "Demo Account (EN)",
+    email: "demo-en@divelog.studio",
+    password: "demo-en",
+    role: "member",
+    joinedAt: "2025-01-05T09:00:00Z",
+    city: "",
+    about: "Quickstart demo tailored for the English interface.",
+    certifications: [],
+    favoriteDiveSite: "",
+    completedDives: 0,
+    preferredLocale: "en"
   }
 ];
 

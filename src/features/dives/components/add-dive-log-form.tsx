@@ -6,25 +6,30 @@ import { z } from "zod";
 import type { DiveLogPreview } from "@/data/mock-data";
 import { useDemoData } from "@/providers/demo-data-provider";
 import { useAuth } from "@/providers/auth-provider";
+import { useI18n } from "@/providers/i18n-provider";
 
 const difficulties = ["Beginner", "Fortgeschritten", "Pro"] as const;
 
 type DifficultyOption = (typeof difficulties)[number];
 
-const formSchema = z.object({
-  title: z.string().min(3, "Titel muss mindestens 3 Zeichen besitzen."),
-  location: z.string().min(2, "Bitte einen Ort angeben."),
-  date: z.string().min(1, "Datum auswählen."),
-  depth: z.coerce.number().min(1).max(120),
-  duration: z.coerce.number().min(1).max(240),
-  buddy: z.string().min(2, "Buddy eintragen."),
-  difficulty: z.enum(difficulties),
-  diverId: z.string().min(1, "Bitte eine Taucherin oder einen Taucher auswählen."),
-  logNumber: z.coerce.number().min(1, "Fortlaufende Nummer benötigt mindestens den Wert 1."),
-  siteId: z.string().optional().nullable()
-});
+function createFormSchema(t: (key: string) => string) {
+  return z.object({
+    title: z.string().min(3, t("dashboard.dives.form.errors.title.min")),
+    location: z.string().min(2, t("dashboard.dives.form.errors.location.min")),
+    date: z.string().min(1, t("dashboard.dives.form.errors.date.required")),
+    depth: z.coerce.number().min(1, t("dashboard.dives.form.errors.depth.min")).max(120, t("dashboard.dives.form.errors.depth.max")),
+    duration: z.coerce.number().min(1, t("dashboard.dives.form.errors.duration.min")).max(240, t("dashboard.dives.form.errors.duration.max")),
+    buddy: z.string().min(2, t("dashboard.dives.form.errors.buddy.min")),
+    difficulty: z.enum(difficulties),
+    diverId: z.string().min(1, t("dashboard.dives.form.errors.diver.required")),
+    logNumber: z.coerce.number().min(1, t("dashboard.dives.form.errors.logNumber.min")),
+    siteId: z.string().optional().nullable()
+  });
+}
 
-type FormInput = z.infer<typeof formSchema>;
+type FormSchema = ReturnType<typeof createFormSchema>;
+
+type FormInput = z.infer<FormSchema>;
 
 type FormErrors = Partial<Record<keyof FormInput, string>>;
 
@@ -67,7 +72,15 @@ type AddDiveLogFormProps = {
 export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: AddDiveLogFormProps) {
   const { addDiveLog, updateDiveLog, diveSites, diveLogs } = useDemoData();
   const { members, currentUser } = useAuth();
+  const { t, locale } = useI18n();
   const fallbackDiverId = currentUser?.id ?? "";
+  const formSchema = useMemo(() => createFormSchema(t), [t]);
+  const difficultyLabels = useMemo<Record<DifficultyOption, string>>(() => ({
+    Beginner: t("dashboard.dives.form.difficulty.beginner"),
+    Fortgeschritten: t("dashboard.dives.form.difficulty.advanced"),
+    Pro: t("dashboard.dives.form.difficulty.pro")
+  }), [t]);
+  const numberFormatter = useMemo(() => new Intl.NumberFormat(locale), [locale]);
   const computeNextLogNumber = useCallback(
     (diverId: string | undefined | null) => {
       if (!diverId) {
@@ -121,8 +134,8 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
   const memberOptions = useMemo(() => {
     return [...members]
       .map((member) => ({ id: member.id, label: member.name }))
-      .sort((a, b) => a.label.localeCompare(b.label));
-  }, [members]);
+      .sort((a, b) => a.label.localeCompare(b.label, locale));
+  }, [members, locale]);
 
   const siteOptions = useMemo(() => {
     return [...diveSites]
@@ -131,8 +144,8 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
         label: `${site.name} (${site.country})`,
         value: site.name
       }))
-      .sort((a, b) => a.value.localeCompare(b.value));
-  }, [diveSites]);
+      .sort((a, b) => a.value.localeCompare(b.value, locale));
+  }, [diveSites, locale]);
 
   useEffect(() => {
     setForm(buildFormState(initialValue));
@@ -143,7 +156,7 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
     const key = name as keyof FormInput;
-    setForm((previous) => {
+    setForm((previous: FormInput) => {
       const numericFields: Array<keyof FormInput> = ["depth", "duration", "logNumber"];
       const convertedValue = numericFields.includes(key) ? Number(value) : value;
       const nextForm: FormInput = {
@@ -158,7 +171,7 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
 
       return nextForm;
     });
-    setErrors((previous) => {
+    setErrors((previous: FormErrors) => {
       if (!(key in previous)) {
         return previous;
       }
@@ -170,12 +183,12 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
 
   const handlePresetSelect = (location: string) => {
     const matched = siteOptions.find((option) => option.value === location);
-    setForm((previous) => ({
+    setForm((previous: FormInput) => ({
       ...previous,
       location,
       siteId: matched?.id ?? previous.siteId
     }));
-    setErrors((previous) => {
+    setErrors((previous: FormErrors) => {
       if (!previous.location) {
         return previous;
       }
@@ -187,12 +200,12 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
 
   const handleSiteSelect = (siteId: string) => {
     const matched = diveSites.find((site) => site.id === siteId);
-    setForm((previous) => ({
+    setForm((previous: FormInput) => ({
       ...previous,
       siteId,
       location: matched ? matched.name : previous.location
     }));
-    setErrors((previous) => {
+    setErrors((previous: FormErrors) => {
       if (!previous.location) {
         return previous;
       }
@@ -245,27 +258,27 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
     <section className="rounded-3xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
       <header className="mb-4 space-y-1">
         <h2 className="text-lg font-semibold text-slate-900">
-          {isEditing ? "Logbuch-Eintrag bearbeiten" : "Logbuch-Eintrag erfassen"}
+          {isEditing ? t("dashboard.dives.form.heading.edit") : t("dashboard.dives.form.heading.create")}
         </h2>
         <p className="text-xs text-slate-500">
-          Die Daten bleiben lokal im Speicher dieser Sitzung - ideal für Demos oder Usability-Tests.
+          {t("dashboard.dives.form.description")}
         </p>
       </header>
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="grid gap-4 md:grid-cols-3">
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-            Titel
+            {t("dashboard.dives.form.fields.title.label")}
             <input
               name="title"
               value={form.title}
               onChange={handleChange}
-              placeholder="Riff, Wrack oder Erlebnis"
+              placeholder={t("dashboard.dives.form.fields.title.placeholder")}
               className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
             />
             {errors.title && <span className="text-xs font-normal text-rose-600">{errors.title}</span>}
           </label>
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-            Log gehört zu
+            {t("dashboard.dives.form.fields.diver.label")}
             <select
               name="diverId"
               value={form.diverId}
@@ -273,7 +286,7 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
               className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
             >
               <option value="" disabled>
-                Mitglied auswählen
+                {t("dashboard.dives.form.fields.diver.placeholder")}
               </option>
               {memberOptions.map((option) => (
                 <option key={option.id} value={option.id}>
@@ -284,7 +297,7 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
             {errors.diverId && <span className="text-xs font-normal text-rose-600">{errors.diverId}</span>}
           </label>
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-            Fortlaufende Nummer
+            {t("dashboard.dives.form.fields.logNumber.label")}
             <input
               type="number"
               name="logNumber"
@@ -297,20 +310,20 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
               <span className="text-xs font-normal text-rose-600">{errors.logNumber}</span>
             ) : (
               <span className="text-[11px] font-normal text-slate-500">
-                Wird pro Mitglied automatisch vorgeschlagen und kann angepasst werden.
+                {t("dashboard.dives.form.fields.logNumber.helper")}
               </span>
             )}
           </label>
         </div>
         <div className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
           <label className="flex flex-col gap-2">
-            Spot / Ort
+            {t("dashboard.dives.form.fields.location.label")}
             <input
               name="location"
               list={siteListId}
               value={form.location}
               onChange={handleChange}
-              placeholder="Tauchplatz auswählen oder frei eingeben"
+              placeholder={t("dashboard.dives.form.fields.location.placeholder")}
               className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
             />
           </label>
@@ -318,14 +331,14 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
             <span className="text-xs font-normal text-rose-600">{errors.location}</span>
           )}
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-            Verknüpfter Spot
+            {t("dashboard.dives.form.fields.site.label")}
             <select
               name="siteId"
               value={form.siteId ?? ""}
               onChange={(event) => handleSiteSelect(event.target.value)}
               className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
             >
-              <option value="">Kein verknüpfter Spot</option>
+              <option value="">{t("dashboard.dives.form.fields.site.none")}</option>
               {siteOptions.map((option) => (
                 <option key={option.id} value={option.id}>
                   {option.label}
@@ -335,7 +348,7 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
           </label>
           {siteOptions.length > 0 && (
             <div className="flex flex-wrap items-center gap-2 text-[11px] font-normal text-slate-500">
-              <span>Vorschläge:</span>
+              <span>{t("dashboard.dives.form.fields.site.suggestions")}</span>
               <div className="flex flex-wrap gap-2">
                 {siteOptions.slice(0, 4).map((option) => (
                   <button
@@ -353,7 +366,7 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
                 ))}
                 {siteOptions.length > 4 && (
                   <span className="text-slate-400">
-                    und {siteOptions.length - 4} weitere per Eingabe oder Suche
+                    {t("dashboard.dives.form.fields.site.more").replace("{count}", numberFormatter.format(siteOptions.length - 4))}
                   </span>
                 )}
               </div>
@@ -367,7 +380,7 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-            Datum
+            {t("dashboard.dives.form.fields.date.label")}
             <input
               type="date"
               name="date"
@@ -378,7 +391,7 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
             {errors.date && <span className="text-xs font-normal text-rose-600">{errors.date}</span>}
           </label>
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-            Tiefe (m)
+            {t("dashboard.dives.form.fields.depth.label")}
             <input
               type="number"
               min={1}
@@ -391,7 +404,7 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
             {errors.depth && <span className="text-xs font-normal text-rose-600">{errors.depth}</span>}
           </label>
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-            Dauer (min)
+            {t("dashboard.dives.form.fields.duration.label")}
             <input
               type="number"
               min={1}
@@ -408,18 +421,18 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-            Buddy
+            {t("dashboard.dives.form.fields.buddy.label")}
             <input
               name="buddy"
               value={form.buddy}
               onChange={handleChange}
-              placeholder="Vor- und Nachname"
+              placeholder={t("dashboard.dives.form.fields.buddy.placeholder")}
               className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
             />
             {errors.buddy && <span className="text-xs font-normal text-rose-600">{errors.buddy}</span>}
           </label>
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-            Schwierigkeitsgrad
+            {t("dashboard.dives.form.fields.difficulty.label")}
             <select
               name="difficulty"
               value={form.difficulty}
@@ -428,7 +441,7 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
             >
               {difficulties.map((option) => (
                 <option key={option} value={option}>
-                  {option}
+                  {difficultyLabels[option]}
                 </option>
               ))}
             </select>
@@ -442,7 +455,7 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
             type="submit"
             className="w-full rounded-xl bg-ocean-600 px-4 py-3 text-sm font-semibold text-white shadow transition hover:bg-ocean-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-500"
           >
-            {isEditing ? "Änderungen speichern" : "Eintrag speichern"}
+            {isEditing ? t("dashboard.dives.form.actions.submit.edit") : t("dashboard.dives.form.actions.submit.create")}
           </button>
           {isEditing && (
             <button
@@ -450,13 +463,13 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
               onClick={onCancelEdit}
               className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-slate-400 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
             >
-              Bearbeitung abbrechen
+              {t("dashboard.dives.form.actions.cancel")}
             </button>
           )}
         </div>
         {status === "success" && !hasErrors && (
           <p className="text-xs font-semibold text-emerald-600">
-            Eintrag gespeichert - der Log taucht nun in allen Listen auf.
+            {t("dashboard.dives.form.status.success")}
           </p>
         )}
       </form>

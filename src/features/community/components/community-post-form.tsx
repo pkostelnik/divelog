@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import Image from "next/image";
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
@@ -6,13 +6,16 @@ import { z } from "zod";
 
 import { useAuth } from "@/providers/auth-provider";
 import { useDemoData } from "@/providers/demo-data-provider";
+import { useI18n } from "@/providers/i18n-provider";
 
-const postSchema = z.object({
-  title: z.string().min(3, "Titel benötigt mindestens 3 Zeichen."),
-  author: z.string().min(2, "Bitte einen Namen angeben."),
-  body: z.string().min(10, "Beschreibe deinen Beitrag mit mindestens 10 Zeichen."),
-  diveLogId: z.string().optional()
-});
+function createPostSchema(t: (key: string) => string) {
+  return z.object({
+    title: z.string().min(3, t("dashboard.community.postForm.errors.title.min")),
+    author: z.string().min(2, t("dashboard.community.postForm.errors.author.min")),
+    body: z.string().min(10, t("dashboard.community.postForm.errors.body.min")),
+    diveLogId: z.string().optional()
+  });
+}
 
 type PostAttachmentDraft = {
   id: string;
@@ -22,7 +25,11 @@ type PostAttachmentDraft = {
   type: "image";
   fileName?: string;
 };
+const ALLOWED_ATTACHMENT_MIME_TYPES = ["image/jpeg", "image/png"] as const;
+const ALLOWED_ATTACHMENT_LABELS = ["JPEG", "PNG"];
+const ALLOWED_ATTACHMENT_TYPES = new Set<string>(ALLOWED_ATTACHMENT_MIME_TYPES);
 const MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024;
+const MAX_ATTACHMENT_SIZE_MB = MAX_ATTACHMENT_SIZE / (1024 * 1024);
 
 type PostFormInput = {
   title: string;
@@ -45,6 +52,11 @@ const initialForm: PostFormInput = {
 };
 
 export function CommunityPostForm({ onSubmitSuccess }: CommunityPostFormProps) {
+  const { t, locale } = useI18n();
+  const postSchema = useMemo(() => createPostSchema(t), [t]);
+  const attachmentTypeList = useMemo(() => ALLOWED_ATTACHMENT_LABELS.join(", "), []);
+  const numberFormatter = useMemo(() => new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }), [locale]);
+  const dateFormatter = useMemo(() => new Intl.DateTimeFormat(locale), [locale]);
   const { currentUser } = useAuth();
   const defaultAuthor = currentUser?.name?.trim() ?? "";
   const authorLocked = defaultAuthor.length > 0;
@@ -61,8 +73,11 @@ export function CommunityPostForm({ onSubmitSuccess }: CommunityPostFormProps) {
   const [attachmentError, setAttachmentError] = useState<string | null>(null);
 
   const diveOptions = useMemo(() => {
-    return diveLogs.map((log) => ({ id: log.id, label: `${log.title} • ${new Date(log.date).toLocaleDateString("de-DE")}` }));
-  }, [diveLogs]);
+    return diveLogs.map((log) => ({
+      id: log.id,
+      label: `${log.title} • ${dateFormatter.format(new Date(log.date))}`
+    }));
+  }, [diveLogs, dateFormatter]);
 
   useEffect(() => {
     setForm((previous) => ({
@@ -104,13 +119,28 @@ export function CommunityPostForm({ onSubmitSuccess }: CommunityPostFormProps) {
       return;
     }
 
+    setAttachmentError(null);
+    let hadError = false;
+
     files.forEach((file) => {
-      if (!file.type.startsWith("image/")) {
-        setAttachmentError("Nur Bilddateien können angehängt werden.");
+      if (!ALLOWED_ATTACHMENT_TYPES.has(file.type)) {
+        setAttachmentError(
+          t("dashboard.community.postForm.attachments.error.type").replace(
+            "{types}",
+            attachmentTypeList
+          )
+        );
+        hadError = true;
         return;
       }
       if (file.size > MAX_ATTACHMENT_SIZE) {
-        setAttachmentError("Ein Bild ist größer als 5 MB und wurde übersprungen.");
+        setAttachmentError(
+          t("dashboard.community.postForm.attachments.error.size").replace(
+            "{size}",
+            numberFormatter.format(MAX_ATTACHMENT_SIZE_MB)
+          )
+        );
+        hadError = true;
         return;
       }
 
@@ -120,7 +150,8 @@ export function CommunityPostForm({ onSubmitSuccess }: CommunityPostFormProps) {
         if (typeof result !== "string") {
           return;
         }
-        const title = file.name.replace(/\.[^.]+$/, "").trim() || "Bildanhang";
+        const fallbackTitle = t("dashboard.community.postForm.attachments.fallbackTitle");
+        const title = file.name.replace(/\.[^.]+$/, "").trim() || fallbackTitle;
         setAttachments((previous) => [
           ...previous,
           {
@@ -132,7 +163,9 @@ export function CommunityPostForm({ onSubmitSuccess }: CommunityPostFormProps) {
             type: "image"
           }
         ]);
-        setAttachmentError(null);
+        if (!hadError) {
+          setAttachmentError(null);
+        }
       };
       reader.readAsDataURL(file);
     });
@@ -146,6 +179,7 @@ export function CommunityPostForm({ onSubmitSuccess }: CommunityPostFormProps) {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setStatus("idle");
     const authorValue = authorLocked ? defaultAuthor : form.author;
     const parseResult = postSchema.safeParse({
       title: form.title.trim(),
@@ -158,15 +192,18 @@ export function CommunityPostForm({ onSubmitSuccess }: CommunityPostFormProps) {
       const nextErrors: PostFormErrors = {};
       const flattened = parseResult.error.flatten().fieldErrors;
       Object.entries(flattened).forEach(([key, messages]) => {
-        if (!messages?.length) {
+        const message = messages?.[0];
+        if (!message) {
           return;
         }
-        nextErrors[key as keyof PostFormInput] = messages[0] ?? "";
+        nextErrors[key as keyof PostFormInput] = message;
       });
       setErrors(nextErrors);
       setStatus("idle");
       return;
     }
+
+    const attachmentFallbackTitle = t("dashboard.community.postForm.attachments.fallbackTitle");
 
     addCommunityPost({
       title: parseResult.data.title,
@@ -177,7 +214,7 @@ export function CommunityPostForm({ onSubmitSuccess }: CommunityPostFormProps) {
       diveLogId: parseResult.data.diveLogId,
       attachments: attachments.map((attachment) => ({
         ...attachment,
-        title: attachment.title.trim() || attachment.fileName || "Bildanhang",
+        title: attachment.title.trim() || attachment.fileName || attachmentFallbackTitle,
         type: "image" as const
       }))
     });
@@ -196,31 +233,31 @@ export function CommunityPostForm({ onSubmitSuccess }: CommunityPostFormProps) {
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
       <header className="mb-4 space-y-1">
-        <h2 className="text-lg font-semibold text-slate-900">Neuen Beitrag teilen</h2>
+        <h2 className="text-lg font-semibold text-slate-900">{t("dashboard.community.postForm.heading")}</h2>
         <p className="text-xs text-slate-500">
-          Veröffentliche Neuigkeiten oder Fragen und verknüpfe sie mit einem bestehenden Tauchgang.
+          {t("dashboard.community.postForm.description")}
         </p>
       </header>
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-            Titel
+            {t("dashboard.community.postForm.fields.title.label")}
             <input
               name="title"
               value={form.title}
               onChange={handleChange}
-              placeholder="Worum geht es?"
+              placeholder={t("dashboard.community.postForm.fields.title.placeholder")}
               className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
             />
             {errors.title && <span className="text-xs font-normal text-rose-600">{errors.title}</span>}
           </label>
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-            Autor:in
+            {t("dashboard.community.postForm.fields.author.label")}
             <input
               name="author"
               value={form.author}
               onChange={handleChange}
-              placeholder="Dein Name"
+              placeholder={t("dashboard.community.postForm.fields.author.placeholder")}
               readOnly={authorLocked}
               className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
             />
@@ -228,25 +265,25 @@ export function CommunityPostForm({ onSubmitSuccess }: CommunityPostFormProps) {
           </label>
         </div>
         <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-          Beitrag
+          {t("dashboard.community.postForm.fields.body.label")}
           <textarea
             name="body"
             value={form.body}
             onChange={handleChange}
-            placeholder="Was möchtest du mit der Community teilen?"
+            placeholder={t("dashboard.community.postForm.fields.body.placeholder")}
             className="min-h-[120px] rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
           />
           {errors.body && <span className="text-xs font-normal text-rose-600">{errors.body}</span>}
         </label>
         <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-          Tauchgang verknüpfen (optional)
+          {t("dashboard.community.postForm.fields.dive.label")}
           <select
             name="diveLogId"
             value={form.diveLogId}
             onChange={handleChange}
             className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
           >
-            <option value="">Kein Tauchgang ausgewählt</option>
+            <option value="">{t("dashboard.community.postForm.fields.dive.placeholder")}</option>
             {diveOptions.map((log) => (
               <option key={log.id} value={log.id}>
                 {log.label}
@@ -258,7 +295,7 @@ export function CommunityPostForm({ onSubmitSuccess }: CommunityPostFormProps) {
           )}
         </label>
         <div className="space-y-2 text-xs font-semibold text-slate-600">
-          <span>Bilder anhängen (optional)</span>
+          <span>{t("dashboard.community.postForm.attachments.label")}</span>
           <input
             type="file"
             accept="image/*"
@@ -269,7 +306,12 @@ export function CommunityPostForm({ onSubmitSuccess }: CommunityPostFormProps) {
           {attachmentError ? (
             <p className="text-xs font-normal text-rose-600">{attachmentError}</p>
           ) : (
-            <p className="text-[11px] font-normal text-slate-500">JPEG oder PNG bis 5 MB pro Datei.</p>
+            <p className="text-[11px] font-normal text-slate-500">
+              {t("dashboard.community.postForm.attachments.helper").replace(
+                "{size}",
+                numberFormatter.format(MAX_ATTACHMENT_SIZE_MB)
+              ).replace("{types}", attachmentTypeList)}
+            </p>
           )}
           {attachments.length > 0 && (
             <ul className="grid gap-2 sm:grid-cols-2">
@@ -294,7 +336,7 @@ export function CommunityPostForm({ onSubmitSuccess }: CommunityPostFormProps) {
                       onClick={() => handleAttachmentRemove(attachment.id)}
                       className="rounded-lg border border-slate-300 px-2 py-1 text-[10px] font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-700"
                     >
-                      Entfernen
+                      {t("dashboard.community.postForm.attachments.remove")}
                     </button>
                   </div>
                 </li>
@@ -304,15 +346,17 @@ export function CommunityPostForm({ onSubmitSuccess }: CommunityPostFormProps) {
         </div>
         <div className="flex items-center justify-between text-xs">
           {status === "success" ? (
-            <p className="text-sm font-medium text-emerald-600">Beitrag wurde veröffentlicht.</p>
+            <p className="text-sm font-medium text-emerald-600">
+              {t("dashboard.community.postForm.status.success")}
+            </p>
           ) : (
-            <span className="text-slate-500">Titel, Autor:in und Inhalt sind Pflichtfelder.</span>
+            <span className="text-slate-500">{t("dashboard.community.postForm.status.hint")}</span>
           )}
           <button
             type="submit"
             className="inline-flex items-center rounded-xl bg-ocean-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-ocean-700"
           >
-            Beitrag erstellen
+            {t("dashboard.community.postForm.submit")}
           </button>
         </div>
       </form>

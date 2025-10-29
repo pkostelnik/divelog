@@ -6,11 +6,16 @@ import { createPortal } from "react-dom";
 
 import { useDemoData } from "@/providers/demo-data-provider";
 import { useAuth } from "@/providers/auth-provider";
+import { useI18n } from "@/providers/i18n-provider";
 import { type CommunityPostAttachment } from "@/data/mock-data";
 
 const AUTHORED_COMMENT_STORAGE_KEY = "divelog:community-authored-comments";
 const ANONYMOUS_AUTHOR_ID_KEY = "divelog:community-anonymous-author-id";
-const MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024;
+const ALLOWED_ATTACHMENT_MIME_TYPES = ["image/jpeg", "image/png"] as const;
+const ALLOWED_ATTACHMENT_LABELS = ["JPEG", "PNG"];
+const ALLOWED_ATTACHMENT_TYPES = new Set<string>(ALLOWED_ATTACHMENT_MIME_TYPES);
+const MAX_ATTACHMENT_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_ATTACHMENT_SIZE_MB = MAX_ATTACHMENT_SIZE_BYTES / (1024 * 1024);
 
 function createCommentId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -93,13 +98,6 @@ function ensureAnonymousAuthorId() {
   }
 }
 
-function formatDate(value: string) {
-  return new Date(value).toLocaleString("de-DE", {
-    dateStyle: "short",
-    timeStyle: "short"
-  });
-}
-
 type CommentFormProps = {
   postId: string;
   onSubmit: (payload: {
@@ -122,6 +120,7 @@ function CommentForm({
   currentUserName,
   fallbackAuthorId
 }: CommentFormProps) {
+  const { t } = useI18n();
   const authorId = `comment-author-${postId}`;
   const messageId = `comment-message-${postId}`;
   const lockedAuthor = Boolean(currentUserName?.trim());
@@ -159,7 +158,7 @@ function CommentForm({
     <form className="mt-4 space-y-3 border-t border-slate-200 pt-4" onSubmit={handleSubmit}>
       <div className="grid gap-3 md:grid-cols-2">
         <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600" htmlFor={authorId}>
-          Name
+          {t("dashboard.community.highlights.commentForm.fields.author.label")}
           <input
             id={authorId}
             name="author"
@@ -169,7 +168,7 @@ function CommentForm({
                 setAuthor(event.target.value);
               }
             }}
-            placeholder="Dein Name"
+            placeholder={t("dashboard.community.highlights.commentForm.fields.author.placeholder")}
             className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
             required
             minLength={2}
@@ -177,13 +176,13 @@ function CommentForm({
           />
         </label>
         <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600 md:col-span-2" htmlFor={messageId}>
-          Kommentar
+          {t("dashboard.community.highlights.commentForm.fields.message.label")}
           <textarea
             id={messageId}
             name="message"
             value={message}
             onChange={(event) => setMessage(event.target.value)}
-            placeholder="Teile deine Gedanken"
+            placeholder={t("dashboard.community.highlights.commentForm.fields.message.placeholder")}
             className="min-h-[80px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
             required
             minLength={3}
@@ -195,7 +194,7 @@ function CommentForm({
           type="submit"
           className="inline-flex items-center rounded-xl bg-ocean-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-ocean-700"
         >
-          Kommentar hinzufügen
+          {t("dashboard.community.highlights.commentForm.submit")}
         </button>
       </div>
     </form>
@@ -229,12 +228,23 @@ export function CommunityHighlights() {
     removeCommunityPost
   } = useDemoData();
   const { currentUser } = useAuth();
+  const { t, locale } = useI18n();
   const isAdmin = currentUser?.role === "admin";
   const currentUserId = currentUser?.id ?? null;
   const rawCurrentUserEmail = currentUser?.email;
   const rawCurrentUserName = currentUser?.name;
   const currentUserEmail = rawCurrentUserEmail ? rawCurrentUserEmail.trim().toLowerCase() : null;
   const normalizedCurrentUserName = rawCurrentUserName ? rawCurrentUserName.trim().toLowerCase() : null;
+  const attachmentTypeList = useMemo(() => ALLOWED_ATTACHMENT_LABELS.join(", "), []);
+  const numberFormatter = useMemo(
+    () => new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }),
+    [locale]
+  );
+  const diveDateFormatter = useMemo(() => new Intl.DateTimeFormat(locale), [locale]);
+  const commentDateFormatter = useMemo(
+    () => new Intl.DateTimeFormat(locale, { dateStyle: "short", timeStyle: "short" }),
+    [locale]
+  );
 
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [postDraft, setPostDraft] = useState<PostEditState | null>(null);
@@ -324,9 +334,9 @@ export function CommunityHighlights() {
   const diveOptions = useMemo(() => {
     return diveLogs.map((log) => ({
       id: log.id,
-      label: `${log.title} • ${new Date(log.date).toLocaleDateString("de-DE")}`
+      label: `${log.title} • ${diveDateFormatter.format(new Date(log.date))}`
     }));
-  }, [diveLogs]);
+  }, [diveLogs, diveDateFormatter]);
 
   const canManageEntity = (
     authorId: string | undefined,
@@ -594,7 +604,7 @@ export function CommunityHighlights() {
 
       setPostAlert(postId, {
         variant: "success",
-        message: "Kommentar wurde hinzugefügt."
+        message: t("dashboard.community.highlights.alert.comment.added")
       });
     };
 
@@ -650,13 +660,28 @@ export function CommunityHighlights() {
       return;
     }
 
+    setDraftAttachmentError(null);
+    let hadError = false;
+
     files.forEach((file) => {
-      if (!file.type.startsWith("image/")) {
-        setDraftAttachmentError("Nur Bilddateien können angehängt werden.");
+      if (!ALLOWED_ATTACHMENT_TYPES.has(file.type)) {
+        setDraftAttachmentError(
+          t("dashboard.community.highlights.form.attachments.error.type").replace(
+            "{types}",
+            attachmentTypeList
+          )
+        );
+        hadError = true;
         return;
       }
-      if (file.size > MAX_ATTACHMENT_SIZE) {
-        setDraftAttachmentError("Ein Bild ist größer als 5 MB und wurde übersprungen.");
+      if (file.size > MAX_ATTACHMENT_SIZE_BYTES) {
+        setDraftAttachmentError(
+          t("dashboard.community.highlights.form.attachments.error.size").replace(
+            "{size}",
+            numberFormatter.format(MAX_ATTACHMENT_SIZE_MB)
+          )
+        );
+        hadError = true;
         return;
       }
 
@@ -666,7 +691,8 @@ export function CommunityHighlights() {
         if (typeof result !== "string") {
           return;
         }
-        const title = file.name.replace(/\.[^.]+$/, "").trim() || "Bildanhang";
+        const title = file.name.replace(/\.[^.]+$/, "").trim() ||
+          t("dashboard.community.highlights.form.attachments.fallbackTitle");
         setPostDraft((previous) => {
           if (!previous) {
             return previous;
@@ -686,7 +712,9 @@ export function CommunityHighlights() {
             ]
           };
         });
-        setDraftAttachmentError(null);
+        if (!hadError) {
+          setDraftAttachmentError(null);
+        }
       };
       reader.readAsDataURL(file);
     });
@@ -724,7 +752,7 @@ export function CommunityHighlights() {
     if (!target || !canManagePost(target)) {
       setPostAlert(postId, {
         variant: "error",
-        message: "Du kannst diesen Beitrag nicht bearbeiten."
+        message: t("dashboard.community.highlights.alert.post.cannotEdit")
       });
       return;
     }
@@ -735,14 +763,17 @@ export function CommunityHighlights() {
     const diveLogId = postDraft.diveLogId.trim();
     const attachments = postDraft.attachments.map((attachment) => ({
       ...attachment,
-      title: attachment.title.trim() || attachment.fileName || "Bildanhang",
+      title:
+        attachment.title.trim() ||
+        attachment.fileName ||
+        t("dashboard.community.highlights.form.attachments.fallbackTitle"),
       type: "image" as const
     }));
 
     if (title.length < 3) {
       setPostAlert(postId, {
         variant: "error",
-        message: "Titel benötigt mindestens 3 Zeichen."
+        message: t("dashboard.community.highlights.alert.post.titleMin")
       });
       return;
     }
@@ -750,7 +781,7 @@ export function CommunityHighlights() {
     if (author.length < 2) {
       setPostAlert(postId, {
         variant: "error",
-        message: "Autor:in benötigt mindestens 2 Zeichen."
+        message: t("dashboard.community.highlights.alert.post.authorMin")
       });
       return;
     }
@@ -758,7 +789,7 @@ export function CommunityHighlights() {
     if (body.length < 10) {
       setPostAlert(postId, {
         variant: "error",
-        message: "Beitrag benötigt mindestens 10 Zeichen."
+        message: t("dashboard.community.highlights.alert.post.bodyMin")
       });
       return;
     }
@@ -782,7 +813,7 @@ export function CommunityHighlights() {
 
     setPostAlert(postId, {
       variant: "success",
-      message: "Beitrag wurde aktualisiert."
+      message: t("dashboard.community.highlights.alert.post.updated")
     });
     setEditingPostId(null);
     setPostDraft(null);
@@ -796,7 +827,7 @@ export function CommunityHighlights() {
     setPendingDeleteId(post.id);
     setPostAlert(post.id, {
       variant: "error",
-      message: "Löschen bestätigen?"
+      message: t("dashboard.community.highlights.alert.post.deleteConfirm")
     });
   };
 
@@ -826,7 +857,7 @@ export function CommunityHighlights() {
     setPostAlert(post.id, null);
     setGlobalAlert({
       variant: "success",
-      message: "Beitrag wurde gelöscht."
+      message: t("dashboard.community.highlights.alert.post.deleted")
     });
     setPendingDeleteId(null);
   };
@@ -860,7 +891,7 @@ export function CommunityHighlights() {
     setPendingCommentDelete((previous) => ({ ...previous, [postId]: null }));
     setPostAlert(postId, {
       variant: "success",
-      message: "Kommentar wurde gelöscht."
+      message: t("dashboard.community.highlights.alert.comment.deleted")
     });
   };
 
@@ -889,7 +920,7 @@ export function CommunityHighlights() {
     setPendingCommentDelete((previous) => ({ ...previous, [postId]: commentId }));
     setPostAlert(postId, {
       variant: "error",
-      message: "Kommentar löschen bestätigen?"
+      message: t("dashboard.community.highlights.alert.comment.deleteConfirm")
     });
   };
 
@@ -900,7 +931,7 @@ export function CommunityHighlights() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-lg font-semibold text-slate-900">Community Highlights</h2>
+      <h2 className="text-lg font-semibold text-slate-900">{t("dashboard.community.highlights.heading")}</h2>
       {globalAlert && (
         <p
           className={`rounded-xl border px-4 py-3 text-xs font-semibold ${globalAlert.variant === "error" ? "border-rose-200 bg-rose-50 text-rose-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}
@@ -933,7 +964,7 @@ export function CommunityHighlights() {
                 <form className="space-y-3" onSubmit={(event) => handlePostSubmit(event, post.id)}>
                   <div className="grid gap-3 md:grid-cols-2">
                     <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-                      Titel
+                      {t("dashboard.community.postForm.fields.title.label")}
                       <input
                         name="title"
                         value={draft?.title ?? post.title}
@@ -944,7 +975,7 @@ export function CommunityHighlights() {
                       />
                     </label>
                     <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-                      Autor:in
+                      {t("dashboard.community.postForm.fields.author.label")}
                       <input
                         name="author"
                         value={draft?.author ?? post.author}
@@ -957,7 +988,7 @@ export function CommunityHighlights() {
                     </label>
                   </div>
                   <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-                    Beitrag
+                    {t("dashboard.community.postForm.fields.body.label")}
                     <textarea
                       name="body"
                       value={draft?.body ?? post.body}
@@ -968,14 +999,14 @@ export function CommunityHighlights() {
                     />
                   </label>
                   <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-                    Tauchgang verknüpfen (optional)
+                    {t("dashboard.community.postForm.fields.dive.label")}
                     <select
                       name="diveLogId"
                       value={draft?.diveLogId ?? post.diveLogId ?? ""}
                       onChange={handleDraftChange}
                       className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                     >
-                      <option value="">Kein Tauchgang ausgewählt</option>
+                      <option value="">{t("dashboard.community.postForm.fields.dive.placeholder")}</option>
                       {diveOptions.map((option) => (
                         <option key={option.id} value={option.id}>
                           {option.label}
@@ -984,7 +1015,7 @@ export function CommunityHighlights() {
                     </select>
                   </label>
                   <div className="space-y-2 text-xs font-semibold text-slate-600">
-                    <span>Bilder anhängen (optional)</span>
+                    <span>{t("dashboard.community.postForm.attachments.label")}</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -995,7 +1026,11 @@ export function CommunityHighlights() {
                     {draftAttachmentError ? (
                       <p className="text-xs font-normal text-rose-600">{draftAttachmentError}</p>
                     ) : (
-                      <p className="text-[11px] font-normal text-slate-500">JPEG oder PNG bis 5 MB pro Datei.</p>
+                      <p className="text-[11px] font-normal text-slate-500">
+                        {t("dashboard.community.postForm.attachments.helper")
+                          .replace("{types}", attachmentTypeList)
+                          .replace("{size}", numberFormatter.format(MAX_ATTACHMENT_SIZE_MB))}
+                      </p>
                     )}
                     {(draft?.attachments ?? []).length > 0 && (
                       <ul className="grid gap-2 sm:grid-cols-2">
@@ -1028,7 +1063,7 @@ export function CommunityHighlights() {
                                   onClick={() => handleDraftAttachmentRemove(attachment.id)}
                                   className="rounded-lg border border-slate-300 px-2 py-1 text-[10px] font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-700"
                                 >
-                                  Entfernen
+                                  {t("dashboard.community.postForm.attachments.remove")}
                                 </button>
                               </div>
                             </div>
@@ -1043,17 +1078,21 @@ export function CommunityHighlights() {
                       disabled={saving}
                       className="inline-flex items-center rounded-xl bg-ocean-600 px-4 py-2 font-semibold text-white shadow-sm transition hover:bg-ocean-700 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      {saving ? "Speichern..." : "Änderungen speichern"}
+                      {saving
+                        ? t("dashboard.community.highlights.form.actions.saving")
+                        : t("dashboard.community.highlights.form.actions.save")}
                     </button>
                     <button
                       type="button"
                       onClick={cancelEditingPost}
                       className="inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 font-semibold text-slate-600 shadow-sm transition hover:border-slate-400 hover:text-slate-700"
                     >
-                      Abbrechen
+                      {t("dashboard.community.highlights.form.actions.cancel")}
                     </button>
                     <span className="text-[11px] text-slate-500">
-                      Likes: {post.likes} • Kommentare: {comments.length}
+                      {t("dashboard.community.highlights.form.meta.stats")
+                        .replace("{likes}", post.likes.toString())
+                        .replace("{comments}", comments.length.toString())}
                     </span>
                   </div>
                 </form>
@@ -1061,10 +1100,20 @@ export function CommunityHighlights() {
                 <>
                   <header className="space-y-1">
                     <h3 className="text-base font-semibold text-slate-900">{post.title}</h3>
-                    <p className="text-xs text-slate-500">von {post.author}</p>
+                    <p className="text-xs text-slate-500">
+                      {t("dashboard.community.highlights.view.meta.author").replace(
+                        "{author}",
+                        post.author
+                      )}
+                    </p>
                     {linkedDive && (
                       <p className="text-xs text-slate-500">
-                        Verknüpft mit &quot;{linkedDive.title}&quot; am {new Date(linkedDive.date).toLocaleDateString("de-DE")}
+                        {t("dashboard.community.highlights.view.meta.linkedDive")
+                          .replace("{title}", linkedDive.title)
+                          .replace(
+                            "{date}",
+                            diveDateFormatter.format(new Date(linkedDive.date))
+                          )}
                       </p>
                     )}
                   </header>
@@ -1099,7 +1148,7 @@ export function CommunityHighlights() {
                                 <span
                                   className="text-[13px] text-slate-500 transition group-hover:text-ocean-600"
                                   role="img"
-                                  aria-label="Anhang"
+                                  aria-label={t("dashboard.community.highlights.view.attachments.badge")}
                                   title={attachment.fileName ?? attachment.title}
                                 >
                                   📎
@@ -1117,10 +1166,17 @@ export function CommunityHighlights() {
                       onClick={() => togglePostLike(post.id)}
                       className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1 font-semibold text-ocean-700 transition hover:border-ocean-300 hover:text-ocean-800"
                     >
-                      {post.likedByMe ? "❤️ Geliked" : "♡ Like"}
+                      {post.likedByMe
+                        ? t("dashboard.community.highlights.view.actions.like.active")
+                        : t("dashboard.community.highlights.view.actions.like.inactive")}
                       <span className="font-medium text-slate-600">{post.likes}</span>
                     </button>
-                    <span>💬 {comments.length}</span>
+                    <span>
+                      {t("dashboard.community.highlights.view.meta.commentsCount").replace(
+                        "{count}",
+                        comments.length.toString()
+                      )}
+                    </span>
                     {canManage && (
                       pendingDeleteId === post.id ? (
                         <div className="flex flex-wrap gap-2">
@@ -1129,14 +1185,14 @@ export function CommunityHighlights() {
                             onClick={() => handlePostDelete(post)}
                             className="inline-flex items-center rounded-full border border-rose-300 bg-rose-600 px-3 py-1 font-semibold text-white transition hover:bg-rose-700"
                           >
-                            Löschen bestätigen
+                            {t("dashboard.community.highlights.view.actions.deleteConfirm")}
                           </button>
                           <button
                             type="button"
                             onClick={cancelPostDelete}
                             className="inline-flex items-center rounded-full border border-slate-300 px-3 py-1 font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-700"
                           >
-                            Abbrechen
+                            {t("dashboard.community.highlights.view.actions.cancel")}
                           </button>
                         </div>
                       ) : (
@@ -1146,14 +1202,14 @@ export function CommunityHighlights() {
                             onClick={() => startEditingPost(post.id)}
                             className="inline-flex items-center rounded-full border border-slate-300 px-3 py-1 font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-700"
                           >
-                            Bearbeiten
+                            {t("dashboard.community.highlights.view.actions.edit")}
                           </button>
                           <button
                             type="button"
                             onClick={() => handlePostDeleteRequest(post)}
                             className="inline-flex items-center rounded-full border border-rose-200 px-3 py-1 font-semibold text-rose-700 transition hover:border-rose-300 hover:text-rose-800"
                           >
-                            Löschen
+                            {t("dashboard.community.highlights.view.actions.delete")}
                           </button>
                         </div>
                       )
@@ -1172,7 +1228,9 @@ export function CommunityHighlights() {
               )}
               <section className="mt-4 space-y-3">
                 {comments.length === 0 ? (
-                  <p className="text-xs text-slate-500">Noch keine Kommentare vorhanden.</p>
+                  <p className="text-xs text-slate-500">
+                    {t("dashboard.community.highlights.comments.empty")}
+                  </p>
                 ) : (
                   comments.map((comment) => {
                     const canManageComment =
@@ -1188,7 +1246,7 @@ export function CommunityHighlights() {
                           <p className="text-xs font-semibold text-slate-700">
                             {comment.author}
                             <span className="ml-2 text-[10px] font-normal text-slate-500">
-                              {formatDate(comment.createdAt)}
+                              {commentDateFormatter.format(new Date(comment.createdAt))}
                             </span>
                           </p>
                           {canManageComment && (
@@ -1199,14 +1257,14 @@ export function CommunityHighlights() {
                                   onClick={() => handleCommentDelete(post.id, comment.id)}
                                   className="rounded-full bg-rose-600 px-3 py-1 font-semibold text-white shadow-sm transition hover:bg-rose-700"
                                 >
-                                  Löschen bestätigen
+                                  {t("dashboard.community.highlights.comments.actions.deleteConfirm")}
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => cancelCommentDelete(post.id)}
                                   className="rounded-full border border-slate-300 px-3 py-1 font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-700"
                                 >
-                                  Abbrechen
+                                  {t("dashboard.community.highlights.comments.actions.cancel")}
                                 </button>
                               </div>
                             ) : (
@@ -1215,7 +1273,7 @@ export function CommunityHighlights() {
                                 onClick={() => requestCommentDelete(post.id, comment.id)}
                                 className="text-[10px] font-semibold text-rose-700 transition hover:text-rose-800"
                               >
-                                Löschen
+                                {t("dashboard.community.highlights.comments.actions.delete")}
                               </button>
                             )
                           )}
@@ -1255,6 +1313,7 @@ function AttachmentPreviewOverlay({
   attachment: CommunityPostAttachment;
   onClose: () => void;
 }) {
+  const { t } = useI18n();
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -1283,7 +1342,10 @@ function AttachmentPreviewOverlay({
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-6"
       role="dialog"
       aria-modal="true"
-      aria-label={`Vollbildansicht für ${attachment.title}`}
+      aria-label={t("dashboard.community.highlights.preview.ariaLabel").replace(
+        "{title}",
+        attachment.title
+      )}
       onClick={onClose}
     >
       <div
@@ -1295,7 +1357,7 @@ function AttachmentPreviewOverlay({
           onClick={onClose}
           className="absolute right-4 top-4 inline-flex items-center justify-center rounded-full border border-slate-600 bg-slate-900/70 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-200 transition hover:border-slate-400 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-400"
         >
-          Schließen
+          {t("dashboard.community.highlights.preview.close")}
         </button>
         <div className="flex max-h-[70vh] w-full items-center justify-center overflow-hidden rounded-2xl bg-slate-900">
           <Image
@@ -1312,7 +1374,12 @@ function AttachmentPreviewOverlay({
         <div className="space-y-1 text-sm text-slate-300">
           <p className="text-base font-semibold text-white">{attachment.title}</p>
           {attachment.fileName && (
-            <p className="text-xs uppercase tracking-wide text-slate-500">Datei: {attachment.fileName}</p>
+            <p className="text-xs uppercase tracking-wide text-slate-500">
+              {t("dashboard.community.highlights.preview.fileLabel").replace(
+                "{file}",
+                attachment.fileName
+              )}
+            </p>
           )}
         </div>
       </div>
@@ -1330,7 +1397,7 @@ function isOptimizableImageUrl(url: string): boolean {
 
     return parsed.hostname === "images.unsplash.com";
   } catch (error) {
-    console.warn("Konnte Bild-URL nicht prüfen", error);
+    console.warn("Unable to verify attachment URL", error);
     return false;
   }
 }

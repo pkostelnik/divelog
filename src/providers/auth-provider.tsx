@@ -3,6 +3,8 @@
 import { createContext, useContext, useMemo, useReducer, type ReactNode } from "react";
 
 import { members as memberSeed, type MemberProfile } from "@/data/mock-data";
+import { type SupportedLocale } from "@/i18n/translations";
+import { PREFERRED_LOCALE_EVENT } from "@/providers/i18n-provider";
 
 type InternalMember = MemberProfile;
 type PublicMember = Omit<MemberProfile, "password">;
@@ -24,6 +26,7 @@ type RegisterPayload = {
   city?: string;
   about?: string;
   favoriteDiveSite?: string;
+  preferredLocale: SupportedLocale;
 };
 
 type AuthAction =
@@ -50,6 +53,7 @@ type AuthContextValue = {
   login: (payload: LoginPayload) => Promise<{ success: boolean; error?: string }>;
   loginAsDemoMember: () => Promise<{ success: boolean; error?: string }>;
   loginAsDemoAdmin: () => Promise<{ success: boolean; error?: string }>;
+  loginAsDemoLocale: (locale: SupportedLocale) => Promise<{ success: boolean; error?: string }>;
   register: (payload: RegisterPayload) => Promise<{ success: boolean; error?: string }>;
   updateMember: (payload: UpdateMemberPayload) => Promise<{ success: boolean; error?: string }>;
   resetMemberPassword: (
@@ -160,6 +164,14 @@ const initialState: AuthState = {
   currentUser: undefined
 };
 
+function broadcastPreferredLocale(locale: SupportedLocale) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.dispatchEvent(new CustomEvent<SupportedLocale>(PREFERRED_LOCALE_EVENT, { detail: locale }));
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
@@ -178,6 +190,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       dispatch({ type: "LOGIN", payload: candidate });
+      broadcastPreferredLocale(candidate.preferredLocale);
       return { success: true };
     };
 
@@ -187,6 +200,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: "Demozugang wurde nicht gefunden." };
       }
       dispatch({ type: "LOGIN", payload: candidate });
+      broadcastPreferredLocale(candidate.preferredLocale);
+      return { success: true };
+    };
+
+    const loginByPreferredLocale = async (preferredLocale: SupportedLocale) => {
+      const candidate = state.members.find(
+        (member) => member.preferredLocale === preferredLocale && member.role === "member"
+      );
+      if (!candidate) {
+        return { success: false, error: "Demozugang wurde nicht gefunden." };
+      }
+      dispatch({ type: "LOGIN", payload: candidate });
+      broadcastPreferredLocale(candidate.preferredLocale);
       return { success: true };
     };
 
@@ -199,6 +225,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const now = new Date().toISOString();
+      const preferredLocale = payload.preferredLocale ?? "de";
       const newMember: InternalMember = {
         id: generateId(),
         name: payload.name.trim(),
@@ -212,10 +239,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           "Neu in der Community und bereit für den nächsten gemeinsamen Tauchgang.",
         certifications: [],
         favoriteDiveSite: payload.favoriteDiveSite?.trim() ?? "",
-        completedDives: 0
+        completedDives: 0,
+        preferredLocale
       };
 
       dispatch({ type: "REGISTER", payload: newMember });
+      broadcastPreferredLocale(newMember.preferredLocale);
       return { success: true };
     };
 
@@ -287,6 +316,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         delete sanitized.role;
       }
 
+      if ("preferredLocale" in sanitized && sanitized.preferredLocale !== undefined) {
+        const candidateLocale = sanitized.preferredLocale as SupportedLocale;
+        if (candidateLocale !== "de" && candidateLocale !== "en") {
+          delete sanitized.preferredLocale;
+        } else {
+          sanitized.preferredLocale = candidateLocale;
+        }
+      }
+
+      const nextPreferredLocale = sanitized.preferredLocale as SupportedLocale | undefined;
+
       dispatch({
         type: "UPDATE_MEMBER",
         payload: {
@@ -294,6 +334,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           data: sanitized
         }
       });
+
+      if (nextPreferredLocale && nextPreferredLocale !== target.preferredLocale) {
+        broadcastPreferredLocale(nextPreferredLocale);
+      }
 
       return { success: true };
     };
@@ -333,6 +377,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       loginAsDemoMember: () => loginByRole("member"),
       loginAsDemoAdmin: () => loginByRole("admin"),
+  loginAsDemoLocale: (preferredLocale) => loginByPreferredLocale(preferredLocale),
       register,
       updateMember,
       resetMemberPassword,

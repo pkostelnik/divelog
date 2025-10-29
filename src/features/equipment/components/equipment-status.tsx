@@ -5,14 +5,17 @@ import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 
 import type { EquipmentItem } from "@/data/mock-data";
 import { useDemoData } from "@/providers/demo-data-provider";
+import { useI18n } from "@/providers/i18n-provider";
 
-const statusMap = {
+const statusValues = ["bereit", "wartung", "defekt"] as const;
+
+const statusMap: Record<(typeof statusValues)[number], string> = {
   bereit: "bg-emerald-100 text-emerald-700",
   wartung: "bg-amber-100 text-amber-700",
   defekt: "bg-rose-100 text-rose-700"
-} as const;
+};
 
-type StatusKey = keyof typeof statusMap;
+type StatusKey = (typeof statusValues)[number];
 
 type EquipmentFormState = {
   manufacturer: string;
@@ -43,6 +46,7 @@ function createEquipmentFormState(initial?: EquipmentItem): EquipmentFormState {
 }
 
 export function EquipmentStatus() {
+  const { t, locale } = useI18n();
   const { equipment, updateEquipmentStatus, updateEquipment, removeEquipment, addEquipment } =
     useDemoData();
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -51,9 +55,20 @@ export function EquipmentStatus() {
 
   const sortedEquipment = useMemo(() => {
     return [...equipment].sort((a, b) =>
-      `${a.manufacturer} ${a.model}`.localeCompare(`${b.manufacturer} ${b.model}`)
+      `${a.manufacturer} ${a.model}`.localeCompare(`${b.manufacturer} ${b.model}`, locale)
     );
-  }, [equipment]);
+  }, [equipment, locale]);
+
+  const statusOptions = useMemo(() => statusValues.map((value) => ({
+    value,
+    label: t(`dashboard.equipment.status.option.${value}`)
+  })), [t]);
+
+  const statusTags = useMemo<Record<StatusKey, string>>(() => ({
+    bereit: t("dashboard.equipment.status.tag.bereit"),
+    wartung: t("dashboard.equipment.status.tag.wartung"),
+    defekt: t("dashboard.equipment.status.tag.defekt")
+  }), [t]);
 
   const handleStatusChange = (id: string) => (event: ChangeEvent<HTMLSelectElement>) => {
     updateEquipmentStatus(id, event.target.value as EquipmentItem["status"]);
@@ -110,7 +125,7 @@ export function EquipmentStatus() {
 
   const handleDelete = (id: string) => {
     const confirmDelete = typeof window === "undefined" || window.confirm(
-      "Soll dieser Ausrüstungsgegenstand wirklich gelöscht werden?"
+      t("dashboard.equipment.alert.confirmDelete")
     );
 
     if (!confirmDelete) {
@@ -126,62 +141,64 @@ export function EquipmentStatus() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h2 className="text-lg font-semibold text-slate-900">Ausrüstung</h2>
+        <h2 className="text-lg font-semibold text-slate-900">{t("dashboard.equipment.section.title")}</h2>
         <p className="text-xs text-slate-500">
-          Passe Status und Wartungsdatum an, um typische Prozesse nachzustellen.
+          {t("dashboard.equipment.section.subtitle")}
         </p>
       </div>
       <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
-        <h3 className="text-sm font-semibold text-slate-900">Neues Equipment erfassen</h3>
-  <form className="mt-3 grid gap-3 md:grid-cols-5" onSubmit={handleCreateSubmit}>
+        <h3 className="text-sm font-semibold text-slate-900">{t("dashboard.equipment.form.heading")}</h3>
+        <form className="mt-3 grid gap-3 md:grid-cols-5" onSubmit={handleCreateSubmit}>
           <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-            Hersteller
+            {t("dashboard.equipment.form.fields.manufacturer.label")}
             <input
               name="manufacturer"
               value={newForm.manufacturer}
               onChange={handleNewFormChange}
-              placeholder="z. B. Apeks"
+              placeholder={t("dashboard.equipment.form.fields.manufacturer.placeholder")}
               className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
               required
             />
           </label>
           <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-            Modell
+            {t("dashboard.equipment.form.fields.model.label")}
             <input
               name="model"
               value={newForm.model}
               onChange={handleNewFormChange}
-              placeholder="Produktbezeichnung"
+              placeholder={t("dashboard.equipment.form.fields.model.placeholder")}
               className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
               required
             />
           </label>
           <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-            Seriennummer
+            {t("dashboard.equipment.form.fields.serial.label")}
             <input
               name="serialNumber"
               value={newForm.serialNumber}
               onChange={handleNewFormChange}
-              placeholder="Seriennummer"
+              placeholder={t("dashboard.equipment.form.fields.serial.placeholder")}
               className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
               required
             />
           </label>
           <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-            Status
+            {t("dashboard.equipment.form.fields.status.label")}
             <select
               name="status"
               value={newForm.status}
               onChange={handleNewFormChange}
               className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600 shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
             >
-              <option value="bereit">Bereit</option>
-              <option value="wartung">Wartung</option>
-              <option value="defekt">Defekt</option>
+              {statusOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </label>
           <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-            Letzter Service
+            {t("dashboard.equipment.form.fields.lastService.label")}
             <input
               type="date"
               name="lastService"
@@ -196,7 +213,7 @@ export function EquipmentStatus() {
               type="submit"
               className="inline-flex items-center rounded-xl bg-ocean-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-ocean-700"
             >
-              Eintrag hinzufügen
+              {t("dashboard.equipment.form.submit")}
             </button>
           </div>
         </form>
@@ -206,61 +223,63 @@ export function EquipmentStatus() {
           const isEditing = editingId === item.id;
 
           return (
-          <li
-            key={item.id}
-            className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm"
-          >
+            <li
+              key={item.id}
+              className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm"
+            >
               {isEditing ? (
                 <form onSubmit={handleEditSubmit} className="w-full space-y-3">
                   <div className="grid gap-3 md:grid-cols-4">
                     <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-                      Hersteller
+                      {t("dashboard.equipment.form.fields.manufacturer.label")}
                       <input
                         name="manufacturer"
                         value={form.manufacturer}
                         onChange={handleFormChange}
-                        placeholder="z. B. Apeks"
+                        placeholder={t("dashboard.equipment.form.fields.manufacturer.placeholder")}
                         className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                         required
                       />
                     </label>
                     <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-                      Modell
+                      {t("dashboard.equipment.form.fields.model.label")}
                       <input
                         name="model"
                         value={form.model}
                         onChange={handleFormChange}
-                        placeholder="Produktbezeichnung"
+                        placeholder={t("dashboard.equipment.form.fields.model.placeholder")}
                         className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                         required
                       />
                     </label>
                     <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-                      Seriennummer
+                      {t("dashboard.equipment.form.fields.serial.label")}
                       <input
                         name="serialNumber"
                         value={form.serialNumber}
                         onChange={handleFormChange}
-                        placeholder="Seriennummer"
+                        placeholder={t("dashboard.equipment.form.fields.serial.placeholder")}
                         className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                         required
                       />
                     </label>
                     <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-                      Status
+                      {t("dashboard.equipment.form.fields.status.label")}
                       <select
                         name="status"
                         value={form.status}
                         onChange={handleFormChange}
                         className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600 shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                       >
-                        <option value="bereit">Bereit</option>
-                        <option value="wartung">Wartung</option>
-                        <option value="defekt">Defekt</option>
+                        {statusOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
                       </select>
                     </label>
                     <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600 md:col-span-4 md:flex-row md:items-center">
-                      <span className="md:min-w-[160px]">Letzter Service</span>
+                      <span className="md:min-w-[160px]">{t("dashboard.equipment.form.fields.lastService.label")}</span>
                       <input
                         type="date"
                         name="lastService"
@@ -276,21 +295,21 @@ export function EquipmentStatus() {
                       type="submit"
                       className="inline-flex items-center rounded-xl bg-ocean-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-ocean-700"
                     >
-                      Änderungen speichern
+                      {t("dashboard.equipment.edit.actions.save")}
                     </button>
                     <button
                       type="button"
                       onClick={cancelEdit}
                       className="text-xs font-semibold text-slate-500 underline-offset-2 hover:underline"
                     >
-                      Abbrechen
+                      {t("dashboard.equipment.edit.actions.cancel")}
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDelete(item.id)}
                       className="text-xs font-semibold text-rose-600 underline-offset-2 hover:underline"
                     >
-                      Löschen
+                      {t("dashboard.equipment.actions.delete")}
                     </button>
                   </div>
                 </form>
@@ -300,8 +319,12 @@ export function EquipmentStatus() {
                     <p className="text-sm font-semibold text-slate-900">
                       {item.manufacturer} {item.model}
                     </p>
-                    <p className="text-xs text-slate-500">Seriennummer: {item.serialNumber}</p>
-                    <p className="text-xs text-slate-500">Letzter Service: {item.lastService}</p>
+                    <p className="text-xs text-slate-500">
+                      {t("dashboard.equipment.list.serial").replace("{serial}", item.serialNumber)}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {t("dashboard.equipment.list.lastService").replace("{date}", item.lastService)}
+                    </p>
                   </div>
                   <div className="flex flex-col items-end gap-3 sm:flex-row sm:items-center">
                     <div className="flex items-center gap-3">
@@ -310,9 +333,11 @@ export function EquipmentStatus() {
                         onChange={handleStatusChange(item.id)}
                         className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600 shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                       >
-                        <option value="bereit">Bereit</option>
-                        <option value="wartung">Wartung</option>
-                        <option value="defekt">Defekt</option>
+                        {statusOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
                       </select>
                       <span
                         className={clsx(
@@ -320,7 +345,7 @@ export function EquipmentStatus() {
                           statusMap[item.status as StatusKey]
                         )}
                       >
-                        {item.status.toUpperCase()}
+                        {statusTags[item.status as StatusKey]}
                       </span>
                     </div>
                     <div className="flex items-center gap-3 text-xs font-semibold">
@@ -329,21 +354,21 @@ export function EquipmentStatus() {
                         onClick={() => handleServiceUpdate(item.id)}
                         className="text-ocean-700 underline-offset-2 hover:underline"
                       >
-                        Service heute protokollieren
+                        {t("dashboard.equipment.actions.serviceToday")}
                       </button>
                       <button
                         type="button"
                         onClick={() => startEdit(item)}
                         className="text-slate-600 underline-offset-2 hover:underline"
                       >
-                        Bearbeiten
+                        {t("dashboard.equipment.actions.edit")}
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDelete(item.id)}
                         className="text-rose-600 underline-offset-2 hover:underline"
                       >
-                        Löschen
+                        {t("dashboard.equipment.actions.delete")}
                       </button>
                     </div>
                   </div>

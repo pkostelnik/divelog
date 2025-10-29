@@ -1,13 +1,16 @@
+"use client";
+
 import { DiveSearchPanel } from "@/features/search/components/dive-search-panel";
+import { useI18n } from "@/providers/i18n-provider";
 
 export default function DashboardSearchPage() {
+  const { t } = useI18n();
+
   return (
     <div className="space-y-6">
       <header className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Suche &amp; Filter</h1>
-        <p className="text-sm text-slate-600">
-          Filtere Tauchgänge nach Spot, Buddy oder Schwierigkeitsgrad. Die Suche läuft komplett clientseitig auf Mock-Daten.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">{t("dashboard.search.heading")}</h1>
+        <p className="text-sm text-slate-600">{t("dashboard.search.description")}</p>
       </header>
       <DiveSearchPanel />
     </div>

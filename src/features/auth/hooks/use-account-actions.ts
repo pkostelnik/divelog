@@ -4,6 +4,7 @@ import { useCallback } from "react";
 
 import { useAuth } from "@/providers/auth-provider";
 import { useDemoData } from "@/providers/demo-data-provider";
+import { useI18n } from "@/providers/i18n-provider";
 
 export type ResetPasswordParams = {
   memberId: string;
@@ -18,46 +19,47 @@ export type DeleteAccountParams = {
 export function useAccountActions() {
   const { resetMemberPassword, removeMember, members } = useAuth();
   const { purgeMemberContent } = useDemoData();
+  const { t } = useI18n();
 
   const resetPassword = useCallback(
     async ({ memberId, newPassword }: ResetPasswordParams) => {
       const target = members.find((member) => member.id === memberId);
       if (!target) {
-        return { success: false as const, error: "Mitglied wurde nicht gefunden." };
+        return { success: false as const, error: t("auth.account.memberNotFound") };
       }
 
       const trimmed = newPassword.trim();
       if (trimmed.length < 6) {
-        return { success: false as const, error: "Passwort benötigt mindestens 6 Zeichen." };
+        return { success: false as const, error: t("auth.account.password.error.short") };
       }
 
       const result = await resetMemberPassword({ id: memberId, newPassword: trimmed });
       if (!result.success) {
-        return { success: false as const, error: result.error ?? "Passwort konnte nicht aktualisiert werden." };
+        return { success: false as const, error: result.error ?? t("auth.account.password.error.generic") };
       }
 
       return { success: true as const };
     },
-    [members, resetMemberPassword]
+    [members, resetMemberPassword, t]
   );
 
   const deleteAccount = useCallback(
     async ({ memberId, placeholderName }: DeleteAccountParams) => {
       const target = members.find((member) => member.id === memberId);
       if (!target) {
-        return { success: false as const, error: "Mitglied wurde nicht gefunden." };
+        return { success: false as const, error: t("auth.account.memberNotFound") };
       }
 
       purgeMemberContent({ memberId, placeholderName });
       const result = await removeMember({ id: memberId });
 
       if (!result.success) {
-        return { success: false as const, error: result.error ?? "Konto konnte nicht gelöscht werden." };
+        return { success: false as const, error: result.error ?? t("auth.account.delete.error") };
       }
 
       return { success: true as const };
     },
-    [members, purgeMemberContent, removeMember]
+    [members, purgeMemberContent, removeMember, t]
   );
 
   return {

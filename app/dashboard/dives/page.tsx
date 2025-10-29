@@ -6,9 +6,11 @@ import type { DiveLogPreview } from "@/data/mock-data";
 import { AddDiveLogForm } from "@/features/dives/components/add-dive-log-form";
 import { DiveLogList } from "@/features/dives/components/dive-log-list";
 import { useDemoData } from "@/providers/demo-data-provider";
+import { useI18n } from "@/providers/i18n-provider";
 
 export default function DashboardDivesPage() {
   const { diveLogs } = useDemoData();
+  const { t } = useI18n();
   const [editingLogId, setEditingLogId] = useState<string | null>(null);
   const [formVisible, setFormVisible] = useState(false);
 
@@ -39,10 +41,8 @@ export default function DashboardDivesPage() {
     <div className="space-y-8">
       <header className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Tauchgänge</h1>
-          <p className="text-sm text-slate-600">
-            Demo-Übersicht deiner letzten Logbuch-Einträge inklusive Buddy, Tiefe und Dauer.
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">{t("dashboard.dives.heading")}</h1>
+          <p className="text-sm text-slate-600">{t("dashboard.dives.subtitle")}</p>
         </div>
         <button
           type="button"
@@ -50,7 +50,7 @@ export default function DashboardDivesPage() {
           className="inline-flex items-center justify-center rounded-xl bg-ocean-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-ocean-700"
           aria-expanded={formVisible}
         >
-          Neuer Logbucheintrag
+          {t("dashboard.dives.actions.toggle")}
         </button>
       </header>
       <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">

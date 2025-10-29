@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useDemoData } from "@/providers/demo-data-provider";
 import { useAuth } from "@/providers/auth-provider";
+import { useI18n } from "@/providers/i18n-provider";
 
 const ANONYMOUS_AUTHOR_ID_KEY = "divelog:community-anonymous-author-id";
 
@@ -33,20 +34,19 @@ function ensureAnonymousAuthorId() {
   }
 }
 
-function formatDate(value: string) {
-  return new Date(value).toLocaleString("de-DE", {
-    dateStyle: "short",
-    timeStyle: "short"
-  });
-}
-
 export function CommunityForumBoard() {
   const { forumCategories, forumThreads, toggleForumThreadLike, removeForumThread } = useDemoData();
   const { currentUser } = useAuth();
+  const { t, locale } = useI18n();
   const isAdmin = currentUser?.role === "admin";
   const currentUserId = currentUser?.id ?? null;
   const normalizedCurrentUserName = currentUser?.name.trim().toLowerCase() ?? null;
   const [pendingThreadDeleteId, setPendingThreadDeleteId] = useState<string | null>(null);
+  const dateTimeFormatter = useMemo(
+    () => new Intl.DateTimeFormat(locale, { dateStyle: "short", timeStyle: "short" }),
+    [locale]
+  );
+  const numberFormatter = useMemo(() => new Intl.NumberFormat(locale), [locale]);
   const anonymousAuthorId = useMemo(() => {
     const ensured = ensureAnonymousAuthorId();
     if (ensured) {
@@ -129,7 +129,7 @@ export function CommunityForumBoard() {
   return (
     <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
       <aside className="space-y-4">
-        <h2 className="text-sm font-semibold text-slate-700">Forenbereiche</h2>
+        <h2 className="text-sm font-semibold text-slate-700">{t("dashboard.community.forum.board.sidebar.heading")}</h2>
         <ul className="space-y-3">
           {categoriesWithCounts.map((category) => (
             <li
@@ -139,7 +139,10 @@ export function CommunityForumBoard() {
               <p className="text-sm font-semibold text-slate-900">{category.title}</p>
               <p className="mt-1 text-xs text-slate-600">{category.description}</p>
               <p className="mt-3 text-xs font-semibold text-ocean-700">
-                {category.threadCount} Threads aktiv
+                {t("dashboard.community.forum.board.sidebar.count").replace(
+                  "{count}",
+                  numberFormatter.format(category.threadCount)
+                )}
               </p>
             </li>
           ))}
@@ -147,8 +150,13 @@ export function CommunityForumBoard() {
       </aside>
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-700">Aktive Diskussionen</h2>
-          <span className="text-xs text-slate-500">{threads.length} laufende Threads</span>
+          <h2 className="text-sm font-semibold text-slate-700">{t("dashboard.community.forum.board.heading")}</h2>
+          <span className="text-xs text-slate-500">
+            {t("dashboard.community.forum.board.meta.total").replace(
+              "{count}",
+              numberFormatter.format(threads.length)
+            )}
+          </span>
         </div>
         <div className="space-y-3">
           {threads.map((thread) => {
@@ -157,6 +165,7 @@ export function CommunityForumBoard() {
             const participants = new Set<string>([thread.author]);
             thread.replies.forEach((reply) => participants.add(reply.author));
             const canManage = canManageThread(thread);
+            const participantsList = Array.from(participants).join(", ");
 
             return (
               <article
@@ -165,16 +174,36 @@ export function CommunityForumBoard() {
               >
                 <header className="flex flex-wrap items-center gap-3">
                   <span className="inline-flex items-center rounded-full bg-ocean-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-ocean-700">
-                    {category?.title ?? "Community"}
+                    {category?.title ?? t("dashboard.community.forum.board.categoryFallback")}
                   </span>
                   <h3 className="text-base font-semibold text-slate-900">{thread.title}</h3>
                 </header>
                 <p className="mt-2 text-sm text-slate-600">{thread.excerpt}</p>
                 <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-slate-500">
-                  <span>Gestartet von {thread.author}</span>
-                  <span>Antworten: {replyCount}</span>
-                  <span>Teilnehmende: {Array.from(participants).join(", ")}</span>
-                  <span>Letzte Aktivität: {formatDate(thread.lastActivity)}</span>
+                  <span>
+                    {t("dashboard.community.forum.board.meta.startedBy").replace(
+                      "{author}",
+                      thread.author
+                    )}
+                  </span>
+                  <span>
+                    {t("dashboard.community.forum.board.meta.replies").replace(
+                      "{count}",
+                      numberFormatter.format(replyCount)
+                    )}
+                  </span>
+                  <span>
+                    {t("dashboard.community.forum.board.meta.participants").replace(
+                      "{list}",
+                      participantsList
+                    )}
+                  </span>
+                  <span>
+                    {t("dashboard.community.forum.board.meta.lastActivity").replace(
+                      "{date}",
+                      dateTimeFormatter.format(new Date(thread.lastActivity))
+                    )}
+                  </span>
                 </div>
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                   <button
@@ -182,14 +211,18 @@ export function CommunityForumBoard() {
                     onClick={() => toggleForumThreadLike(thread.id)}
                     className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-ocean-700 transition hover:border-ocean-300 hover:text-ocean-800"
                   >
-                    {thread.likedByMe ? "❤️ Gefällt mir" : "♡ Gefällt mir"}
-                    <span className="font-medium text-slate-600">{thread.likes}</span>
+                    {thread.likedByMe
+                      ? t("dashboard.community.forum.board.actions.like.active")
+                      : t("dashboard.community.forum.board.actions.like.inactive")}
+                    <span className="font-medium text-slate-600">
+                      {numberFormatter.format(thread.likes)}
+                    </span>
                   </button>
                   <Link
                     href={`/dashboard/community/forum/${thread.id}`}
                     className="inline-flex items-center gap-2 text-xs font-semibold text-ocean-600 transition hover:text-ocean-700"
                   >
-                    Thread öffnen
+                    {t("dashboard.community.forum.board.actions.open")}
                     <span aria-hidden>→</span>
                   </Link>
                   {canManage && (
@@ -200,14 +233,14 @@ export function CommunityForumBoard() {
                           onClick={() => confirmThreadDelete(thread.id)}
                           className="inline-flex items-center rounded-full border border-rose-300 bg-rose-600 px-3 py-1 font-semibold text-white transition hover:bg-rose-700"
                         >
-                          Löschen bestätigen
+                          {t("dashboard.community.forum.board.actions.deleteConfirm")}
                         </button>
                         <button
                           type="button"
                           onClick={cancelThreadDelete}
                           className="inline-flex items-center rounded-full border border-slate-300 px-3 py-1 font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-700"
                         >
-                          Abbrechen
+                          {t("dashboard.community.forum.board.actions.cancel")}
                         </button>
                       </div>
                     ) : (
@@ -216,7 +249,7 @@ export function CommunityForumBoard() {
                         onClick={() => requestThreadDelete(thread.id)}
                         className="inline-flex items-center rounded-full border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700 transition hover:border-rose-300 hover:text-rose-800"
                       >
-                        Thread löschen
+                        {t("dashboard.community.forum.board.actions.delete")}
                       </button>
                     )
                   )}

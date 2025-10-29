@@ -16,6 +16,7 @@ import { createPortal } from "react-dom";
 import type { MediaItem } from "@/data/mock-data";
 import { useAuth } from "@/providers/auth-provider";
 import { useDemoData } from "@/providers/demo-data-provider";
+import { useI18n } from "@/providers/i18n-provider";
 
 type MediaFormState = {
   title: string;
@@ -32,6 +33,7 @@ type MediaGridProps = {
 };
 
 const MAX_UPLOAD_SIZE_BYTES = 12 * 1024 * 1024;
+const MAX_UPLOAD_SIZE_MB = MAX_UPLOAD_SIZE_BYTES / (1024 * 1024);
 
 const initialMediaForm: MediaFormState = {
   title: "",
@@ -66,6 +68,7 @@ function createMediaForm(
 }
 
 export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
+  const { t, locale } = useI18n();
   const { currentUser } = useAuth();
   const currentUserId = currentUser?.id ?? null;
   const canManageAll = currentUser?.role === "admin";
@@ -86,10 +89,11 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
     })
   );
   const [previewItem, setPreviewItem] = useState<MediaItem | null>(null);
+  const numberFormatter = useMemo(() => new Intl.NumberFormat(locale), [locale]);
 
   const sortedMedia = useMemo(() => {
-    return [...mediaItems].sort((a, b) => a.title.localeCompare(b.title));
-  }, [mediaItems]);
+    return [...mediaItems].sort((a, b) => a.title.localeCompare(b.title, locale));
+  }, [mediaItems, locale]);
 
   const openPreview = useCallback((item: MediaItem) => {
     setPreviewItem(item);
@@ -177,13 +181,13 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
     }
 
     if (file.size > MAX_UPLOAD_SIZE_BYTES) {
-      window.alert("Die Datei ist größer als 12 MB. Bitte wähle eine kleinere Datei.");
+      window.alert(t("dashboard.media.alert.fileTooLarge").replace("{size}", numberFormatter.format(MAX_UPLOAD_SIZE_MB)));
       input.value = "";
       return;
     }
 
     try {
-      const dataUrl = await readFileAsDataUrl(file);
+      const dataUrl = await readFileAsDataUrl(file, t("dashboard.media.alert.fileReadError"));
 
       setter((previous) => ({
         ...previous,
@@ -194,7 +198,7 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
       }));
     } catch (error) {
       console.error(error);
-      window.alert("Die Datei konnte nicht gelesen werden. Bitte versuche es erneut.");
+      window.alert(t("dashboard.media.alert.fileReadError"));
     } finally {
       input.value = "";
     }
@@ -204,17 +208,17 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
     event.preventDefault();
 
     if (newForm.source === "url" && newForm.url.trim().length === 0) {
-      window.alert("Bitte gib eine gültige URL an.");
+      window.alert(t("dashboard.media.alert.urlRequired"));
       return;
     }
 
     if (newForm.source === "upload" && newForm.url.length === 0) {
-      window.alert("Bitte lade zuerst eine Datei hoch.");
+      window.alert(t("dashboard.media.alert.uploadRequired"));
       return;
     }
 
     if (!currentUser) {
-      window.alert("Bitte melde dich an, um neue Medien hinzuzufügen.");
+      window.alert(t("dashboard.media.alert.loginRequired"));
       return;
     }
 
@@ -236,7 +240,7 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
 
   const startEdit = (item: MediaItem) => {
     if (!canModifyMedia(item)) {
-      window.alert("Dir fehlen die Rechte, um dieses Medium zu bearbeiten.");
+      window.alert(t("dashboard.media.alert.permissionEdit"));
       return;
     }
 
@@ -255,12 +259,12 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
       return;
     }
     if (form.source === "url" && form.url.trim().length === 0) {
-      window.alert("Bitte gib eine gültige URL an.");
+      window.alert(t("dashboard.media.alert.urlRequired"));
       return;
     }
 
     if (form.source === "upload" && form.url.length === 0) {
-      window.alert("Bitte lade zuerst eine Datei hoch oder wähle eine URL aus.");
+      window.alert(t("dashboard.media.alert.uploadRequiredEdit"));
       return;
     }
 
@@ -271,7 +275,7 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
     }
 
     if (!canModifyMedia(target)) {
-      window.alert("Dir fehlen die Rechte, um dieses Medium zu aktualisieren.");
+      window.alert(t("dashboard.media.alert.permissionUpdate"));
       cancelEdit();
       return;
     }
@@ -296,13 +300,13 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
     }
 
     if (!canModifyMedia(target)) {
-      window.alert("Dir fehlen die Rechte, um dieses Medium zu löschen.");
+      window.alert(t("dashboard.media.alert.permissionDelete"));
       return;
     }
 
     const confirmed = typeof window === "undefined"
       ? true
-      : window.confirm("Soll dieses Medium wirklich gelöscht werden?");
+      : window.confirm(t("dashboard.media.alert.confirmDelete"));
 
     if (!confirmed) {
       return;
@@ -318,57 +322,57 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
     <div className="space-y-6">
       {showCreateForm && (
         <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
-          <h2 className="text-sm font-semibold text-slate-900">Neues Medium hinzufügen</h2>
+          <h2 className="text-sm font-semibold text-slate-900">{t("dashboard.media.form.heading")}</h2>
           <form onSubmit={handleCreate} className="mt-3 grid gap-3 md:grid-cols-3">
             <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-              Titel
+              {t("dashboard.media.form.fields.title.label")}
               <input
                 name="title"
                 value={newForm.title}
                 onChange={handleFieldChange(setNewForm)}
-                placeholder="Bezeichnung des Mediums"
+                placeholder={t("dashboard.media.form.fields.title.placeholder")}
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                 required
               />
             </label>
             <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-              Autor:in
+              {t("dashboard.media.form.fields.author.label")}
               <input
                 name="author"
                 value={newForm.author}
                 onChange={handleFieldChange(setNewForm)}
-                placeholder="Urheber oder Quelle"
+                placeholder={t("dashboard.media.form.fields.author.placeholder")}
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                 required
               />
             </label>
             <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-              Medientyp
+              {t("dashboard.media.form.fields.type.label")}
               <select
                 name="type"
                 value={newForm.type}
                 onChange={handleFieldChange(setNewForm)}
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
               >
-                <option value="image">Bild</option>
-                <option value="video">Video</option>
+                <option value="image">{t("dashboard.media.form.fields.type.options.image")}</option>
+                <option value="video">{t("dashboard.media.form.fields.type.options.video")}</option>
               </select>
             </label>
             <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-              Quelle
+              {t("dashboard.media.form.fields.source.label")}
               <select
                 name="source"
                 value={newForm.source}
                 onChange={handleFieldChange(setNewForm)}
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
               >
-                <option value="url">Externer Link</option>
-                <option value="upload">Datei-Upload</option>
+                <option value="url">{t("dashboard.media.form.fields.source.options.url")}</option>
+                <option value="upload">{t("dashboard.media.form.fields.source.options.upload")}</option>
               </select>
             </label>
             {newForm.source === "url" ? (
               <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600 md:col-span-3">
-                Medien-URL
+                {t("dashboard.media.form.fields.url.label")}
                 <input
                   name="url"
                   value={newForm.url}
@@ -381,7 +385,7 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
             ) : (
               <div className="md:col-span-3 flex flex-col gap-2 text-xs font-semibold text-slate-600">
                 <label className="flex flex-col gap-1">
-                  Datei hochladen
+                  {t("dashboard.media.form.fields.file.label")}
                   <input
                     type="file"
                     accept={newForm.type === "video" ? "video/*" : "image/*"}
@@ -391,11 +395,11 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
                 </label>
                 {newForm.fileName ? (
                   <span className="text-xs font-normal text-slate-500">
-                    Ausgewählte Datei: {newForm.fileName}
+                    {t("dashboard.media.form.fields.file.selected").replace("{file}", newForm.fileName)}
                   </span>
                 ) : (
                   <span className="text-xs font-normal text-slate-500">
-                    Noch keine Datei ausgewählt
+                    {t("dashboard.media.form.fields.file.empty")}
                   </span>
                 )}
               </div>
@@ -406,12 +410,12 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
                 disabled={!currentUser}
                 className="inline-flex items-center rounded-xl bg-ocean-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-ocean-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Medium speichern
+                {t("dashboard.media.form.submit")}
               </button>
             </div>
             {!currentUser && (
               <p className="md:col-span-3 text-xs font-normal text-slate-500">
-                Melde dich an, um neue Medien hinzuzufügen.
+                {t("dashboard.media.form.loginHint")}
               </p>
             )}
           </form>
@@ -422,6 +426,17 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
         {sortedMedia.map((item) => {
           const isEditing = editingId === item.id;
           const userCanModify = canModifyMedia(item);
+          const typeLabel = item.type === "video"
+            ? t("dashboard.media.labels.type.video")
+            : t("dashboard.media.labels.type.image");
+          const sourceLabel = item.source === "upload"
+            ? t("dashboard.media.labels.source.upload")
+            : t("dashboard.media.labels.source.url");
+          const fileLabel = item.fileName
+            ? t("dashboard.media.labels.fileName").replace("{file}", item.fileName)
+            : "";
+          const authorLine = t("dashboard.media.labels.author").replace("{name}", item.author);
+          const metaLine = `${typeLabel} · ${sourceLabel}${fileLabel}`;
 
           return (
             <figure
@@ -436,7 +451,7 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
                     onClick={() => openPreview(item)}
                     className="absolute inset-0 flex items-center justify-center bg-slate-950/0 text-xs font-semibold uppercase tracking-wide text-white opacity-0 transition hover:bg-slate-950/30 hover:opacity-100 focus-visible:bg-slate-950/40 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
                   >
-                    <span className="sr-only">Vollbild öffnen: {item.title}</span>
+                    <span className="sr-only">{t("dashboard.media.preview.open").replace("{title}", item.title)}</span>
                   </button>
                 </div>
               )}
@@ -444,7 +459,7 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
                 {isEditing ? (
                   <form className="space-y-3" onSubmit={handleEditSubmit}>
                     <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-                      Titel
+                      {t("dashboard.media.form.fields.title.label")}
                       <input
                         name="title"
                         value={form.title}
@@ -454,7 +469,7 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
                       />
                     </label>
                     <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-                      Autor:in
+                      {t("dashboard.media.form.fields.author.label")}
                       <input
                         name="author"
                         value={form.author}
@@ -465,33 +480,33 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
                     </label>
                     <div className="grid gap-2 sm:grid-cols-2">
                       <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-                        Medientyp
+                        {t("dashboard.media.form.fields.type.label")}
                         <select
                           name="type"
                           value={form.type}
                           onChange={handleFieldChange(setForm)}
                           className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                         >
-                          <option value="image">Bild</option>
-                          <option value="video">Video</option>
+                          <option value="image">{t("dashboard.media.form.fields.type.options.image")}</option>
+                          <option value="video">{t("dashboard.media.form.fields.type.options.video")}</option>
                         </select>
                       </label>
                       <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-                        Quelle
+                        {t("dashboard.media.form.fields.source.label")}
                         <select
                           name="source"
                           value={form.source}
                           onChange={handleFieldChange(setForm)}
                           className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                         >
-                          <option value="url">Externer Link</option>
-                          <option value="upload">Datei-Upload</option>
+                          <option value="url">{t("dashboard.media.form.fields.source.options.url")}</option>
+                          <option value="upload">{t("dashboard.media.form.fields.source.options.upload")}</option>
                         </select>
                       </label>
                     </div>
                     {form.source === "url" ? (
                       <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-                        Medien-URL
+                        {t("dashboard.media.form.fields.url.label")}
                         <input
                           name="url"
                           value={form.url}
@@ -504,7 +519,7 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
                     ) : (
                       <div className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
                         <label className="flex flex-col gap-1">
-                          Datei ersetzen
+                          {t("dashboard.media.edit.file.replace")}
                           <input
                             type="file"
                             accept={form.type === "video" ? "video/*" : "image/*"}
@@ -513,7 +528,9 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
                           />
                         </label>
                         <span className="text-xs font-normal text-slate-500">
-                          Aktuell gespeichert: {form.fileName ?? "unbekannter Dateiname"}
+                          {form.fileName
+                            ? t("dashboard.media.edit.file.current").replace("{file}", form.fileName)
+                            : t("dashboard.media.edit.file.unknown")}
                         </span>
                       </div>
                     )}
@@ -522,14 +539,14 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
                         type="submit"
                         className="inline-flex items-center rounded-xl bg-ocean-600 px-4 py-2 text-white shadow-sm transition hover:bg-ocean-700"
                       >
-                        Änderungen speichern
+                        {t("dashboard.media.edit.actions.save")}
                       </button>
                       <button
                         type="button"
                         onClick={cancelEdit}
                         className="text-slate-500 underline-offset-2 hover:underline"
                       >
-                        Abbrechen
+                        {t("dashboard.media.edit.actions.cancel")}
                       </button>
                       {userCanModify && (
                         <button
@@ -537,7 +554,7 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
                           onClick={() => handleDelete(item.id)}
                           className="text-rose-600 underline-offset-2 hover:underline"
                         >
-                          Löschen
+                          {t("dashboard.media.actions.delete")}
                         </button>
                       )}
                     </div>
@@ -546,11 +563,8 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
                   <div className="space-y-3">
                     <div>
                       <p className="font-semibold text-slate-900">{item.title}</p>
-                      <p className="text-xs text-slate-500">von {item.author}</p>
-                      <p className="text-[11px] uppercase tracking-wide text-slate-400">
-                        {item.type === "video" ? "Video" : "Bild"} · {item.source === "upload" ? "Upload" : "Link"}
-                        {item.fileName ? ` · ${item.fileName}` : ""}
-                      </p>
+                      <p className="text-xs text-slate-500">{authorLine}</p>
+                      <p className="text-[11px] uppercase tracking-wide text-slate-400">{metaLine}</p>
                     </div>
                     <div className="flex flex-wrap items-center gap-3 text-xs font-semibold">
                       <button
@@ -559,8 +573,8 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
                         className="text-ocean-700 underline-offset-2 hover:underline"
                       >
                         {favoriteMediaIds.includes(item.id)
-                          ? "Favorit gespeichert"
-                          : "Als Favorit merken"}
+                          ? t("dashboard.media.actions.favorite.saved")
+                          : t("dashboard.media.actions.favorite.add")}
                       </button>
                       {userCanModify ? (
                         <>
@@ -569,19 +583,19 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
                             onClick={() => startEdit(item)}
                             className="text-slate-600 underline-offset-2 hover:underline"
                           >
-                            Bearbeiten
+                            {t("dashboard.media.actions.edit")}
                           </button>
                           <button
                             type="button"
                             onClick={() => handleDelete(item.id)}
                             className="text-rose-600 underline-offset-2 hover:underline"
                           >
-                            Löschen
+                            {t("dashboard.media.actions.delete")}
                           </button>
                         </>
                       ) : (
                         <span className="text-xs font-normal text-slate-400">
-                          Änderungen nur durch Besitzer:innen oder Admins.
+                          {t("dashboard.media.notice.restricted")}
                         </span>
                       )}
                     </div>
@@ -597,20 +611,22 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
   );
 }
 
-function readFileAsDataUrl(file: File): Promise<string> {
+function readFileAsDataUrl(file: File, fallbackMessage: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.addEventListener("load", () => {
       resolve(typeof reader.result === "string" ? reader.result : "");
     });
     reader.addEventListener("error", () => {
-      reject(reader.error ?? new Error("Datei konnte nicht gelesen werden."));
+      reject(reader.error ?? new Error(fallbackMessage));
     });
     reader.readAsDataURL(file);
   });
 }
 
 function MediaPreview({ item }: { item: MediaItem }) {
+  const { t } = useI18n();
+
   if (item.type === "video") {
     return (
       <video
@@ -618,7 +634,7 @@ function MediaPreview({ item }: { item: MediaItem }) {
         className="h-56 w-full bg-slate-900 object-cover"
         src={item.url}
       >
-        Ihr Browser unterstützt kein eingebettetes Video.
+        {t("dashboard.media.preview.unsupported")}
       </video>
     );
   }
@@ -653,6 +669,7 @@ function MediaPreview({ item }: { item: MediaItem }) {
 }
 
 function MediaPreviewOverlay({ item, onClose }: { item: MediaItem; onClose: () => void }) {
+  const { t } = useI18n();
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -675,13 +692,21 @@ function MediaPreviewOverlay({ item, onClose }: { item: MediaItem; onClose: () =
   }
 
   const optimizable = item.type === "image" && item.source !== "upload" && isOptimizableImageUrl(item.url);
+  const typeLabel = item.type === "video"
+    ? t("dashboard.media.labels.type.video")
+    : t("dashboard.media.labels.type.image");
+  const authorLine = t("dashboard.media.labels.author").replace("{name}", item.author);
+  const fileLabel = item.fileName
+    ? t("dashboard.media.labels.fileName").replace("{file}", item.fileName)
+    : "";
+  const metaLine = `${t("dashboard.media.preview.metaPrefix")} ${typeLabel}${fileLabel}`;
 
   return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-6"
       role="dialog"
       aria-modal="true"
-      aria-label={`Vollbildansicht für ${item.title}`}
+      aria-label={t("dashboard.media.preview.label").replace("{title}", item.title)}
       onClick={onClose}
     >
       <div
@@ -693,7 +718,7 @@ function MediaPreviewOverlay({ item, onClose }: { item: MediaItem; onClose: () =
           onClick={onClose}
           className="absolute right-4 top-4 inline-flex items-center justify-center rounded-full border border-slate-600 bg-slate-900/70 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-200 transition hover:border-slate-400 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-400"
         >
-          Schließen
+          {t("dashboard.media.preview.close")}
         </button>
         <div className="flex max-h-[70vh] w-full items-center justify-center overflow-hidden rounded-2xl bg-slate-900">
           {item.type === "video" ? (
@@ -704,7 +729,7 @@ function MediaPreviewOverlay({ item, onClose }: { item: MediaItem; onClose: () =
               className="max-h-[70vh] w-full rounded-2xl bg-black object-contain"
               src={item.url}
             >
-              Ihr Browser unterstützt kein eingebettetes Video.
+              {t("dashboard.media.preview.unsupported")}
             </video>
           ) : (
             <Image
@@ -721,11 +746,8 @@ function MediaPreviewOverlay({ item, onClose }: { item: MediaItem; onClose: () =
         </div>
         <div className="space-y-1 text-sm text-slate-300">
           <p className="text-base font-semibold text-white">{item.title}</p>
-          <p className="text-xs text-slate-400">von {item.author}</p>
-          <p className="text-xs uppercase tracking-wide text-slate-500">
-            Typ: {item.type === "video" ? "Video" : "Bild"}
-            {item.fileName ? ` · ${item.fileName}` : ""}
-          </p>
+          <p className="text-xs text-slate-400">{authorLine}</p>
+          <p className="text-xs uppercase tracking-wide text-slate-500">{metaLine}</p>
         </div>
       </div>
     </div>,
@@ -742,7 +764,7 @@ function isOptimizableImageUrl(url: string): boolean {
 
     return parsed.hostname === "images.unsplash.com";
   } catch (error) {
-    console.warn("Konnte Bild-URL nicht prüfen", error);
+  console.warn("Could not validate image URL", error);
     return false;
   }
 }
