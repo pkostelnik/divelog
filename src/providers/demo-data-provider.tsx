@@ -13,6 +13,7 @@ import {
   notifications as notificationSeed,
   type CommunityPost,
   type CommunityComment,
+  type CommunityPostAttachment,
   type ForumCategory,
   type ForumThread,
   type ForumReply,
@@ -30,16 +31,25 @@ type DemoForumThread = Omit<ForumThread, "replies"> & {
   likedByMe: boolean;
   replies: DemoForumReply[];
 };
-type AddCommunityPostPayload = Omit<CommunityPost, "id" | "comments" | "likes"> & {
+type CommunityPostAttachmentInput = Omit<CommunityPostAttachment, "id"> & { id?: string };
+type AddCommunityPostPayload = {
+  title: string;
+  author: string;
+  authorId?: string;
+  authorEmail?: string;
+  body: string;
+  diveLogId?: string;
+  attachments?: CommunityPostAttachmentInput[];
   id?: string;
   likes?: number;
 };
 type UpdateCommunityPostPayload = {
   id: string;
   data: Partial<
-    Pick<CommunityPost, "title" | "author" | "authorId" | "authorEmail" | "body" | "diveLogId">
+    Pick<CommunityPost, "title" | "author" | "authorId" | "authorEmail" | "body" | "diveLogId" | "attachments">
   > & {
     diveLogId?: string | null;
+    attachments?: CommunityPostAttachmentInput[];
   };
 };
 type RemoveCommunityPostPayload = { id: string };
@@ -172,10 +182,40 @@ function createExcerpt(body: string) {
   return `${body.slice(0, 157)}...`;
 }
 
+function normalizePostAttachments(attachments?: CommunityPostAttachmentInput[]) {
+  if (!attachments || attachments.length === 0) {
+    return [] as CommunityPostAttachment[];
+  }
+
+  const normalized: CommunityPostAttachment[] = [];
+
+  attachments.forEach((attachment) => {
+    const url = attachment.url.trim();
+    if (url.length === 0) {
+      return;
+    }
+
+    normalized.push({
+      id: attachment.id ?? generateId(),
+      url,
+      title: attachment.title?.trim() || attachment.fileName?.trim() || "Anhang",
+      source: attachment.source ?? "upload",
+      fileName: attachment.fileName?.trim() || undefined,
+      type: "image"
+    });
+  });
+
+  return normalized;
+}
+
 const initialState: DemoState = {
   diveLogs: [...diveLogSeed].sort((a, b) => b.date.localeCompare(a.date)),
   equipment: [...equipmentSeed].sort(compareEquipment),
-  communityPosts: communitySeed.map((post) => ({ ...post, likedByMe: false })),
+  communityPosts: communitySeed.map((post) => ({
+    ...post,
+    attachments: normalizePostAttachments(post.attachments),
+    likedByMe: false
+  })),
   forumCategories: [...forumCategorySeed],
   forumThreads: forumThreadSeed
     .map<DemoForumThread>((thread) => ({
@@ -253,6 +293,7 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
     case "ADD_COMMUNITY_POST": {
       const id = action.payload.id ?? generateId();
       const likes = action.payload.likes ?? 0;
+      const attachments = normalizePostAttachments(action.payload.attachments);
       const newPost: DemoCommunityPost = {
         id,
         title: action.payload.title,
@@ -263,6 +304,7 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
         diveLogId: action.payload.diveLogId,
         likes,
         likedByMe: false,
+        attachments,
         comments: []
       };
 
@@ -290,6 +332,10 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
             data.authorId === undefined ? post.authorId : data.authorId || undefined;
           const nextAuthorEmail =
             data.authorEmail === undefined ? post.authorEmail : data.authorEmail || undefined;
+          const nextAttachments =
+            data.attachments === undefined
+              ? post.attachments ?? []
+              : normalizePostAttachments(data.attachments);
 
           return {
             ...post,
@@ -298,7 +344,8 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
             body: data.body !== undefined ? data.body.trim() : post.body,
             diveLogId: nextDiveLogId,
             authorId: nextAuthorId,
-            authorEmail: nextAuthorEmail
+            authorEmail: nextAuthorEmail,
+            attachments: nextAttachments
           };
         })
       };

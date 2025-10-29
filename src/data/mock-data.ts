@@ -42,6 +42,15 @@ export type MediaItem = {
   fileName?: string;
 };
 
+export type CommunityPostAttachment = {
+  id: string;
+  url: string;
+  title: string;
+  source: "url" | "upload";
+  fileName?: string;
+  type: "image";
+};
+
 export type CommunityPost = {
   id: string;
   title: string;
@@ -51,6 +60,7 @@ export type CommunityPost = {
   body: string;
   likes: number;
   diveLogId?: string;
+  attachments: CommunityPostAttachment[];
   comments: CommunityComment[];
 };
 
@@ -293,6 +303,15 @@ export const communityPosts: CommunityPost[] = [
     body: "Von der richtigen Lampenwahl bis zum Umgang mit Strömungen: So bleibst du gelassen und sicher, wenn die Sonne untergegangen ist.",
     likes: 42,
     diveLogId: "dive-103",
+    attachments: [
+      {
+        id: "post-01-attachment-01",
+        title: "Nachttauchgang Crew",
+        url: "https://images.unsplash.com/photo-1498920317147-e9228e19f996",
+        source: "url",
+        type: "image"
+      }
+    ],
     comments: [
       {
         id: "comment-101",
@@ -309,6 +328,22 @@ export const communityPosts: CommunityPost[] = [
     body: "Mit dieser Checkliste hält dein Equipment länger: Spülen, Trocknen, Kontrollieren und richtig lagern.",
     likes: 28,
     diveLogId: "dive-101",
+    attachments: [
+      {
+        id: "post-02-attachment-01",
+        title: "Frisch gespültes Equipment",
+        url: "https://images.unsplash.com/photo-1554995207-c18c203602cb",
+        source: "url",
+        type: "image"
+      },
+      {
+        id: "post-02-attachment-02",
+        title: "Ausrüstung an Deck",
+        url: "https://images.unsplash.com/photo-1521401830884-6c03c1c87ebb",
+        source: "url",
+        type: "image"
+      }
+    ],
     comments: [
       {
         id: "comment-201",

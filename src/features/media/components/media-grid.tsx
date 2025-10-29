@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import {
+  useCallback,
+  useEffect,
   useMemo,
   useState,
   type ChangeEvent,
@@ -9,6 +11,7 @@ import {
   type FormEvent,
   type SetStateAction
 } from "react";
+import { createPortal } from "react-dom";
 
 import type { MediaItem } from "@/data/mock-data";
 import { useDemoData } from "@/providers/demo-data-provider";
@@ -59,10 +62,19 @@ export function MediaGrid() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<MediaFormState>(() => createMediaForm());
   const [newForm, setNewForm] = useState<MediaFormState>(() => createMediaForm());
+  const [previewItem, setPreviewItem] = useState<MediaItem | null>(null);
 
   const sortedMedia = useMemo(() => {
     return [...mediaItems].sort((a, b) => a.title.localeCompare(b.title));
   }, [mediaItems]);
+
+  const openPreview = useCallback((item: MediaItem) => {
+    setPreviewItem(item);
+  }, []);
+
+  const closePreview = useCallback(() => {
+    setPreviewItem(null);
+  }, []);
 
   const handleFieldChange = (
     setter: Dispatch<SetStateAction<MediaFormState>>
@@ -320,7 +332,18 @@ export function MediaGrid() {
               key={item.id}
               className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
             >
-              {!isEditing && <MediaPreview item={item} />}
+              {!isEditing && (
+                <div className="relative">
+                  <MediaPreview item={item} />
+                  <button
+                    type="button"
+                    onClick={() => openPreview(item)}
+                    className="absolute inset-0 flex items-center justify-center bg-slate-950/0 text-xs font-semibold uppercase tracking-wide text-white opacity-0 transition hover:bg-slate-950/30 hover:opacity-100 focus-visible:bg-slate-950/40 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                  >
+                    <span className="sr-only">Vollbild öffnen: {item.title}</span>
+                  </button>
+                </div>
+              )}
               <figcaption className="px-4 py-3 text-sm text-slate-600">
                 {isEditing ? (
                   <form className="space-y-3" onSubmit={handleEditSubmit}>
@@ -463,6 +486,7 @@ export function MediaGrid() {
           );
         })}
       </div>
+      {previewItem && <MediaPreviewOverlay item={previewItem} onClose={closePreview} />}
     </div>
   );
 }
@@ -519,6 +543,87 @@ function MediaPreview({ item }: { item: MediaItem }) {
       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
       unoptimized={!optimizable}
     />
+  );
+}
+
+function MediaPreviewOverlay({ item, onClose }: { item: MediaItem; onClose: () => void }) {
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [onClose]);
+
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  const optimizable = item.type === "image" && item.source !== "upload" && isOptimizableImageUrl(item.url);
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Vollbildansicht für ${item.title}`}
+      onClick={onClose}
+    >
+      <div
+        className="relative z-10 flex w-full max-w-5xl flex-col gap-4 overflow-hidden rounded-3xl bg-slate-950/90 p-4 shadow-2xl"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-4 top-4 inline-flex items-center justify-center rounded-full border border-slate-600 bg-slate-900/70 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-200 transition hover:border-slate-400 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-400"
+        >
+          Schließen
+        </button>
+        <div className="flex max-h-[70vh] w-full items-center justify-center overflow-hidden rounded-2xl bg-slate-900">
+          {item.type === "video" ? (
+            <video
+              controls
+              autoPlay
+              playsInline
+              className="max-h-[70vh] w-full rounded-2xl bg-black object-contain"
+              src={item.url}
+            >
+              Ihr Browser unterstützt kein eingebettetes Video.
+            </video>
+          ) : (
+            <Image
+              src={item.url}
+              alt={item.title}
+              width={1600}
+              height={1000}
+              className="h-full w-full max-h-[70vh] object-contain"
+              sizes="100vw"
+              unoptimized={!optimizable}
+              priority
+            />
+          )}
+        </div>
+        <div className="space-y-1 text-sm text-slate-300">
+          <p className="text-base font-semibold text-white">{item.title}</p>
+          <p className="text-xs text-slate-400">von {item.author}</p>
+          <p className="text-xs uppercase tracking-wide text-slate-500">
+            Typ: {item.type === "video" ? "Video" : "Bild"}
+            {item.fileName ? ` · ${item.fileName}` : ""}
+          </p>
+        </div>
+      </div>
+    </div>,
+    document.body
   );
 }
 

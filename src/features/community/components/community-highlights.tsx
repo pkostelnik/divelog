@@ -1,18 +1,29 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { createPortal } from "react-dom";
 
 import { useDemoData } from "@/providers/demo-data-provider";
 import { useAuth } from "@/providers/auth-provider";
+import { type CommunityPostAttachment } from "@/data/mock-data";
 
 const AUTHORED_COMMENT_STORAGE_KEY = "divelog:community-authored-comments";
 const ANONYMOUS_AUTHOR_ID_KEY = "divelog:community-anonymous-author-id";
+const MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024;
 
 function createCommentId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
   }
   return `comment-${Math.random().toString(16).slice(2)}-${Date.now()}`;
+}
+
+function createAttachmentId() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `attachment-${Math.random().toString(16).slice(2)}-${Date.now()}`;
 }
 
 function persistAuthoredCommentIds(ids: Set<string>) {
@@ -191,11 +202,14 @@ function CommentForm({
   );
 }
 
+type PostAttachmentDraft = CommunityPostAttachment;
+
 type PostEditState = {
   title: string;
   author: string;
   body: string;
   diveLogId: string;
+  attachments: PostAttachmentDraft[];
 };
 
 type PostAlert = {
@@ -234,6 +248,8 @@ export function CommunityHighlights() {
   const [pendingCommentDelete, setPendingCommentDelete] = useState<Record<string, string | null>>(
     () => ({})
   );
+  const [draftAttachmentError, setDraftAttachmentError] = useState<string | null>(null);
+  const [previewAttachment, setPreviewAttachment] = useState<CommunityPostAttachment | null>(null);
   const anonymousAuthorIdRef = useRef<string | null>(null);
 
   if (anonymousAuthorIdRef.current === null) {
@@ -596,8 +612,15 @@ export function CommunityHighlights() {
       title: post.title,
       author: post.author,
       body: post.body,
-      diveLogId: post.diveLogId ?? ""
+      diveLogId: post.diveLogId ?? "",
+      attachments: (post.attachments ?? []).map((attachment) => ({
+        ...attachment,
+        title: attachment.title,
+        source: attachment.source ?? "upload",
+        type: "image"
+      }))
     });
+    setDraftAttachmentError(null);
   };
 
   const cancelEditingPost = () => {
@@ -608,6 +631,7 @@ export function CommunityHighlights() {
     setPendingDeleteId(null);
     setEditingPostId(null);
     setPostDraft(null);
+    setDraftAttachmentError(null);
   };
 
   const handleDraftChange = (
@@ -620,14 +644,84 @@ export function CommunityHighlights() {
     setPostDraft((previous) => (previous ? { ...previous, [name]: value } : previous));
   };
 
+  const handleDraftAttachmentUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
+    if (!postDraft || files.length === 0) {
+      return;
+    }
+
+    files.forEach((file) => {
+      if (!file.type.startsWith("image/")) {
+        setDraftAttachmentError("Nur Bilddateien können angehängt werden.");
+        return;
+      }
+      if (file.size > MAX_ATTACHMENT_SIZE) {
+        setDraftAttachmentError("Ein Bild ist größer als 5 MB und wurde übersprungen.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        if (typeof result !== "string") {
+          return;
+        }
+        const title = file.name.replace(/\.[^.]+$/, "").trim() || "Bildanhang";
+        setPostDraft((previous) => {
+          if (!previous) {
+            return previous;
+          }
+          return {
+            ...previous,
+            attachments: [
+              ...previous.attachments,
+              {
+                id: createAttachmentId(),
+                url: result,
+                title,
+                fileName: file.name,
+                source: "upload",
+                type: "image"
+              }
+            ]
+          };
+        });
+        setDraftAttachmentError(null);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    event.target.value = "";
+  };
+
+  const handleDraftAttachmentRemove = (attachmentId: string) => {
+    setPostDraft((previous) => {
+      if (!previous) {
+        return previous;
+      }
+      return {
+        ...previous,
+        attachments: previous.attachments.filter((item) => item.id !== attachmentId)
+      };
+    });
+  };
+
+  const openAttachmentPreview = (attachment: CommunityPostAttachment) => {
+    setPreviewAttachment(attachment);
+  };
+
+  const closeAttachmentPreview = () => {
+    setPreviewAttachment(null);
+  };
+
   const handlePostSubmit = (event: FormEvent<HTMLFormElement>, postId: string) => {
     event.preventDefault();
     if (editingPostId !== postId || !postDraft) {
       return;
     }
 
-  const target = communityPosts.find((item) => item.id === postId);
-  if (!target || !canManagePost(target)) {
+    const target = communityPosts.find((item) => item.id === postId);
+    if (!target || !canManagePost(target)) {
       setPostAlert(postId, {
         variant: "error",
         message: "Du kannst diesen Beitrag nicht bearbeiten."
@@ -639,6 +733,11 @@ export function CommunityHighlights() {
     const author = postDraft.author.trim();
     const body = postDraft.body.trim();
     const diveLogId = postDraft.diveLogId.trim();
+    const attachments = postDraft.attachments.map((attachment) => ({
+      ...attachment,
+      title: attachment.title.trim() || attachment.fileName || "Bildanhang",
+      type: "image" as const
+    }));
 
     if (title.length < 3) {
       setPostAlert(postId, {
@@ -674,10 +773,12 @@ export function CommunityHighlights() {
         body,
         authorId: target.authorId,
         authorEmail: target.authorEmail,
-        diveLogId: diveLogId.length > 0 ? diveLogId : ""
+        diveLogId: diveLogId.length > 0 ? diveLogId : "",
+        attachments
       }
     });
     setSavingPostId(null);
+    setDraftAttachmentError(null);
 
     setPostAlert(postId, {
       variant: "success",
@@ -720,6 +821,7 @@ export function CommunityHighlights() {
     if (editingPostId === post.id) {
       setEditingPostId(null);
       setPostDraft(null);
+      setDraftAttachmentError(null);
     }
     setPostAlert(post.id, null);
     setGlobalAlert({
@@ -881,6 +983,60 @@ export function CommunityHighlights() {
                       ))}
                     </select>
                   </label>
+                  <div className="space-y-2 text-xs font-semibold text-slate-600">
+                    <span>Bilder anhängen (optional)</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleDraftAttachmentUpload}
+                      className="rounded-xl border border-dashed border-slate-300 bg-white px-3 py-2 text-sm shadow-sm file:mr-3 file:rounded-lg file:border-0 file:bg-ocean-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                    />
+                    {draftAttachmentError ? (
+                      <p className="text-xs font-normal text-rose-600">{draftAttachmentError}</p>
+                    ) : (
+                      <p className="text-[11px] font-normal text-slate-500">JPEG oder PNG bis 5 MB pro Datei.</p>
+                    )}
+                    {(draft?.attachments ?? []).length > 0 && (
+                      <ul className="grid gap-2 sm:grid-cols-2">
+                        {(draft?.attachments ?? []).map((attachment) => (
+                          <li key={attachment.id}>
+                            <div className="overflow-hidden rounded-xl border border-slate-200">
+                              <button
+                                type="button"
+                                onClick={() => openAttachmentPreview(attachment)}
+                                className="group block w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-400"
+                                title={attachment.fileName ?? attachment.title}
+                              >
+                                <div className="relative aspect-video bg-slate-100">
+                                  <Image
+                                    src={attachment.url}
+                                    alt={attachment.title}
+                                    fill
+                                    className="h-full w-full object-cover transition duration-200 group-hover:scale-[1.02]"
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                    unoptimized
+                                  />
+                                </div>
+                              </button>
+                              <div className="flex items-center justify-between gap-2 px-3 py-2 text-[11px] font-medium text-slate-600">
+                                <span className="line-clamp-1" title={attachment.fileName ?? attachment.title}>
+                                  {attachment.fileName ?? attachment.title}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDraftAttachmentRemove(attachment.id)}
+                                  className="rounded-lg border border-slate-300 px-2 py-1 text-[10px] font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-700"
+                                >
+                                  Entfernen
+                                </button>
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                   <div className="flex flex-wrap items-center gap-2 text-xs">
                     <button
                       type="submit"
@@ -913,6 +1069,48 @@ export function CommunityHighlights() {
                     )}
                   </header>
                   <p className="mt-3 text-sm text-slate-600">{post.body}</p>
+                  {(post.attachments ?? []).length > 0 && (
+                    <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+                      {(post.attachments ?? []).map((attachment) => {
+                        const unoptimized =
+                          attachment.source === "upload" || !isOptimizableImageUrl(attachment.url);
+                        return (
+                          <li key={attachment.id}>
+                            <button
+                              type="button"
+                              onClick={() => openAttachmentPreview(attachment)}
+                              className="group block w-full overflow-hidden rounded-xl border border-slate-200 text-left transition hover:border-ocean-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-400"
+                              title={attachment.fileName ?? attachment.title}
+                            >
+                              <div className="relative h-full w-full overflow-hidden">
+                                <div className="relative aspect-video bg-slate-100">
+                                  <Image
+                                    src={attachment.url}
+                                    alt={attachment.title}
+                                    fill
+                                    className="h-full w-full object-cover transition duration-200 group-hover:scale-[1.02]"
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                    unoptimized={unoptimized}
+                                  />
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-between gap-2 px-3 py-2 text-[11px] font-medium text-slate-600">
+                                <span className="line-clamp-1">{attachment.title}</span>
+                                <span
+                                  className="text-[13px] text-slate-500 transition group-hover:text-ocean-600"
+                                  role="img"
+                                  aria-label="Anhang"
+                                  title={attachment.fileName ?? attachment.title}
+                                >
+                                  📎
+                                </span>
+                              </div>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
                   <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-slate-500">
                     <button
                       type="button"
@@ -1040,6 +1238,99 @@ export function CommunityHighlights() {
           );
         })}
       </div>
+      {previewAttachment && (
+        <AttachmentPreviewOverlay
+          attachment={previewAttachment}
+          onClose={closeAttachmentPreview}
+        />
+      )}
     </div>
   );
+}
+
+function AttachmentPreviewOverlay({
+  attachment,
+  onClose
+}: {
+  attachment: CommunityPostAttachment;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [onClose]);
+
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  const unoptimized = attachment.source === "upload" || !isOptimizableImageUrl(attachment.url);
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Vollbildansicht für ${attachment.title}`}
+      onClick={onClose}
+    >
+      <div
+        className="relative z-10 flex w-full max-w-4xl flex-col gap-4 overflow-hidden rounded-3xl bg-slate-950/90 p-4 shadow-2xl"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-4 top-4 inline-flex items-center justify-center rounded-full border border-slate-600 bg-slate-900/70 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-200 transition hover:border-slate-400 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-400"
+        >
+          Schließen
+        </button>
+        <div className="flex max-h-[70vh] w-full items-center justify-center overflow-hidden rounded-2xl bg-slate-900">
+          <Image
+            src={attachment.url}
+            alt={attachment.title}
+            width={1600}
+            height={1000}
+            className="h-full w-full max-h-[70vh] object-contain"
+            sizes="100vw"
+            unoptimized={unoptimized}
+            priority
+          />
+        </div>
+        <div className="space-y-1 text-sm text-slate-300">
+          <p className="text-base font-semibold text-white">{attachment.title}</p>
+          {attachment.fileName && (
+            <p className="text-xs uppercase tracking-wide text-slate-500">Datei: {attachment.fileName}</p>
+          )}
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+function isOptimizableImageUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return false;
+    }
+
+    return parsed.hostname === "images.unsplash.com";
+  } catch (error) {
+    console.warn("Konnte Bild-URL nicht prüfen", error);
+    return false;
+  }
 }

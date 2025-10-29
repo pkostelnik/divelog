@@ -170,8 +170,6 @@ function DiveSiteMapComponent() {
             minZoom={0.9}
             maxZoom={6}
             translateExtent={[[-220, -120], [220, 120]]}
-            disablePanning
-            disableZooming
           >
             <Geographies geography={GEOJSON_URL}>
               {({ geographies }) =>
