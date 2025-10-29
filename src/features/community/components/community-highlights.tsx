@@ -1,0 +1,1045 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+
+import { useDemoData } from "@/providers/demo-data-provider";
+import { useAuth } from "@/providers/auth-provider";
+
+const AUTHORED_COMMENT_STORAGE_KEY = "divelog:community-authored-comments";
+const ANONYMOUS_AUTHOR_ID_KEY = "divelog:community-anonymous-author-id";
+
+function createCommentId() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `comment-${Math.random().toString(16).slice(2)}-${Date.now()}`;
+}
+
+function persistAuthoredCommentIds(ids: Set<string>) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(AUTHORED_COMMENT_STORAGE_KEY, JSON.stringify(Array.from(ids)));
+  } catch {
+    // Ignoriere fehlerhafte oder blockierte Storage-Zugriffe.
+  }
+}
+
+function loadAuthoredCommentIds() {
+  if (typeof window === "undefined") {
+    return new Set<string>();
+  }
+
+  try {
+    const raw = window.localStorage.getItem(AUTHORED_COMMENT_STORAGE_KEY);
+    if (!raw) {
+      return new Set<string>();
+    }
+
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) {
+      return new Set<string>();
+    }
+
+    const next = new Set<string>();
+    parsed.forEach((value) => {
+      if (typeof value === "string" && value.trim().length > 0) {
+        next.add(value);
+      }
+    });
+
+    return next;
+  } catch {
+    return new Set<string>();
+  }
+}
+
+function generateAnonymousAuthorId() {
+  return typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? `anon-${crypto.randomUUID()}`
+    : `anon-${Math.random().toString(16).slice(2)}-${Date.now()}`;
+}
+
+function ensureAnonymousAuthorId() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const stored = window.localStorage.getItem(ANONYMOUS_AUTHOR_ID_KEY);
+    if (stored && stored.trim().length > 0) {
+      return stored;
+    }
+
+    const generated = generateAnonymousAuthorId();
+
+    window.localStorage.setItem(ANONYMOUS_AUTHOR_ID_KEY, generated);
+    return generated;
+  } catch {
+    return null;
+  }
+}
+
+function formatDate(value: string) {
+  return new Date(value).toLocaleString("de-DE", {
+    dateStyle: "short",
+    timeStyle: "short"
+  });
+}
+
+type CommentFormProps = {
+  postId: string;
+  onSubmit: (payload: {
+    author: string;
+    authorId?: string;
+    authorEmail?: string;
+    message: string;
+  }) => void;
+  currentUserId?: string | null;
+  currentUserEmail?: string | null;
+  currentUserName?: string | null;
+  fallbackAuthorId?: string | null;
+};
+
+function CommentForm({
+  postId,
+  onSubmit,
+  currentUserId,
+  currentUserEmail,
+  currentUserName,
+  fallbackAuthorId
+}: CommentFormProps) {
+  const authorId = `comment-author-${postId}`;
+  const messageId = `comment-message-${postId}`;
+  const lockedAuthor = Boolean(currentUserName?.trim());
+  const resolvedAuthor = currentUserName?.trim() ?? "";
+
+  const [author, setAuthor] = useState(resolvedAuthor);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    setAuthor(resolvedAuthor);
+  }, [resolvedAuthor]);
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const authorValue = lockedAuthor ? resolvedAuthor : author.trim();
+    const messageValue = message.trim();
+
+    if (authorValue.length < 2 || messageValue.length < 3) {
+      return;
+    }
+
+    onSubmit({
+      author: authorValue,
+      authorId: lockedAuthor ? currentUserId ?? undefined : fallbackAuthorId ?? undefined,
+      authorEmail: lockedAuthor ? currentUserEmail ?? undefined : undefined,
+      message: messageValue
+    });
+    setMessage("");
+    if (!lockedAuthor) {
+      setAuthor("");
+    }
+  };
+
+  return (
+    <form className="mt-4 space-y-3 border-t border-slate-200 pt-4" onSubmit={handleSubmit}>
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600" htmlFor={authorId}>
+          Name
+          <input
+            id={authorId}
+            name="author"
+            value={author}
+            onChange={(event) => {
+              if (!lockedAuthor) {
+                setAuthor(event.target.value);
+              }
+            }}
+            placeholder="Dein Name"
+            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+            required
+            minLength={2}
+            readOnly={lockedAuthor}
+          />
+        </label>
+        <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600 md:col-span-2" htmlFor={messageId}>
+          Kommentar
+          <textarea
+            id={messageId}
+            name="message"
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+            placeholder="Teile deine Gedanken"
+            className="min-h-[80px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+            required
+            minLength={3}
+          />
+        </label>
+      </div>
+      <div className="flex justify-end">
+        <button
+          type="submit"
+          className="inline-flex items-center rounded-xl bg-ocean-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-ocean-700"
+        >
+          Kommentar hinzufügen
+        </button>
+      </div>
+    </form>
+  );
+}
+
+type PostEditState = {
+  title: string;
+  author: string;
+  body: string;
+  diveLogId: string;
+};
+
+type PostAlert = {
+  variant: "success" | "error";
+  message: string;
+};
+
+export function CommunityHighlights() {
+  const {
+    communityPosts,
+    togglePostLike,
+    addCommunityComment,
+    updateCommunityComment,
+    removeCommunityComment,
+    diveLogs,
+    updateCommunityPost,
+    removeCommunityPost
+  } = useDemoData();
+  const { currentUser } = useAuth();
+  const isAdmin = currentUser?.role === "admin";
+  const currentUserId = currentUser?.id ?? null;
+  const rawCurrentUserEmail = currentUser?.email;
+  const rawCurrentUserName = currentUser?.name;
+  const currentUserEmail = rawCurrentUserEmail ? rawCurrentUserEmail.trim().toLowerCase() : null;
+  const normalizedCurrentUserName = rawCurrentUserName ? rawCurrentUserName.trim().toLowerCase() : null;
+
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [postDraft, setPostDraft] = useState<PostEditState | null>(null);
+  const [postAlerts, setPostAlerts] = useState<Partial<Record<string, PostAlert>>>({});
+  const [savingPostId, setSavingPostId] = useState<string | null>(null);
+  const [hiddenPostIds, setHiddenPostIds] = useState<Set<string>>(() => new Set());
+  const [globalAlert, setGlobalAlert] = useState<PostAlert | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [hiddenCommentIds, setHiddenCommentIds] = useState<Record<string, Set<string>>>(() => ({}));
+  const [authoredCommentIds, setAuthoredCommentIds] = useState<Set<string>>(() => new Set());
+  const [pendingCommentDelete, setPendingCommentDelete] = useState<Record<string, string | null>>(
+    () => ({})
+  );
+  const anonymousAuthorIdRef = useRef<string | null>(null);
+
+  if (anonymousAuthorIdRef.current === null) {
+    const ensured = ensureAnonymousAuthorId();
+    if (ensured) {
+      anonymousAuthorIdRef.current = ensured;
+    } else {
+      anonymousAuthorIdRef.current = generateAnonymousAuthorId();
+    }
+  }
+
+  const anonymousAuthorId = anonymousAuthorIdRef.current;
+
+  useEffect(() => {
+    const loaded = loadAuthoredCommentIds();
+    if (loaded.size === 0) {
+      return;
+    }
+    setAuthoredCommentIds(new Set(loaded));
+  }, []);
+
+  const mutateAuthoredCommentIds = useCallback((mutator: (draft: Set<string>) => void) => {
+    setAuthoredCommentIds((previous) => {
+      const draft = new Set(previous);
+      mutator(draft);
+
+      if (draft.size === previous.size) {
+        let identical = true;
+        previous.forEach((value) => {
+          if (!draft.has(value)) {
+            identical = false;
+          }
+        });
+        if (identical) {
+          return previous;
+        }
+      }
+
+      persistAuthoredCommentIds(draft);
+      return draft;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!anonymousAuthorId || communityPosts.length === 0) {
+      return;
+    }
+
+    const missing = communityPosts.some((post) =>
+      post.comments.some(
+        (comment) => comment.authorId === anonymousAuthorId && !authoredCommentIds.has(comment.id)
+      )
+    );
+
+    if (!missing) {
+      return;
+    }
+
+    mutateAuthoredCommentIds((draft) => {
+      communityPosts.forEach((post) => {
+        post.comments.forEach((comment) => {
+          if (comment.authorId === anonymousAuthorId) {
+            draft.add(comment.id);
+          }
+        });
+      });
+    });
+  }, [anonymousAuthorId, authoredCommentIds, communityPosts, mutateAuthoredCommentIds]);
+
+  const diveLogMap = useMemo(() => new Map(diveLogs.map((log) => [log.id, log])), [diveLogs]);
+
+  const diveOptions = useMemo(() => {
+    return diveLogs.map((log) => ({
+      id: log.id,
+      label: `${log.title} • ${new Date(log.date).toLocaleDateString("de-DE")}`
+    }));
+  }, [diveLogs]);
+
+  const canManageEntity = (
+    authorId: string | undefined,
+    authorName: string,
+    authorEmail?: string
+  ) => {
+    if (isAdmin) {
+      return true;
+    }
+    if (currentUserId && authorId && currentUserId === authorId) {
+      return true;
+    }
+    if (anonymousAuthorId && authorId && authorId === anonymousAuthorId) {
+      return true;
+    }
+    if (currentUserEmail && authorEmail && currentUserEmail === authorEmail.trim().toLowerCase()) {
+      return true;
+    }
+    const normalizedAuthor = authorName.trim().toLowerCase();
+    return normalizedCurrentUserName !== null && normalizedCurrentUserName === normalizedAuthor;
+  };
+  const canManagePost = (post: (typeof communityPosts)[number]) =>
+    canManageEntity(post.authorId, post.author, post.authorEmail);
+
+  useEffect(() => {
+    if (!currentUser || communityPosts.length === 0) {
+      return;
+    }
+
+    const normalizedName = normalizedCurrentUserName;
+    const normalizedEmail = currentUserEmail;
+    const patchable = communityPosts.filter((post) => {
+      if (post.authorId && post.authorEmail) {
+        return false;
+      }
+
+      const authorMatchesName = normalizedName
+        ? post.author.trim().toLowerCase() === normalizedName
+        : false;
+      const emailMatches = normalizedEmail
+        ? post.authorEmail?.trim().toLowerCase() === normalizedEmail
+        : false;
+
+      if (!authorMatchesName && !emailMatches) {
+        return false;
+      }
+
+      return !post.authorId || !post.authorEmail;
+    });
+
+    if (patchable.length === 0) {
+      return;
+    }
+
+    patchable.forEach((post) => {
+      updateCommunityPost({
+        id: post.id,
+        data: {
+          authorId: post.authorId ?? currentUser.id,
+          authorEmail: post.authorEmail ?? normalizedEmail ?? undefined
+        }
+      });
+    });
+  }, [communityPosts, currentUser, currentUserEmail, normalizedCurrentUserName, updateCommunityPost]);
+
+  useEffect(() => {
+    if (!currentUser || communityPosts.length === 0) {
+      return;
+    }
+
+    const normalizedName = normalizedCurrentUserName;
+    const normalizedEmail = currentUserEmail;
+    const patches: { postId: string; commentId: string; authorId?: string; authorEmail?: string }[] = [];
+
+    communityPosts.forEach((post) => {
+      post.comments.forEach((comment) => {
+        if (comment.authorId && comment.authorEmail) {
+          return;
+        }
+
+        const matchesName = normalizedName
+          ? comment.author.trim().toLowerCase() === normalizedName
+          : false;
+        const matchesEmail = normalizedEmail
+          ? comment.authorEmail?.trim().toLowerCase() === normalizedEmail
+          : false;
+
+        if (!matchesName && !matchesEmail) {
+          return;
+        }
+
+        if (comment.authorId && comment.authorEmail) {
+          return;
+        }
+
+        patches.push({
+          postId: post.id,
+          commentId: comment.id,
+          authorId: comment.authorId ?? currentUser.id,
+          authorEmail: comment.authorEmail ?? normalizedEmail ?? undefined
+        });
+      });
+    });
+
+    if (patches.length === 0) {
+      return;
+    }
+
+    patches.forEach((patch) => {
+      updateCommunityComment({
+        postId: patch.postId,
+        commentId: patch.commentId,
+        data: {
+          authorId: patch.authorId,
+          authorEmail: patch.authorEmail
+        }
+      });
+    });
+  }, [communityPosts, currentUser, currentUserEmail, normalizedCurrentUserName, updateCommunityComment]);
+
+  useEffect(() => {
+    setHiddenPostIds((previous) => {
+      if (previous.size === 0) {
+        return previous;
+      }
+
+      const remaining = new Set<string>();
+      communityPosts.forEach((post) => {
+        if (previous.has(post.id)) {
+          remaining.add(post.id);
+        }
+      });
+
+      if (remaining.size === previous.size) {
+        let identical = true;
+        previous.forEach((id) => {
+          if (!remaining.has(id)) {
+            identical = false;
+          }
+        });
+        if (identical) {
+          return previous;
+        }
+      }
+
+      return remaining;
+    });
+  }, [communityPosts]);
+
+  useEffect(() => {
+    const existingCommentIds = new Set<string>();
+    communityPosts.forEach((post) => {
+      post.comments.forEach((comment) => {
+        existingCommentIds.add(comment.id);
+      });
+    });
+
+    setHiddenCommentIds((previous) => {
+      let changed = false;
+      const next: Record<string, Set<string>> = {};
+
+      Object.entries(previous).forEach(([postId, ids]) => {
+        const post = communityPosts.find((item) => item.id === postId);
+        if (!post) {
+          changed = true;
+          return;
+        }
+
+        const retained = new Set<string>();
+
+        ids.forEach((id) => {
+          if (existingCommentIds.has(id)) {
+            retained.add(id);
+          } else {
+            changed = true;
+          }
+        });
+
+        if (retained.size > 0) {
+          next[postId] = retained;
+        } else if (ids.size > 0) {
+          changed = true;
+        }
+      });
+
+      if (!changed) {
+        return previous;
+      }
+
+      return next;
+    });
+
+    mutateAuthoredCommentIds((draft) => {
+      Array.from(draft).forEach((id) => {
+        if (!existingCommentIds.has(id)) {
+          draft.delete(id);
+        }
+      });
+    });
+
+    setPendingCommentDelete((previous) => {
+      let changed = false;
+      const next: Record<string, string | null> = {};
+
+      Object.entries(previous).forEach(([postId, commentId]) => {
+        if (!commentId) {
+          next[postId] = null;
+          return;
+        }
+
+        if (existingCommentIds.has(commentId)) {
+          next[postId] = commentId;
+        } else {
+          next[postId] = null;
+          changed = true;
+        }
+      });
+
+      if (!changed) {
+        return previous;
+      }
+
+      return next;
+    });
+  }, [communityPosts, mutateAuthoredCommentIds]);
+
+  const setPostAlert = (postId: string, alert: PostAlert | null) => {
+    setPostAlerts((previous) => {
+      if (!alert) {
+        const { [postId]: _removed, ...rest } = previous;
+        return rest;
+      }
+      return { ...previous, [postId]: alert };
+    });
+  };
+
+  const handleCommentSubmit = (
+    postId: string
+  ) =>
+    ({
+      author,
+      authorId,
+      authorEmail,
+      message
+    }: {
+      author: string;
+      authorId?: string;
+      authorEmail?: string;
+      message: string;
+    }) => {
+      const commentId = createCommentId();
+
+      addCommunityComment({
+        postId,
+        id: commentId,
+        author,
+        authorId: authorId ?? anonymousAuthorId ?? undefined,
+        authorEmail,
+        message
+      });
+
+      mutateAuthoredCommentIds((draft) => {
+        draft.add(commentId);
+      });
+
+      setPostAlert(postId, {
+        variant: "success",
+        message: "Kommentar wurde hinzugefügt."
+      });
+    };
+
+  const startEditingPost = (postId: string) => {
+    const post = communityPosts.find((item) => item.id === postId);
+    if (!post || !canManagePost(post)) {
+      return;
+    }
+
+    setPostAlert(postId, null);
+    setGlobalAlert(null);
+    setPendingDeleteId(null);
+    setEditingPostId(postId);
+    setPostDraft({
+      title: post.title,
+      author: post.author,
+      body: post.body,
+      diveLogId: post.diveLogId ?? ""
+    });
+  };
+
+  const cancelEditingPost = () => {
+    if (editingPostId) {
+      setPostAlert(editingPostId, null);
+    }
+    setGlobalAlert(null);
+    setPendingDeleteId(null);
+    setEditingPostId(null);
+    setPostDraft(null);
+  };
+
+  const handleDraftChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = event.target;
+    if (name === "author" && !isAdmin) {
+      return;
+    }
+    setPostDraft((previous) => (previous ? { ...previous, [name]: value } : previous));
+  };
+
+  const handlePostSubmit = (event: FormEvent<HTMLFormElement>, postId: string) => {
+    event.preventDefault();
+    if (editingPostId !== postId || !postDraft) {
+      return;
+    }
+
+  const target = communityPosts.find((item) => item.id === postId);
+  if (!target || !canManagePost(target)) {
+      setPostAlert(postId, {
+        variant: "error",
+        message: "Du kannst diesen Beitrag nicht bearbeiten."
+      });
+      return;
+    }
+
+    const title = postDraft.title.trim();
+    const author = postDraft.author.trim();
+    const body = postDraft.body.trim();
+    const diveLogId = postDraft.diveLogId.trim();
+
+    if (title.length < 3) {
+      setPostAlert(postId, {
+        variant: "error",
+        message: "Titel benötigt mindestens 3 Zeichen."
+      });
+      return;
+    }
+
+    if (author.length < 2) {
+      setPostAlert(postId, {
+        variant: "error",
+        message: "Autor:in benötigt mindestens 2 Zeichen."
+      });
+      return;
+    }
+
+    if (body.length < 10) {
+      setPostAlert(postId, {
+        variant: "error",
+        message: "Beitrag benötigt mindestens 10 Zeichen."
+      });
+      return;
+    }
+
+    setGlobalAlert(null);
+    setSavingPostId(postId);
+    updateCommunityPost({
+      id: postId,
+      data: {
+        title,
+        author,
+        body,
+        authorId: target.authorId,
+        authorEmail: target.authorEmail,
+        diveLogId: diveLogId.length > 0 ? diveLogId : ""
+      }
+    });
+    setSavingPostId(null);
+
+    setPostAlert(postId, {
+      variant: "success",
+      message: "Beitrag wurde aktualisiert."
+    });
+    setEditingPostId(null);
+    setPostDraft(null);
+  };
+
+  const handlePostDeleteRequest = (post: (typeof communityPosts)[number]) => {
+    if (!canManagePost(post)) {
+      return;
+    }
+    setGlobalAlert(null);
+    setPendingDeleteId(post.id);
+    setPostAlert(post.id, {
+      variant: "error",
+      message: "Löschen bestätigen?"
+    });
+  };
+
+  const cancelPostDelete = () => {
+    if (pendingDeleteId) {
+      setPostAlert(pendingDeleteId, null);
+    }
+    setPendingDeleteId(null);
+  };
+
+  const handlePostDelete = (post: (typeof communityPosts)[number]) => {
+    if (!canManagePost(post)) {
+      return;
+    }
+
+    removeCommunityPost(post.id);
+    setHiddenPostIds((previous) => {
+      const next = new Set(previous);
+      next.add(post.id);
+      return next;
+    });
+    if (editingPostId === post.id) {
+      setEditingPostId(null);
+      setPostDraft(null);
+    }
+    setPostAlert(post.id, null);
+    setGlobalAlert({
+      variant: "success",
+      message: "Beitrag wurde gelöscht."
+    });
+    setPendingDeleteId(null);
+  };
+
+  const handleCommentDelete = (postId: string, commentId: string) => {
+    const post = communityPosts.find((item) => item.id === postId);
+    if (!post) {
+      return;
+    }
+
+    const targetComment = post.comments.find((item) => item.id === commentId);
+    const ownsComment = authoredCommentIds.has(commentId);
+    const canManage = targetComment
+      ? canManageEntity(targetComment.authorId, targetComment.author, targetComment.authorEmail) || ownsComment
+      : false;
+    if (!targetComment || !canManage) {
+      return;
+    }
+
+    removeCommunityComment({ postId, commentId });
+    setHiddenCommentIds((previous) => {
+      const next = { ...previous };
+      const set = new Set(next[postId] ?? []);
+      set.add(commentId);
+      next[postId] = set;
+      return next;
+    });
+    mutateAuthoredCommentIds((draft) => {
+      draft.delete(commentId);
+    });
+    setPendingCommentDelete((previous) => ({ ...previous, [postId]: null }));
+    setPostAlert(postId, {
+      variant: "success",
+      message: "Kommentar wurde gelöscht."
+    });
+  };
+
+  const requestCommentDelete = (postId: string, commentId: string) => {
+    const post = communityPosts.find((item) => item.id === postId);
+    if (!post) {
+      return;
+    }
+
+    const targetComment = post.comments.find((item) => item.id === commentId);
+    if (!targetComment) {
+      return;
+    }
+
+    const ownsComment = authoredCommentIds.has(commentId);
+    const canManage = canManageEntity(
+      targetComment.authorId,
+      targetComment.author,
+      targetComment.authorEmail
+    );
+
+    if (!canManage && !ownsComment) {
+      return;
+    }
+
+    setPendingCommentDelete((previous) => ({ ...previous, [postId]: commentId }));
+    setPostAlert(postId, {
+      variant: "error",
+      message: "Kommentar löschen bestätigen?"
+    });
+  };
+
+  const cancelCommentDelete = (postId: string) => {
+    setPendingCommentDelete((previous) => ({ ...previous, [postId]: null }));
+    setPostAlert(postId, null);
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <h2 className="text-lg font-semibold text-slate-900">Community Highlights</h2>
+      {globalAlert && (
+        <p
+          className={`rounded-xl border px-4 py-3 text-xs font-semibold ${globalAlert.variant === "error" ? "border-rose-200 bg-rose-50 text-rose-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}
+        >
+          {globalAlert.message}
+        </p>
+      )}
+      <div className="grid gap-4 md:grid-cols-2">
+        {communityPosts
+          .filter((post) => !hiddenPostIds.has(post.id))
+          .map((post) => {
+          const linkedDive = post.diveLogId ? diveLogMap.get(post.diveLogId) : undefined;
+          const comments = Array.isArray(post.comments)
+            ? [...post.comments]
+                .filter((comment) => !(hiddenCommentIds[post.id]?.has(comment.id) ?? false))
+                .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+            : [];
+          const isEditing = editingPostId === post.id;
+          const draft = isEditing && postDraft ? postDraft : null;
+          const alert = postAlerts[post.id];
+          const saving = savingPostId === post.id;
+          const canManage = canManagePost(post);
+
+          return (
+            <article
+              key={post.id}
+              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+            >
+              {isEditing ? (
+                <form className="space-y-3" onSubmit={(event) => handlePostSubmit(event, post.id)}>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
+                      Titel
+                      <input
+                        name="title"
+                        value={draft?.title ?? post.title}
+                        onChange={handleDraftChange}
+                        className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                        required
+                        minLength={3}
+                      />
+                    </label>
+                    <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
+                      Autor:in
+                      <input
+                        name="author"
+                        value={draft?.author ?? post.author}
+                        onChange={handleDraftChange}
+                        readOnly={!isAdmin}
+                        className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                        required
+                        minLength={2}
+                      />
+                    </label>
+                  </div>
+                  <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
+                    Beitrag
+                    <textarea
+                      name="body"
+                      value={draft?.body ?? post.body}
+                      onChange={handleDraftChange}
+                      className="min-h-[120px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                      required
+                      minLength={10}
+                    />
+                  </label>
+                  <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
+                    Tauchgang verknüpfen (optional)
+                    <select
+                      name="diveLogId"
+                      value={draft?.diveLogId ?? post.diveLogId ?? ""}
+                      onChange={handleDraftChange}
+                      className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                    >
+                      <option value="">Kein Tauchgang ausgewählt</option>
+                      {diveOptions.map((option) => (
+                        <option key={option.id} value={option.id}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="inline-flex items-center rounded-xl bg-ocean-600 px-4 py-2 font-semibold text-white shadow-sm transition hover:bg-ocean-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {saving ? "Speichern..." : "Änderungen speichern"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={cancelEditingPost}
+                      className="inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 font-semibold text-slate-600 shadow-sm transition hover:border-slate-400 hover:text-slate-700"
+                    >
+                      Abbrechen
+                    </button>
+                    <span className="text-[11px] text-slate-500">
+                      Likes: {post.likes} • Kommentare: {comments.length}
+                    </span>
+                  </div>
+                </form>
+              ) : (
+                <>
+                  <header className="space-y-1">
+                    <h3 className="text-base font-semibold text-slate-900">{post.title}</h3>
+                    <p className="text-xs text-slate-500">von {post.author}</p>
+                    {linkedDive && (
+                      <p className="text-xs text-slate-500">
+                        Verknüpft mit "{linkedDive.title}" am {new Date(linkedDive.date).toLocaleDateString("de-DE")}
+                      </p>
+                    )}
+                  </header>
+                  <p className="mt-3 text-sm text-slate-600">{post.body}</p>
+                  <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-slate-500">
+                    <button
+                      type="button"
+                      onClick={() => togglePostLike(post.id)}
+                      className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1 font-semibold text-ocean-700 transition hover:border-ocean-300 hover:text-ocean-800"
+                    >
+                      {post.likedByMe ? "❤️ Geliked" : "♡ Like"}
+                      <span className="font-medium text-slate-600">{post.likes}</span>
+                    </button>
+                    <span>💬 {comments.length}</span>
+                    {canManage && (
+                      pendingDeleteId === post.id ? (
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handlePostDelete(post)}
+                            className="inline-flex items-center rounded-full border border-rose-300 bg-rose-600 px-3 py-1 font-semibold text-white transition hover:bg-rose-700"
+                          >
+                            Löschen bestätigen
+                          </button>
+                          <button
+                            type="button"
+                            onClick={cancelPostDelete}
+                            className="inline-flex items-center rounded-full border border-slate-300 px-3 py-1 font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-700"
+                          >
+                            Abbrechen
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => startEditingPost(post.id)}
+                            className="inline-flex items-center rounded-full border border-slate-300 px-3 py-1 font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-700"
+                          >
+                            Bearbeiten
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handlePostDeleteRequest(post)}
+                            className="inline-flex items-center rounded-full border border-rose-200 px-3 py-1 font-semibold text-rose-700 transition hover:border-rose-300 hover:text-rose-800"
+                          >
+                            Löschen
+                          </button>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </>
+              )}
+              {alert && (
+                <p
+                  className={`mt-3 text-xs font-semibold ${
+                    alert.variant === "error" ? "text-rose-600" : "text-emerald-600"
+                  }`}
+                >
+                  {alert.message}
+                </p>
+              )}
+              <section className="mt-4 space-y-3">
+                {comments.length === 0 ? (
+                  <p className="text-xs text-slate-500">Noch keine Kommentare vorhanden.</p>
+                ) : (
+                  comments.map((comment) => {
+                    const canManageComment =
+                      canManageEntity(comment.authorId, comment.author, comment.authorEmail) ||
+                      authoredCommentIds.has(comment.id);
+                    const isPendingDelete = pendingCommentDelete[post.id] === comment.id;
+                    return (
+                      <div
+                        key={comment.id}
+                        className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2"
+                      >
+                        <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between md:gap-3">
+                          <p className="text-xs font-semibold text-slate-700">
+                            {comment.author}
+                            <span className="ml-2 text-[10px] font-normal text-slate-500">
+                              {formatDate(comment.createdAt)}
+                            </span>
+                          </p>
+                          {canManageComment && (
+                            isPendingDelete ? (
+                              <div className="flex items-center gap-2 text-[10px]">
+                                <button
+                                  type="button"
+                                  onClick={() => handleCommentDelete(post.id, comment.id)}
+                                  className="rounded-full bg-rose-600 px-3 py-1 font-semibold text-white shadow-sm transition hover:bg-rose-700"
+                                >
+                                  Löschen bestätigen
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => cancelCommentDelete(post.id)}
+                                  className="rounded-full border border-slate-300 px-3 py-1 font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-700"
+                                >
+                                  Abbrechen
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => requestCommentDelete(post.id, comment.id)}
+                                className="text-[10px] font-semibold text-rose-700 transition hover:text-rose-800"
+                              >
+                                Löschen
+                              </button>
+                            )
+                          )}
+                        </div>
+                        <p className="mt-1 text-xs text-slate-600">{comment.message}</p>
+                      </div>
+                    );
+                  })
+                )}
+              </section>
+              <CommentForm
+                postId={post.id}
+                currentUserId={currentUserId}
+                currentUserEmail={currentUserEmail}
+                currentUserName={rawCurrentUserName ?? null}
+                fallbackAuthorId={anonymousAuthorId}
+                onSubmit={handleCommentSubmit(post.id)}
+              />
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

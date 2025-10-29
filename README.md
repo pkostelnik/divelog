@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DiveLog Studio Demo
 
-## Getting Started
+Clientseitige Demo einer modernen Dive-Log-Webanwendung auf Basis von Next.js 15, TypeScript und Tailwind CSS. Es werden ausschließlich Mock-Daten verwendet – keine Azure Cosmos DB und kein Azure Storage.
 
-First, run the development server:
+## Quickstart
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Öffne danach `http://localhost:3000`, um das Marketing-Landing sowie das Dashboard mit Demo-Daten zu testen.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features in der Demo
+- Landing Page mit CTA und Feature-Highlights
+- Authentifiziertes Dashboard (Layout) mit Navigation
+- Module: Dive Logs, Equipment, Dive Sites, Media, Community, Notifications
+- Clientseitige Such- und Filteransicht für Dive Logs
+- API-Stub-Routen unter `app/api/*`, die denselben Mock-Datensatz liefern
+- Footer-Seiten für Impressum und Datenschutzhinweise (Demo-Inhalte)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Daten & Architektur
+- Mock-Daten in `src/data/mock-data.ts`
+- Komponenten pro Feature in `src/features/*`
+- Layout- und UI-Bausteine in `src/components`
+- Tailwind-Konfiguration und globale Styles unter `tailwind.config.ts` und `app/globals.css`
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Nächste Schritte
+1. Cosmos DB und Azure Storage-Integrationen implementieren (Repositories + SDKs).
+2. Authentifizierung über NextAuth mit realem Provider anbinden.
+3. Formulare mit React Hook Form + Zod ergänzen, um CRUD-Flows zu ermöglichen.
+4. E2E-Tests mit Playwright aufsetzen.
