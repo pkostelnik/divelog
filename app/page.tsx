@@ -39,16 +39,22 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-col justify-center gap-3 md:flex-row">
             <Link
-              href="/dashboard"
+              href="/auth/register"
               className="rounded-lg bg-ocean-600 px-5 py-3 text-sm font-semibold text-white shadow transition duration-200 hover:-translate-y-0.5 hover:bg-ocean-700 dark:hover:bg-ocean-500"
             >
-              Dashboard öffnen
+              Jetzt registrieren
             </Link>
             <Link
-              href="/dashboard/dives"
+              href="/auth/login"
               className="rounded-lg border border-ocean-200 px-5 py-3 text-sm font-semibold text-ocean-700 shadow-sm transition duration-200 hover:border-ocean-400 hover:text-ocean-800 dark:border-ocean-800 dark:text-ocean-200 dark:hover:border-ocean-600 dark:hover:text-ocean-100"
             >
-              Tauchgänge erkunden
+              Zum Login
+            </Link>
+            <Link
+              href="/dashboard"
+              className="rounded-lg border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition duration-200 hover:border-slate-400 hover:text-slate-900 dark:border-slate-700 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:text-slate-100"
+            >
+              Demo erkunden
             </Link>
           </div>
         </div>

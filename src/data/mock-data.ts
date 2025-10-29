@@ -1,5 +1,6 @@
 export type DiveLogPreview = {
   id: string;
+  logNumber: number;
   title: string;
   location: string;
   depth: number;
@@ -128,6 +129,7 @@ export type ForumThread = {
 export const diveLogs: DiveLogPreview[] = [
   {
     id: "dive-101",
+    logNumber: 42,
     title: "Wrack der MS Aurora",
     location: "Teneriffa",
     depth: 32,
@@ -140,6 +142,7 @@ export const diveLogs: DiveLogPreview[] = [
   },
   {
     id: "dive-102",
+    logNumber: 18,
     title: "Korallengarten",
     location: "Rotes Meer",
     depth: 18,
@@ -152,6 +155,7 @@ export const diveLogs: DiveLogPreview[] = [
   },
   {
     id: "dive-103",
+    logNumber: 57,
     title: "Nachttauchgang Blue Hole",
     location: "Dahab",
     depth: 24,

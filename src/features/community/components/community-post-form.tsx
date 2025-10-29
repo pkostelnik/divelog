@@ -1,5 +1,6 @@
 'use client';
 
+import Image from "next/image";
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import { z } from "zod";
 
@@ -275,11 +276,14 @@ export function CommunityPostForm({ onSubmitSuccess }: CommunityPostFormProps) {
               {attachments.map((attachment) => (
                 <li key={attachment.id} className="overflow-hidden rounded-xl border border-slate-200">
                   <div className="aspect-video bg-slate-100">
-                    <img
-                      src={attachment.url}
-                      alt={attachment.title}
-                      className="h-full w-full object-cover"
-                    />
+                      <Image
+                        src={attachment.url}
+                        alt={attachment.title}
+                        fill
+                        sizes="(min-width: 640px) 50vw, 100vw"
+                        className="object-cover"
+                        unoptimized
+                      />
                   </div>
                   <div className="flex items-center justify-between gap-2 px-3 py-2 text-[11px] font-medium text-slate-600">
                     <span className="line-clamp-1" title={attachment.fileName ?? attachment.title}>

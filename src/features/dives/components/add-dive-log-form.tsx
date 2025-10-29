@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
+import { useCallback, useEffect, useId, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import { z } from "zod";
 
 import type { DiveLogPreview } from "@/data/mock-data";
@@ -20,6 +20,7 @@ const formSchema = z.object({
   buddy: z.string().min(2, "Buddy eintragen."),
   difficulty: z.enum(difficulties),
   diverId: z.string().min(1, "Bitte eine Taucherin oder einen Taucher auswählen."),
+  logNumber: z.coerce.number().min(1, "Fortlaufende Nummer benötigt mindestens den Wert 1."),
   siteId: z.string().optional().nullable()
 });
 
@@ -29,7 +30,7 @@ type FormErrors = Partial<Record<keyof FormInput, string>>;
 
 function createInitialForm(initialValue?: DiveLogPreview | null, fallbackDiverId?: string | null): FormInput {
   if (initialValue) {
-    const { title, location, date, depth, duration, buddy, difficulty, diverId, siteId } = initialValue;
+    const { title, location, date, depth, duration, buddy, difficulty, diverId, siteId, logNumber } = initialValue;
     return {
       title,
       location,
@@ -39,6 +40,7 @@ function createInitialForm(initialValue?: DiveLogPreview | null, fallbackDiverId
       buddy,
       difficulty,
       diverId: diverId ?? fallbackDiverId ?? "",
+      logNumber,
       siteId: siteId ?? ""
     };
   }
@@ -51,6 +53,7 @@ function createInitialForm(initialValue?: DiveLogPreview | null, fallbackDiverId
     buddy: "",
     difficulty: "Beginner",
     diverId: fallbackDiverId ?? "",
+    logNumber: 1,
     siteId: ""
   };
 }
@@ -62,10 +65,52 @@ type AddDiveLogFormProps = {
 };
 
 export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: AddDiveLogFormProps) {
-  const { addDiveLog, updateDiveLog, diveSites } = useDemoData();
+  const { addDiveLog, updateDiveLog, diveSites, diveLogs } = useDemoData();
   const { members, currentUser } = useAuth();
   const fallbackDiverId = currentUser?.id ?? "";
-  const [form, setForm] = useState<FormInput>(() => createInitialForm(initialValue, fallbackDiverId));
+  const computeNextLogNumber = useCallback(
+    (diverId: string | undefined | null) => {
+      if (!diverId) {
+        return 1;
+      }
+
+      const relevantLogs = diveLogs.filter((log) => log.diverId === diverId);
+      if (relevantLogs.length === 0) {
+        return 1;
+      }
+
+      const highest = relevantLogs.reduce((max, log) => Math.max(max, log.logNumber ?? 0), 0);
+      return highest + 1;
+    },
+    [diveLogs]
+  );
+
+  const buildFormState = useCallback(
+    (
+      value?: DiveLogPreview | null,
+      preferredDiverId?: string | null,
+      preferredLogNumber?: number
+    ): FormInput => {
+      const base = createInitialForm(value, fallbackDiverId);
+      if (value) {
+        return base;
+      }
+
+      const diverId = preferredDiverId ?? base.diverId ?? fallbackDiverId ?? "";
+      const autoNumber = computeNextLogNumber(diverId);
+      const nextNumber = preferredLogNumber && preferredLogNumber > 0
+        ? Math.max(autoNumber, preferredLogNumber)
+        : autoNumber;
+      return {
+        ...base,
+        diverId,
+        logNumber: nextNumber
+      };
+    },
+    [computeNextLogNumber, fallbackDiverId]
+  );
+
+  const [form, setForm] = useState<FormInput>(() => buildFormState(initialValue));
   const [errors, setErrors] = useState<FormErrors>({});
   const [status, setStatus] = useState<"idle" | "success">("idle");
   const isEditing = Boolean(initialValue);
@@ -90,18 +135,29 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
   }, [diveSites]);
 
   useEffect(() => {
-    setForm(createInitialForm(initialValue, fallbackDiverId));
+    setForm(buildFormState(initialValue));
     setErrors({});
     setStatus("idle");
-  }, [initialValue, fallbackDiverId]);
+  }, [initialValue, buildFormState]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
     const key = name as keyof FormInput;
-    setForm((previous) => ({
-      ...previous,
-      [name]: name === "depth" || name === "duration" ? Number(value) : value
-    }));
+    setForm((previous) => {
+      const numericFields: Array<keyof FormInput> = ["depth", "duration", "logNumber"];
+      const convertedValue = numericFields.includes(key) ? Number(value) : value;
+      const nextForm: FormInput = {
+        ...previous,
+        [key]: convertedValue as FormInput[keyof FormInput]
+      } as FormInput;
+
+      if (!isEditing && key === "diverId") {
+        const diverIdValue = typeof convertedValue === "string" ? convertedValue : "";
+        nextForm.logNumber = computeNextLogNumber(diverIdValue);
+      }
+
+      return nextForm;
+    });
     setErrors((previous) => {
       if (!(key in previous)) {
         return previous;
@@ -175,7 +231,11 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
       addDiveLog(normalizedPayload);
     }
 
-    setForm(createInitialForm(isEditing ? initialValue : undefined, fallbackDiverId));
+    if (isEditing && initialValue) {
+      setForm(buildFormState(initialValue));
+    } else {
+      setForm(buildFormState(null, normalizedPayload.diverId, normalizedPayload.logNumber + 1));
+    }
     setErrors({});
     setStatus("success");
     onSubmitSuccess?.();
@@ -192,7 +252,7 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
         </p>
       </header>
       <form className="space-y-4" onSubmit={handleSubmit}>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-3">
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
             Titel
             <input
@@ -222,6 +282,24 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
               ))}
             </select>
             {errors.diverId && <span className="text-xs font-normal text-rose-600">{errors.diverId}</span>}
+          </label>
+          <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
+            Fortlaufende Nummer
+            <input
+              type="number"
+              name="logNumber"
+              min={1}
+              value={form.logNumber}
+              onChange={handleChange}
+              className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+            />
+            {errors.logNumber ? (
+              <span className="text-xs font-normal text-rose-600">{errors.logNumber}</span>
+            ) : (
+              <span className="text-[11px] font-normal text-slate-500">
+                Wird pro Mitglied automatisch vorgeschlagen und kann angepasst werden.
+              </span>
+            )}
           </label>
         </div>
         <div className="flex flex-col gap-2 text-xs font-semibold text-slate-600">

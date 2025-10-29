@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
@@ -59,12 +60,12 @@ export function LoginForm() {
     <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
       <header className="mb-4 space-y-1">
         <h1 className="text-xl font-semibold text-slate-900">Anmeldung</h1>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-slate-700">
           Verwende deine Zugangsdaten oder nutze einen der Demo-Zugänge.
         </p>
       </header>
       <form className="space-y-4" onSubmit={handleSubmit}>
-        <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
+        <label className="flex flex-col gap-2 text-xs font-semibold text-slate-700">
           E-Mail
           <input
             type="email"
@@ -75,7 +76,7 @@ export function LoginForm() {
             required
           />
         </label>
-        <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
+        <label className="flex flex-col gap-2 text-xs font-semibold text-slate-700">
           Passwort
           <input
             type="password"
@@ -98,7 +99,7 @@ export function LoginForm() {
         </button>
       </form>
       <div className="mt-6 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">
           Demo-Zugänge
         </p>
         <div className="grid gap-3 md:grid-cols-2">
@@ -117,9 +118,18 @@ export function LoginForm() {
             Als Administrator testen
           </button>
         </div>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-600">
           Zugangsdaten werden beim Abmelden wieder vergessen. Perfekt, um Features kurz auszuprobieren.
         </p>
+      </div>
+      <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 text-center text-sm text-slate-700">
+        <p className="mb-3">Noch kein Zugang? Erstelle einen kostenlosen Demo-Account.</p>
+        <Link
+          href="/auth/register"
+          className="inline-flex items-center justify-center rounded-xl bg-ocean-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-ocean-700"
+        >
+          Zur Registrierung
+        </Link>
       </div>
     </section>
   );

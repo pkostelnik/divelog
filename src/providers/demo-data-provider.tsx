@@ -127,6 +127,10 @@ type DemoState = {
 };
 
 type AddDiveLogPayload = Omit<DiveLogPreview, "id"> & { id?: string };
+type PurgeMemberContentPayload = {
+  memberId: string;
+  placeholderName?: string;
+};
 
 type DemoAction =
   | { type: "ADD_DIVE_LOG"; payload: AddDiveLogPayload }
@@ -164,7 +168,8 @@ type DemoAction =
   | { type: "MARK_NOTIFICATION"; payload: { id: string; read: boolean } }
   | { type: "DISMISS_NOTIFICATION"; payload: { id: string } }
   | { type: "TOGGLE_MEDIA_FAVORITE"; payload: { id: string } }
-  | { type: "TOGGLE_SITE_FAVORITE"; payload: { id: string } };
+  | { type: "TOGGLE_SITE_FAVORITE"; payload: { id: string } }
+  | { type: "PURGE_MEMBER_CONTENT"; payload: PurgeMemberContentPayload };
 
 const DemoDataContext = createContext<DemoDataContextValue | undefined>(undefined);
 
@@ -807,6 +812,63 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
           : [...state.favoriteSiteIds, id]
       };
     }
+    case "PURGE_MEMBER_CONTENT": {
+      const placeholderName = action.payload.placeholderName?.trim() || "Gelöschtes Mitglied";
+      const placeholderComment = "Dieser Kommentar wurde entfernt.";
+      const placeholderReply = "Diese Antwort wurde entfernt.";
+
+      const filteredDiveLogs = state.diveLogs.filter((log) => log.diverId !== action.payload.memberId);
+
+      const sanitizedCommunityPosts = state.communityPosts
+        .filter((post) => post.authorId !== action.payload.memberId)
+        .map((post) => {
+          const comments = post.comments.map((comment) => {
+            if (comment.authorId !== action.payload.memberId) {
+              return comment;
+            }
+            return {
+              ...comment,
+              author: placeholderName,
+              authorId: undefined,
+              authorEmail: undefined,
+              message: placeholderComment
+            };
+          });
+
+          return {
+            ...post,
+            comments
+          };
+        });
+
+      const sanitizedForumThreads = state.forumThreads
+        .filter((thread) => thread.authorId !== action.payload.memberId)
+        .map((thread) => {
+          const replies = thread.replies.map((reply) => {
+            if (reply.authorId !== action.payload.memberId) {
+              return reply;
+            }
+            return {
+              ...reply,
+              author: placeholderName,
+              authorId: undefined,
+              message: placeholderReply
+            };
+          });
+
+          return {
+            ...thread,
+            replies
+          };
+        });
+
+      return {
+        ...state,
+        diveLogs: filteredDiveLogs,
+        communityPosts: sanitizedCommunityPosts,
+        forumThreads: sanitizedForumThreads
+      };
+    }
     default:
       return state;
   }
@@ -850,6 +912,7 @@ type DemoDataContextValue = DemoState & {
   dismissNotification: (id: string) => void;
   toggleFavoriteMedia: (id: string) => void;
   toggleFavoriteSite: (id: string) => void;
+  purgeMemberContent: (payload: PurgeMemberContentPayload) => void;
 };
 
 export function DemoDataProvider({ children }: { children: ReactNode }) {
@@ -912,7 +975,9 @@ export function DemoDataProvider({ children }: { children: ReactNode }) {
       toggleFavoriteMedia: (id) =>
         dispatch({ type: "TOGGLE_MEDIA_FAVORITE", payload: { id } }),
       toggleFavoriteSite: (id) =>
-        dispatch({ type: "TOGGLE_SITE_FAVORITE", payload: { id } })
+        dispatch({ type: "TOGGLE_SITE_FAVORITE", payload: { id } }),
+      purgeMemberContent: (payload) =>
+        dispatch({ type: "PURGE_MEMBER_CONTENT", payload })
     };
   }, [state]);
 

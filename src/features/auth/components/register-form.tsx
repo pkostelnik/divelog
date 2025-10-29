@@ -12,10 +12,12 @@ export function RegisterForm() {
     name: "",
     email: "",
     password: "",
+    confirmPassword: "",
     city: "",
     favoriteDiveSite: ""
   });
   const [error, setError] = useState<string | null>(null);
+  const [passwordMismatch, setPasswordMismatch] = useState(false);
   const [status, setStatus] = useState<"idle" | "submitting">("idle");
 
   const handleChange = (field: keyof typeof form) => (value: string) => {
@@ -23,11 +25,23 @@ export function RegisterForm() {
       ...previous,
       [field]: value
     }));
+    setError(null);
+    if (field === "confirmPassword") {
+      setPasswordMismatch(value !== form.password);
+    }
+    if (field === "password") {
+      setPasswordMismatch(form.confirmPassword !== value && form.confirmPassword.length > 0);
+    }
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (status === "submitting") {
+      return;
+    }
+
+    if (form.password !== form.confirmPassword) {
+      setError("Passwörter stimmen nicht überein.");
       return;
     }
 
@@ -66,13 +80,13 @@ export function RegisterForm() {
     <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
       <header className="mb-4 space-y-1">
         <h1 className="text-xl font-semibold text-slate-900">Registrierung</h1>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-slate-700">
           Erstelle einen kostenlosen Demo-Zugang und sichere dir Zugriff auf Mitgliederfunktionen.
         </p>
       </header>
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
+          <label className="flex flex-col gap-2 text-xs font-semibold text-slate-700">
             Name
             <input
               value={form.name}
@@ -82,7 +96,7 @@ export function RegisterForm() {
               required
             />
           </label>
-          <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
+          <label className="flex flex-col gap-2 text-xs font-semibold text-slate-700">
             Wohnort
             <input
               value={form.city}
@@ -92,7 +106,7 @@ export function RegisterForm() {
             />
           </label>
         </div>
-        <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
+        <label className="flex flex-col gap-2 text-xs font-semibold text-slate-700">
           E-Mail
           <input
             type="email"
@@ -103,7 +117,7 @@ export function RegisterForm() {
             required
           />
         </label>
-        <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
+        <label className="flex flex-col gap-2 text-xs font-semibold text-slate-700">
           Passwort
           <input
             type="password"
@@ -115,7 +129,24 @@ export function RegisterForm() {
             required
           />
         </label>
-        <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
+        <label className="flex flex-col gap-2 text-xs font-semibold text-slate-700">
+          Passwort bestätigen
+          <input
+            type="password"
+            value={form.confirmPassword}
+            onChange={(event) => handleChange("confirmPassword")(event.target.value)}
+            placeholder="Passwort erneut eingeben"
+            minLength={6}
+            className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+            required
+          />
+          {passwordMismatch && (
+            <span className="text-xs font-normal text-rose-600">
+              Eingabe stimmt nicht mit dem Passwort überein.
+            </span>
+          )}
+        </label>
+        <label className="flex flex-col gap-2 text-xs font-semibold text-slate-700">
           Lieblingstauchplatz (optional)
           <input
             value={form.favoriteDiveSite}
@@ -125,13 +156,22 @@ export function RegisterForm() {
           />
         </label>
         {error && <p className="text-sm font-medium text-rose-600">{error}</p>}
-        <button
-          type="submit"
-          className="w-full rounded-xl bg-ocean-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-ocean-700 disabled:cursor-not-allowed disabled:opacity-70"
-          disabled={status === "submitting"}
-        >
-          {status === "submitting" ? "Wird erstellt..." : "Zugang anlegen"}
-        </button>
+        <div className="grid gap-3 md:grid-cols-2">
+          <button
+            type="submit"
+            className="rounded-xl bg-ocean-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-ocean-700 disabled:cursor-not-allowed disabled:opacity-70"
+            disabled={status === "submitting" || passwordMismatch}
+          >
+            {status === "submitting" ? "Wird erstellt..." : "Zugang anlegen"}
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push("/auth/login")}
+            className="rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-400 hover:text-slate-900"
+          >
+            Abbrechen
+          </button>
+        </div>
       </form>
     </section>
   );
