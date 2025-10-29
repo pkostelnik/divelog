@@ -7,6 +7,8 @@ export type DiveLogPreview = {
   date: string;
   buddy: string;
   difficulty: "Beginner" | "Fortgeschritten" | "Pro";
+  siteId?: string;
+  diverId?: string;
 };
 
 export type EquipmentItem = {
@@ -122,7 +124,9 @@ export const diveLogs: DiveLogPreview[] = [
     duration: 48,
     date: "2025-09-14",
     buddy: "Samira F.",
-    difficulty: "Fortgeschritten"
+    difficulty: "Fortgeschritten",
+    siteId: "site-04",
+    diverId: "member-01"
   },
   {
     id: "dive-102",
@@ -132,7 +136,9 @@ export const diveLogs: DiveLogPreview[] = [
     duration: 62,
     date: "2025-08-06",
     buddy: "Lukas W.",
-    difficulty: "Beginner"
+    difficulty: "Beginner",
+    siteId: "site-05",
+    diverId: "member-02"
   },
   {
     id: "dive-103",
@@ -142,7 +148,9 @@ export const diveLogs: DiveLogPreview[] = [
     duration: 54,
     date: "2025-07-22",
     buddy: "Mara K.",
-    difficulty: "Pro"
+    difficulty: "Pro",
+    siteId: "site-06",
+    diverId: "member-03"
   }
 ];
 
@@ -205,6 +213,39 @@ export const diveSites: DiveSite[] = [
     coordinates: {
       latitude: 27.8117,
       longitude: 33.9224
+    }
+  },
+  {
+    id: "site-04",
+    name: "MS Aurora Wrack",
+    country: "Spanien",
+    difficulty: "Fortgeschritten",
+    highlight: "Dramatisches Wrack vor Teneriffa mit üppigen Fischschwärmen",
+    coordinates: {
+      latitude: 28.4636,
+      longitude: -16.2518
+    }
+  },
+  {
+    id: "site-05",
+    name: "Korallengarten",
+    country: "Ägypten",
+    difficulty: "Beginner",
+    highlight: "Weite Hartkorallenriffe mit zahmen Schildkröten",
+    coordinates: {
+      latitude: 27.2579,
+      longitude: 33.8116
+    }
+  },
+  {
+    id: "site-06",
+    name: "Blue Hole Dahab",
+    country: "Ägypten",
+    difficulty: "Pro",
+    highlight: "Legendärer Nachttauchgang mit eindrucksvollem Lichtspiel",
+    coordinates: {
+      latitude: 28.571,
+      longitude: 34.5361
     }
   }
 ];

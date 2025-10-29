@@ -4,6 +4,7 @@ import { useMemo, useState, type ChangeEvent } from "react";
 
 import type { DiveLogPreview } from "@/data/mock-data";
 import { useDemoData } from "@/providers/demo-data-provider";
+import { useAuth } from "@/providers/auth-provider";
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString("de-DE", {
@@ -19,24 +20,35 @@ type DiveLogListProps = {
 
 export function DiveLogList({ onEdit }: DiveLogListProps) {
   const { diveLogs, removeDiveLog } = useDemoData();
+  const { currentUser } = useAuth();
   const [sortBy, setSortBy] = useState<"date" | "duration">("date");
   const [recentOnly, setRecentOnly] = useState(false);
 
+  const userFilteredLogs = useMemo(() => {
+    if (!currentUser?.id || currentUser.role === "admin") {
+      return diveLogs;
+    }
+
+    // Keep legacy entries without diver assignments visible while data migrates.
+    return diveLogs.filter((log) => !log.diverId || log.diverId === currentUser.id);
+  }, [diveLogs, currentUser?.id, currentUser?.role]);
+
   const visibleLogs = useMemo(() => {
     const filtered = recentOnly
-      ? diveLogs.filter((log) => {
+      ? userFilteredLogs.filter((log) => {
           const daysDiff = (Date.now() - new Date(log.date).getTime()) / (1000 * 60 * 60 * 24);
           return daysDiff <= 60;
         })
-      : diveLogs;
+      : userFilteredLogs;
 
     return [...filtered].sort((a, b) => {
       if (sortBy === "duration") {
         return b.duration - a.duration;
       }
+
       return b.date.localeCompare(a.date);
     });
-  }, [diveLogs, sortBy, recentOnly]);
+  }, [userFilteredLogs, sortBy, recentOnly]);
 
   return (
     <div className="flex flex-col gap-4">

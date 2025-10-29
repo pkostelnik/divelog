@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import type { DiveLogPreview } from "@/data/mock-data";
 import { useDemoData } from "@/providers/demo-data-provider";
+import { useAuth } from "@/providers/auth-provider";
 
 const difficulties = ["Beginner", "Fortgeschritten", "Pro"] as const;
 
@@ -17,17 +18,29 @@ const formSchema = z.object({
   depth: z.coerce.number().min(1).max(120),
   duration: z.coerce.number().min(1).max(240),
   buddy: z.string().min(2, "Buddy eintragen."),
-  difficulty: z.enum(difficulties)
+  difficulty: z.enum(difficulties),
+  diverId: z.string().min(1, "Bitte eine Taucherin oder einen Taucher auswählen."),
+  siteId: z.string().optional().nullable()
 });
 
 type FormInput = z.infer<typeof formSchema>;
 
 type FormErrors = Partial<Record<keyof FormInput, string>>;
 
-function createInitialForm(initialValue?: DiveLogPreview | null): FormInput {
+function createInitialForm(initialValue?: DiveLogPreview | null, fallbackDiverId?: string | null): FormInput {
   if (initialValue) {
-    const { title, location, date, depth, duration, buddy, difficulty } = initialValue;
-    return { title, location, date, depth, duration, buddy, difficulty };
+    const { title, location, date, depth, duration, buddy, difficulty, diverId, siteId } = initialValue;
+    return {
+      title,
+      location,
+      date,
+      depth,
+      duration,
+      buddy,
+      difficulty,
+      diverId: diverId ?? fallbackDiverId ?? "",
+      siteId: siteId ?? ""
+    };
   }
   return {
     title: "",
@@ -36,7 +49,9 @@ function createInitialForm(initialValue?: DiveLogPreview | null): FormInput {
     depth: 18,
     duration: 45,
     buddy: "",
-    difficulty: "Beginner"
+    difficulty: "Beginner",
+    diverId: fallbackDiverId ?? "",
+    siteId: ""
   };
 }
 
@@ -48,13 +63,21 @@ type AddDiveLogFormProps = {
 
 export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: AddDiveLogFormProps) {
   const { addDiveLog, updateDiveLog, diveSites } = useDemoData();
-  const [form, setForm] = useState<FormInput>(() => createInitialForm(initialValue));
+  const { members, currentUser } = useAuth();
+  const fallbackDiverId = currentUser?.id ?? "";
+  const [form, setForm] = useState<FormInput>(() => createInitialForm(initialValue, fallbackDiverId));
   const [errors, setErrors] = useState<FormErrors>({});
   const [status, setStatus] = useState<"idle" | "success">("idle");
   const isEditing = Boolean(initialValue);
   const siteListId = useId();
 
   const hasErrors = useMemo(() => Object.values(errors).some(Boolean), [errors]);
+
+  const memberOptions = useMemo(() => {
+    return [...members]
+      .map((member) => ({ id: member.id, label: member.name }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [members]);
 
   const siteOptions = useMemo(() => {
     return [...diveSites]
@@ -67,10 +90,10 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
   }, [diveSites]);
 
   useEffect(() => {
-    setForm(createInitialForm(initialValue));
+    setForm(createInitialForm(initialValue, fallbackDiverId));
     setErrors({});
     setStatus("idle");
-  }, [initialValue]);
+  }, [initialValue, fallbackDiverId]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
@@ -90,9 +113,28 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
   };
 
   const handlePresetSelect = (location: string) => {
+    const matched = siteOptions.find((option) => option.value === location);
     setForm((previous) => ({
       ...previous,
-      location
+      location,
+      siteId: matched?.id ?? previous.siteId
+    }));
+    setErrors((previous) => {
+      if (!previous.location) {
+        return previous;
+      }
+      const { location: _removed, ...rest } = previous;
+      return rest;
+    });
+    setStatus("idle");
+  };
+
+  const handleSiteSelect = (siteId: string) => {
+    const matched = diveSites.find((site) => site.id === siteId);
+    setForm((previous) => ({
+      ...previous,
+      siteId,
+      location: matched ? matched.name : previous.location
     }));
     setErrors((previous) => {
       if (!previous.location) {
@@ -122,13 +164,18 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
       return;
     }
 
+    const normalizedPayload = {
+      ...result.data,
+      siteId: result.data.siteId || undefined
+    } satisfies Omit<DiveLogPreview, "id">;
+
     if (isEditing && initialValue) {
-      updateDiveLog(initialValue.id, result.data);
+      updateDiveLog(initialValue.id, normalizedPayload);
     } else {
-      addDiveLog(result.data);
+      addDiveLog(normalizedPayload);
     }
 
-    setForm(createInitialForm(isEditing ? initialValue : undefined));
+    setForm(createInitialForm(isEditing ? initialValue : undefined, fallbackDiverId));
     setErrors({});
     setStatus("success");
     onSubmitSuccess?.();
@@ -157,53 +204,88 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
             />
             {errors.title && <span className="text-xs font-normal text-rose-600">{errors.title}</span>}
           </label>
-          <div className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-            <label className="flex flex-col gap-2">
-              Spot / Ort
-              <input
-                name="location"
-                list={siteListId}
-                value={form.location}
-                onChange={handleChange}
-                placeholder="Tauchplatz auswählen oder frei eingeben"
-                className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
-              />
-            </label>
-            {errors.location && (
-              <span className="text-xs font-normal text-rose-600">{errors.location}</span>
-            )}
-            {siteOptions.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 text-[11px] font-normal text-slate-500">
-                <span>Vorschläge:</span>
-                <div className="flex flex-wrap gap-2">
-                  {siteOptions.slice(0, 4).map((option) => (
-                    <button
-                      key={option.id}
-                      type="button"
-                      onClick={() => handlePresetSelect(option.value)}
-                      className={`rounded-full border px-3 py-1 transition ${
-                        form.location === option.value
-                          ? "border-ocean-300 bg-ocean-50 text-ocean-700"
-                          : "border-slate-200 bg-white text-slate-600 hover:border-ocean-200 hover:text-ocean-700"
-                      }`}
-                    >
-                      {option.value}
-                    </button>
-                  ))}
-                  {siteOptions.length > 4 && (
-                    <span className="text-slate-400">
-                      und {siteOptions.length - 4} weitere per Eingabe oder Suche
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
-            <datalist id={siteListId}>
-              {siteOptions.map((option) => (
-                <option key={option.id} value={option.value} label={option.label} />
+          <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
+            Log gehört zu
+            <select
+              name="diverId"
+              value={form.diverId}
+              onChange={handleChange}
+              className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+            >
+              <option value="" disabled>
+                Mitglied auswählen
+              </option>
+              {memberOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
               ))}
-            </datalist>
-          </div>
+            </select>
+            {errors.diverId && <span className="text-xs font-normal text-rose-600">{errors.diverId}</span>}
+          </label>
+        </div>
+        <div className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
+          <label className="flex flex-col gap-2">
+            Spot / Ort
+            <input
+              name="location"
+              list={siteListId}
+              value={form.location}
+              onChange={handleChange}
+              placeholder="Tauchplatz auswählen oder frei eingeben"
+              className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+            />
+          </label>
+          {errors.location && (
+            <span className="text-xs font-normal text-rose-600">{errors.location}</span>
+          )}
+          <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
+            Verknüpfter Spot
+            <select
+              name="siteId"
+              value={form.siteId ?? ""}
+              onChange={(event) => handleSiteSelect(event.target.value)}
+              className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+            >
+              <option value="">Kein verknüpfter Spot</option>
+              {siteOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          {siteOptions.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 text-[11px] font-normal text-slate-500">
+              <span>Vorschläge:</span>
+              <div className="flex flex-wrap gap-2">
+                {siteOptions.slice(0, 4).map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => handlePresetSelect(option.value)}
+                    className={`rounded-full border px-3 py-1 transition ${
+                      form.location === option.value
+                        ? "border-ocean-300 bg-ocean-50 text-ocean-700"
+                        : "border-slate-200 bg-white text-slate-600 hover:border-ocean-200 hover:text-ocean-700"
+                    }`}
+                  >
+                    {option.value}
+                  </button>
+                ))}
+                {siteOptions.length > 4 && (
+                  <span className="text-slate-400">
+                    und {siteOptions.length - 4} weitere per Eingabe oder Suche
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+          <datalist id={siteListId}>
+            {siteOptions.map((option) => (
+              <option key={option.id} value={option.value} label={option.label} />
+            ))}
+          </datalist>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">

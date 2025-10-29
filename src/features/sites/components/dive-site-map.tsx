@@ -5,6 +5,7 @@ import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from "re
 
 import type { DiveSite } from "@/data/mock-data";
 import { useDemoData } from "@/providers/demo-data-provider";
+import { useAuth } from "@/providers/auth-provider";
 
 const GEOJSON_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
@@ -28,17 +29,41 @@ const difficultyColor: Record<DiveSite["difficulty"], string> = {
 };
 
 function DiveSiteMapComponent() {
-  const { diveSites } = useDemoData();
+  const { diveSites, diveLogs } = useDemoData();
+  const { currentUser } = useAuth();
+
+  const visitedSiteIds = useMemo(() => {
+    if (!currentUser?.id) {
+      return new Set<string>();
+    }
+
+    const ids = new Set<string>();
+    diveLogs.forEach((log) => {
+      // Ensure the map only includes spots from the signed-in diver.
+      if (log.siteId && log.diverId === currentUser.id) {
+        ids.add(log.siteId);
+      }
+    });
+
+    return ids;
+  }, [diveLogs, currentUser?.id]);
+
+  const visibleSites = useMemo(() => {
+    if (visitedSiteIds.size === 0) {
+      return [] as DiveSite[];
+    }
+    return diveSites.filter((site) => visitedSiteIds.has(site.id));
+  }, [diveSites, visitedSiteIds]);
 
   const markers = useMemo<SiteMarker[]>(() => {
-    return diveSites.map((site) => ({
+    return visibleSites.map((site) => ({
       id: site.id,
       name: site.name,
       latitude: site.coordinates.latitude,
       longitude: site.coordinates.longitude,
       difficulty: site.difficulty
     }));
-  }, [diveSites]);
+  }, [visibleSites]);
 
   const initialView = useMemo<MapView>(() => calculateInitialView(markers), [markers]);
 
@@ -90,12 +115,16 @@ function DiveSiteMapComponent() {
     setView(calculateInitialView(markers));
   }, [markers]);
 
-  if (markers.length === 0) {
+  if (!currentUser?.id || markers.length === 0) {
     return (
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <header className="flex flex-col gap-1">
           <h2 className="text-lg font-semibold text-slate-900">Karte der besuchten Spots</h2>
-          <p className="text-xs text-slate-500">Noch keine Tauchplätze erfasst.</p>
+          <p className="text-xs text-slate-500">
+            {currentUser?.id
+              ? "Du hast noch keine Tauchgänge mit einem Spot verknüpft."
+              : "Bitte anmelden, um deine verknüpften Tauchspots zu sehen."}
+          </p>
         </header>
       </section>
     );
@@ -107,7 +136,8 @@ function DiveSiteMapComponent() {
         <div className="space-y-1">
           <h2 className="text-lg font-semibold text-slate-900">Karte der besuchten Spots</h2>
           <p className="text-xs text-slate-500">
-            Jeder Marker entspricht einem gespeicherten Tauchplatz. Wähle einen Eintrag, um die Karte automatisch auf diesen Spot zu fokussieren.
+            Jeder Marker entspricht einem Tauchplatz aus deinem Logbuch.
+            Wähle einen Eintrag, um die Karte automatisch auf diesen Spot zu fokussieren.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-500">

@@ -908,7 +908,7 @@ export function CommunityHighlights() {
                     <p className="text-xs text-slate-500">von {post.author}</p>
                     {linkedDive && (
                       <p className="text-xs text-slate-500">
-                        Verknüpft mit "{linkedDive.title}" am {new Date(linkedDive.date).toLocaleDateString("de-DE")}
+                        Verknüpft mit &quot;{linkedDive.title}&quot; am {new Date(linkedDive.date).toLocaleDateString("de-DE")}
                       </p>
                     )}
                   </header>
