@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/providers/auth-provider";
+import { socialProviders, type SocialProviderId } from "./social-providers";
 
 export function LoginForm() {
   const router = useRouter();
@@ -43,6 +44,11 @@ export function LoginForm() {
     }
     setError(null);
     router.push("/dashboard/profile");
+  };
+
+  const handleSocialLogin = async (providerId: SocialProviderId) => {
+    const mode = providerId === "linkedin" ? "admin" : "member";
+    await handleDemoLogin(mode);
   };
 
   if (currentUser) {
@@ -120,6 +126,30 @@ export function LoginForm() {
         </div>
         <p className="text-xs text-slate-600">
           Zugangsdaten werden beim Abmelden wieder vergessen. Perfekt, um Features kurz auszuprobieren.
+        </p>
+      </div>
+      <div className="mt-6 space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">
+          Schnell anmelden
+        </p>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {socialProviders.map((provider, index) => {
+            const Icon = provider.Icon;
+            return (
+              <button
+                key={provider.id}
+                type="button"
+                onClick={() => handleSocialLogin(provider.id)}
+                className={`inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 ${index === socialProviders.length - 1 ? "sm:col-span-2" : ""}`}
+              >
+                <Icon className="h-5 w-5" aria-hidden />
+                <span>{provider.label}</span>
+              </button>
+            );
+          })}
+        </div>
+        <p className="text-[11px] text-slate-500">
+          Die Social Logins sind in dieser Demo symbolisch und nutzen intern den Demo-Zugang.
         </p>
       </div>
       <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 text-center text-sm text-slate-700">

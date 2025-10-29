@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/providers/auth-provider";
+import { socialProviders, type SocialProviderId } from "./social-providers";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -63,6 +64,11 @@ export function RegisterForm() {
     setError(null);
     setStatus("idle");
     router.push("/dashboard/profile");
+  };
+
+  const handleSocialRegister = (providerId: SocialProviderId) => {
+    const next = new URLSearchParams({ provider: providerId });
+    router.push(`/auth/login?${next.toString()}`);
   };
 
   if (currentUser) {
@@ -173,6 +179,30 @@ export function RegisterForm() {
           </button>
         </div>
       </form>
+      <div className="mt-6 space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">
+          Schnell registrieren
+        </p>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {socialProviders.map((provider, index) => {
+            const Icon = provider.Icon;
+            return (
+              <button
+                key={provider.id}
+                type="button"
+                onClick={() => handleSocialRegister(provider.id)}
+                className={`inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 ${index === socialProviders.length - 1 ? "sm:col-span-2" : ""}`}
+              >
+                <Icon className="h-5 w-5" aria-hidden />
+                <span>{provider.label}</span>
+              </button>
+            );
+          })}
+        </div>
+        <p className="text-[11px] text-slate-500">
+          Diese Demo leitet Social-Registrierungen zum Login weiter. Echte OAuth-Flows können später ergänzt werden.
+        </p>
+      </div>
     </section>
   );
 }
