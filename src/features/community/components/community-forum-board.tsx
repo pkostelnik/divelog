@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useDemoData } from "@/providers/demo-data-provider";
 import { useAuth } from "@/providers/auth-provider";
@@ -47,18 +47,20 @@ export function CommunityForumBoard() {
   const currentUserId = currentUser?.id ?? null;
   const normalizedCurrentUserName = currentUser?.name.trim().toLowerCase() ?? null;
   const [pendingThreadDeleteId, setPendingThreadDeleteId] = useState<string | null>(null);
-  const anonymousAuthorIdRef = useRef<string | null>(null);
-
-  if (anonymousAuthorIdRef.current === null) {
+  const anonymousAuthorId = useMemo(() => {
     const ensured = ensureAnonymousAuthorId();
     if (ensured) {
-      anonymousAuthorIdRef.current = ensured;
-    } else {
-      anonymousAuthorIdRef.current = generateAnonymousAuthorId();
+      return ensured;
     }
-  }
 
-  const anonymousAuthorId = anonymousAuthorIdRef.current;
+    const generated = generateAnonymousAuthorId();
+    try {
+      window.localStorage.setItem(ANONYMOUS_AUTHOR_ID_KEY, generated);
+    } catch {
+      // Ignore storage errors (private tabs, disabled storage, etc.).
+    }
+    return generated;
+  }, []);
 
   const threads = useMemo(() => {
     return [...forumThreads].sort((a, b) => b.lastActivity.localeCompare(a.lastActivity));

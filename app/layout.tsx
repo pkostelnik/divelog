@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { AuthProvider } from "@/providers/auth-provider";
 import { DemoDataProvider } from "@/providers/demo-data-provider";
+import { ThemeProvider } from "@/providers/theme-provider";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
@@ -20,16 +21,18 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="de" className={inter.className}>
-      <body className="min-h-screen bg-slate-50 text-slate-900 antialiased">
-        <AuthProvider>
-          <DemoDataProvider>
-            <div className="flex min-h-screen flex-col">
-              <SiteHeader />
-              <main className="flex-1">{children}</main>
-              <SiteFooter />
-            </div>
-          </DemoDataProvider>
-        </AuthProvider>
+      <body className="min-h-screen bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
+        <ThemeProvider>
+          <AuthProvider>
+            <DemoDataProvider>
+              <div className="flex min-h-screen flex-col">
+                <SiteHeader />
+                <main className="flex-1">{children}</main>
+                <SiteFooter />
+              </div>
+            </DemoDataProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

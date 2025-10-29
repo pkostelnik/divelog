@@ -426,10 +426,6 @@ function MediaHighlightPreview({ item }: { item: MediaItem }) {
   }
 
   if (item.source === "upload") {
-    return <img src={item.url} alt={item.title} className="h-48 w-full object-cover" />;
-  }
-
-  if (isOptimizableImageUrl(item.url)) {
     return (
       <Image
         src={item.url}
@@ -437,11 +433,25 @@ function MediaHighlightPreview({ item }: { item: MediaItem }) {
         width={800}
         height={500}
         className="h-48 w-full object-cover"
+        sizes="(max-width: 768px) 100vw, 50vw"
+        unoptimized
       />
     );
   }
 
-  return <img src={item.url} alt={item.title} className="h-48 w-full object-cover" />;
+  const optimizable = isOptimizableImageUrl(item.url);
+
+  return (
+    <Image
+      src={item.url}
+      alt={item.title}
+      width={800}
+      height={500}
+      className="h-48 w-full object-cover"
+      sizes="(max-width: 768px) 100vw, 50vw"
+      unoptimized={!optimizable}
+    />
+  );
 }
 
 function isOptimizableImageUrl(url: string): boolean {

@@ -31,7 +31,7 @@ export function DiveSearchPanel() {
 
       return matchesQuery && log.difficulty === difficulty;
     });
-  }, [query, difficulty]);
+  }, [difficulty, diveLogs, query]);
 
   return (
     <div className="space-y-6">
