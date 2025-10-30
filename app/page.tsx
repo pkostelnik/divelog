@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { useAuth } from "@/providers/auth-provider";
 import { useI18n } from "@/providers/i18n-provider";
 
 type FeatureHighlight = {
@@ -62,6 +63,7 @@ const featureHighlights: FeatureHighlight[] = [
 ];
 
 export default function LandingPage() {
+  const { currentUser } = useAuth();
   const { t } = useI18n();
 
   return (
@@ -77,29 +79,42 @@ export default function LandingPage() {
           <p className="mx-auto max-w-2xl text-lg text-slate-600 transition-colors dark:text-slate-300">
             {t("landing.hero.subtitle")}
           </p>
-          <div className="flex flex-col justify-center gap-3 md:flex-row">
-            <Link
-              href="/auth/register"
-              className="rounded-lg bg-ocean-600 px-5 py-3 text-sm font-semibold text-white shadow transition duration-200 hover:-translate-y-0.5 hover:bg-ocean-700 dark:hover:bg-ocean-500"
-            >
-              {t("landing.hero.cta.register")}
-            </Link>
-            <Link
-              href="/auth/login"
-              className="rounded-lg border border-ocean-200 px-5 py-3 text-sm font-semibold text-ocean-700 shadow-sm transition duration-200 hover:border-ocean-400 hover:text-ocean-800 dark:border-ocean-800 dark:text-ocean-200 dark:hover:border-ocean-600 dark:hover:text-ocean-100"
-            >
-              {t("landing.hero.cta.login")}
-            </Link>
-            <Link
-              href="/dashboard"
-              className="rounded-lg border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition duration-200 hover:border-slate-400 hover:text-slate-900 dark:border-slate-700 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:text-slate-100"
-            >
-              {t("landing.hero.cta.explore")}
-            </Link>
-          </div>
-          <p className="text-sm text-slate-500 transition-colors dark:text-slate-400">
-            {t("landing.hero.caption")}
-          </p>
+          {currentUser ? (
+            <div className="flex justify-center">
+              <Link
+                href="/dashboard"
+                className="rounded-lg bg-ocean-600 px-5 py-3 text-sm font-semibold text-white shadow transition duration-200 hover:-translate-y-0.5 hover:bg-ocean-700 dark:hover:bg-ocean-500"
+              >
+                {t("landing.hero.cta.explore")}
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-col justify-center gap-3 md:flex-row">
+                <Link
+                  href="/auth/register"
+                  className="rounded-lg bg-ocean-600 px-5 py-3 text-sm font-semibold text-white shadow transition duration-200 hover:-translate-y-0.5 hover:bg-ocean-700 dark:hover:bg-ocean-500"
+                >
+                  {t("landing.hero.cta.register")}
+                </Link>
+                <Link
+                  href="/auth/login"
+                  className="rounded-lg border border-ocean-200 px-5 py-3 text-sm font-semibold text-ocean-700 shadow-sm transition duration-200 hover:border-ocean-400 hover:text-ocean-800 dark:border-ocean-800 dark:text-ocean-200 dark:hover:border-ocean-600 dark:hover:text-ocean-100"
+                >
+                  {t("landing.hero.cta.login")}
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="rounded-lg border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition duration-200 hover:border-slate-400 hover:text-slate-900 dark:border-slate-700 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:text-slate-100"
+                >
+                  {t("landing.hero.cta.explore")}
+                </Link>
+              </div>
+              <p className="text-sm text-slate-500 transition-colors dark:text-slate-400">
+                {t("landing.hero.caption")}
+              </p>
+            </>
+          )}
         </div>
 
         <section className="grid gap-6 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900/60">
