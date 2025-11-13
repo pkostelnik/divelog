@@ -2,12 +2,12 @@
   "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
   "manifestVersion": "1.17",
   "version": "1.0.0",
-  "id": "{{TEAMS_APP_ID}}",
+  "id": "${{TEAMS_APP_ID}}",
   "developer": {
     "name": "DiveLog Studio",
-    "websiteUrl": "{{APP_URL}}",
-    "privacyUrl": "{{APP_URL}}/datenschutz",
-    "termsOfUseUrl": "{{APP_URL}}/impressum"
+    "websiteUrl": "https://${{APP_DOMAIN}}",
+    "privacyUrl": "https://${{APP_DOMAIN}}/datenschutz",
+    "termsOfUseUrl": "https://${{APP_DOMAIN}}/impressum"
   },
   "name": {
     "short": "DiveLog Studio",
@@ -26,28 +26,28 @@
     {
       "entityId": "dashboard",
       "name": "Dashboard",
-      "contentUrl": "{{APP_URL}}/dashboard",
-      "websiteUrl": "{{APP_URL}}/dashboard",
+      "contentUrl": "https://${{APP_DOMAIN}}/dashboard",
+      "websiteUrl": "https://${{APP_DOMAIN}}/dashboard",
       "scopes": ["personal"]
     },
     {
       "entityId": "dives",
       "name": "Dive Logs",
-      "contentUrl": "{{APP_URL}}/dashboard/dives",
-      "websiteUrl": "{{APP_URL}}/dashboard/dives",
+      "contentUrl": "https://${{APP_DOMAIN}}/dashboard/dives",
+      "websiteUrl": "https://${{APP_DOMAIN}}/dashboard/dives",
       "scopes": ["personal"]
     },
     {
       "entityId": "community",
       "name": "Community",
-      "contentUrl": "{{APP_URL}}/dashboard/community",
-      "websiteUrl": "{{APP_URL}}/dashboard/community",
+      "contentUrl": "https://${{APP_DOMAIN}}/dashboard/community",
+      "websiteUrl": "https://${{APP_DOMAIN}}/dashboard/community",
       "scopes": ["personal"]
     }
   ],
   "configurableTabs": [
     {
-      "configurationUrl": "{{APP_URL}}/dashboard",
+      "configurationUrl": "https://${{APP_DOMAIN}}/dashboard",
       "canUpdateConfiguration": true,
       "scopes": ["team", "groupChat"]
     }
@@ -57,10 +57,6 @@
     "messageTeamMembers"
   ],
   "validDomains": [
-    "{{APP_DOMAIN}}"
-  ],
-  "webApplicationInfo": {
-    "id": "{{AZURE_AD_APP_ID}}",
-    "resource": "api://{{APP_DOMAIN}}/{{AZURE_AD_APP_ID}}"
-  }
+    "${{APP_DOMAIN}}"
+  ]
 }

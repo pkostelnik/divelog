@@ -1,0 +1,29 @@
+version: 1.0.0
+
+provision:
+  - uses: teamsApp/create
+    with:
+      name: DiveLog Studio-${{TEAMSFX_ENV}}
+    writeToEnvironmentFile:
+      teamsAppId: TEAMS_APP_ID
+
+deploy:
+  - uses: cli/runNpmCommand
+    with:
+      args: install --production=false
+  - uses: cli/runNpmCommand
+    with:
+      args: run build
+
+publish:
+  - uses: teamsApp/validateManifest
+    with:
+      manifestPath: ./teams-app/manifest.json
+  - uses: teamsApp/zipAppPackage
+    with:
+      manifestPath: ./teams-app/manifest.json
+      outputZipPath: ./teams-app/build/appPackage.${{TEAMSFX_ENV}}.zip
+      outputJsonPath: ./teams-app/build/manifest.${{TEAMSFX_ENV}}.json
+  - uses: teamsApp/update
+    with:
+      appPackagePath: ./teams-app/build/appPackage.${{TEAMSFX_ENV}}.zip

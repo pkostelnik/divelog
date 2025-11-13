@@ -1,0 +1,9 @@
+WICHTIG: Ersetze diese Datei durch ein echtes PNG (192x192px)
+
+Für schnellen Test kannst du:
+1. Ein beliebiges Bild nehmen
+2. Online auf 192x192px skalieren (z.B. via https://www.simpleimageresizer.com/)
+3. Als "color.png" speichern
+
+Oder nutze diesen Befehl (wenn ImageMagick installiert):
+convert -size 192x192 xc:#0369a1 -pointsize 72 -fill white -gravity center -annotate +0+0 "DL" color.png
