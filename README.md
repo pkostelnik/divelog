@@ -1,5 +1,7 @@
 # DiveLog Studio Demo
 
+![DiveLog Studio Screenshot](public/assets/DiveLogStudio.png)
+
 > 🇩🇪 & 🇬🇧 Dieses Repository beschreibt alle Inhalte zweisprachig. Jede Sektion enthält zuerst die deutsche, anschließend die englische Fassung.
 
 ## 🚀 Quickstart · Schnellstart
@@ -19,8 +21,6 @@ npm run dev
 Then open `http://localhost:3000`. The landing page links straight to registration, login, mock social sign-ins, and the full dashboard.
 
 ## ✨ Highlights
-
-![DiveLog Studio Screenshot](public/assets/DiveLogStudio.png)
 
 ### 🇩🇪 Blick in die App
 - Hero, Feature-Kacheln und Demo-Navigation auf einen Blick
