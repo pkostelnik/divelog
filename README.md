@@ -2,9 +2,9 @@
 
 ![DiveLog Studio Screenshot](public/assets/DiveLogStudio.png)
 
-> 🇧 English content first · 🇩🇪 Deutsche Fassung folgt weiter unten.
+> :uk: English content first · :de: Deutsche Fassung folgt weiter unten.
 
-## 🇬🇧 English
+## :uk: English
 
 ### 🚀 Quickstart
 ```bash
@@ -90,11 +90,11 @@ Recommendation: keep `npm run dev` running during development and lint frequentl
 5. Introduce Playwright E2E tests and CI/CD integration
 
 ### Closing Note
-The demo gives product, design, and engineering teams a tangible preview of DiveLog Studio’s experience—including core account flows, social sign-ins, and an Azure-ready architecture.
+The demo gives product, design, and engineering teams a tangible preview of DiveLog Studio's experience—including core account flows, social sign-ins, and an Azure-ready architecture.
 
 ---
 
-## �� Deutsch
+## :de: Deutsch
 
 ### 🚀 Schnellstart
 ```bash
