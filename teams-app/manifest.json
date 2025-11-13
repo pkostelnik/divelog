@@ -2,12 +2,12 @@
   "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
   "manifestVersion": "1.17",
   "version": "1.0.0",
-  "id": "${{TEAMS_APP_ID}}",
+  "id": "C905FBB-2A8A-491C-BF3A-55507BA84490",
   "developer": {
     "name": "DiveLog Studio",
-    "websiteUrl": "https://${{APP_DOMAIN}}",
-    "privacyUrl": "https://${{APP_DOMAIN}}/datenschutz",
-    "termsOfUseUrl": "https://${{APP_DOMAIN}}/impressum"
+    "websiteUrl": "https://divelog.copilot.ovh",
+    "privacyUrl": "https://divelog.copilot.ovh/datenschutz",
+    "termsOfUseUrl": "https://divelog.copilot.ovh/impressum"
   },
   "name": {
     "short": "DiveLog Studio",
@@ -26,28 +26,28 @@
     {
       "entityId": "dashboard",
       "name": "Dashboard",
-      "contentUrl": "https://${{APP_DOMAIN}}/dashboard",
-      "websiteUrl": "https://${{APP_DOMAIN}}/dashboard",
+      "contentUrl": "https://divelog.copilot.ovh/dashboard",
+      "websiteUrl": "https://divelog.copilot.ovh/dashboard",
       "scopes": ["personal"]
     },
     {
       "entityId": "dives",
       "name": "Dive Logs",
-      "contentUrl": "https://${{APP_DOMAIN}}/dashboard/dives",
-      "websiteUrl": "https://${{APP_DOMAIN}}/dashboard/dives",
+      "contentUrl": "https://divelog.copilot.ovh/dashboard/dives",
+      "websiteUrl": "https://divelog.copilot.ovh/dashboard/dives",
       "scopes": ["personal"]
     },
     {
       "entityId": "community",
       "name": "Community",
-      "contentUrl": "https://${{APP_DOMAIN}}/dashboard/community",
-      "websiteUrl": "https://${{APP_DOMAIN}}/dashboard/community",
+      "contentUrl": "https://divelog.copilot.ovh/dashboard/community",
+      "websiteUrl": "https://divelog.copilot.ovh/dashboard/community",
       "scopes": ["personal"]
     }
   ],
   "configurableTabs": [
     {
-      "configurationUrl": "https://${{APP_DOMAIN}}/dashboard",
+      "configurationUrl": "https://divelog.copilot.ovh/dashboard",
       "canUpdateConfiguration": true,
       "scopes": ["team", "groupChat"]
     }
@@ -57,6 +57,6 @@
     "messageTeamMembers"
   ],
   "validDomains": [
-    "${{APP_DOMAIN}}"
+    "divelog.copilot.ovh"
   ]
 }
