@@ -20,6 +20,18 @@ Then open `http://localhost:3000`. The landing page links straight to registrati
 
 ## ✨ Highlights
 
+![DiveLog Studio Screenshot](public/assets/DiveLogStudio.png)
+
+### 🇩🇪 Blick in die App
+- Hero, Feature-Kacheln und Demo-Navigation auf einen Blick
+- Dashboard mit Community-, Dive- und Equipment-Modulen
+- Responsive Layout demonstriert Mobile- und Desktop-Ansicht
+
+### 🇬🇧 A Glimpse Inside The App
+- Hero, feature tiles, and demo navigation at a glance
+- Dashboard covering community, dive, and equipment modules
+- Responsive layout illustrating mobile and desktop views
+
 ### 🇩🇪 Deutsch
 - Überarbeitete Landing Page mit klaren Calls-to-Action (Registrierung, Login, Demo)
 - Social Sign-In Buttons für Google, Microsoft, Facebook, LinkedIn & Amazon (Demo-Flow)
