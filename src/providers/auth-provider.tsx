@@ -1,10 +1,11 @@
 "use client";
 
-import { createContext, useContext, useMemo, useReducer, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useReducer, type ReactNode } from "react";
 
 import { members as memberSeed, type MemberProfile } from "@/data/mock-data";
 import { type SupportedLocale } from "@/i18n/translations";
 import { PREFERRED_LOCALE_EVENT } from "@/providers/i18n-provider";
+import { useTeams } from "@/providers/teams-provider";
 
 type InternalMember = MemberProfile;
 type PublicMember = Omit<MemberProfile, "password">;
@@ -50,6 +51,7 @@ type ResetMemberPasswordPayload = {
 type AuthContextValue = {
   members: PublicMember[];
   currentUser?: PublicMember;
+  isTeamsAuth: boolean;
   login: (payload: LoginPayload) => Promise<{ success: boolean; error?: string }>;
   loginAsDemoMember: () => Promise<{ success: boolean; error?: string }>;
   loginAsDemoAdmin: () => Promise<{ success: boolean; error?: string }>;
@@ -174,6 +176,37 @@ function broadcastPreferredLocale(locale: SupportedLocale) {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
+  const teams = useTeams();
+
+  // Auto-login via Teams SSO when in Teams context
+  useEffect(() => {
+    const attemptTeamsLogin = async () => {
+      if (!teams.isInitialized || !teams.isInTeams || state.currentUser) {
+        return;
+      }
+
+      try {
+        const token = await teams.getAuthToken();
+        if (!token) {
+          console.log('[Auth] Teams SSO token not available, using web auth');
+          return;
+        }
+
+        // In production: validate token with backend and get user profile
+        // For demo: auto-login as demo member when Teams context detected
+        const demoMember = state.members.find((m) => m.role === 'member');
+        if (demoMember) {
+          dispatch({ type: 'LOGIN', payload: demoMember });
+          broadcastPreferredLocale(demoMember.preferredLocale);
+          console.log('[Auth] Auto-logged in via Teams SSO');
+        }
+      } catch (error) {
+        console.error('[Auth] Teams SSO login failed:', error);
+      }
+    };
+
+    attemptTeamsLogin();
+  }, [teams.isInitialized, teams.isInTeams, state.currentUser, state.members, teams]);
 
   const value = useMemo<AuthContextValue>(() => {
     const publicMembers = state.members.map(sanitize);
@@ -374,6 +407,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return {
       members: publicMembers,
       currentUser: publicCurrent,
+      isTeamsAuth: teams.isInTeams && !!publicCurrent,
       login,
       loginAsDemoMember: () => loginByRole("member"),
       loginAsDemoAdmin: () => loginByRole("admin"),
@@ -384,7 +418,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       removeMember,
       logout
     };
-  }, [state]);
+  }, [state, teams.isInTeams]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

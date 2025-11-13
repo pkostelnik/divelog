@@ -1,0 +1,66 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.17",
+  "version": "1.0.0",
+  "id": "{{TEAMS_APP_ID}}",
+  "developer": {
+    "name": "DiveLog Studio",
+    "websiteUrl": "{{APP_URL}}",
+    "privacyUrl": "{{APP_URL}}/datenschutz",
+    "termsOfUseUrl": "{{APP_URL}}/impressum"
+  },
+  "name": {
+    "short": "DiveLog Studio",
+    "full": "DiveLog Studio - Dive Log & Community Platform"
+  },
+  "description": {
+    "short": "Manage dive logs and connect with divers",
+    "full": "Complete dive log management platform with community features, equipment tracking, dive site database, and social networking for divers."
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#0369a1",
+  "staticTabs": [
+    {
+      "entityId": "dashboard",
+      "name": "Dashboard",
+      "contentUrl": "{{APP_URL}}/dashboard",
+      "websiteUrl": "{{APP_URL}}/dashboard",
+      "scopes": ["personal"]
+    },
+    {
+      "entityId": "dives",
+      "name": "Dive Logs",
+      "contentUrl": "{{APP_URL}}/dashboard/dives",
+      "websiteUrl": "{{APP_URL}}/dashboard/dives",
+      "scopes": ["personal"]
+    },
+    {
+      "entityId": "community",
+      "name": "Community",
+      "contentUrl": "{{APP_URL}}/dashboard/community",
+      "websiteUrl": "{{APP_URL}}/dashboard/community",
+      "scopes": ["personal"]
+    }
+  ],
+  "configurableTabs": [
+    {
+      "configurationUrl": "{{APP_URL}}/dashboard",
+      "canUpdateConfiguration": true,
+      "scopes": ["team", "groupChat"]
+    }
+  ],
+  "permissions": [
+    "identity",
+    "messageTeamMembers"
+  ],
+  "validDomains": [
+    "{{APP_DOMAIN}}"
+  ],
+  "webApplicationInfo": {
+    "id": "{{AZURE_AD_APP_ID}}",
+    "resource": "api://{{APP_DOMAIN}}/{{AZURE_AD_APP_ID}}"
+  }
+}

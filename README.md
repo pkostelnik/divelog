@@ -15,6 +15,8 @@ Then open `http://localhost:3000`. The landing page links straight to registrati
 
 ### ✨ Highlights
 - Refined landing page with clear calls to action (registration, login, demo)
+- **Microsoft Teams integration** - works as standalone web app AND Teams app
+- Automatic Teams SSO authentication with seamless web fallback
 - Social sign-in buttons for Google, Microsoft, Facebook, LinkedIn & Amazon (demo flow)
 - Registration flow with real-time password confirmation and cancel option
 - Password reset with validation plus account deletion and content purge
@@ -81,16 +83,41 @@ Recommendation: keep `npm run dev` running during development and lint frequentl
 - Auth flows rely on local state via `AuthProvider` (non-persistent)
 - Social buttons trigger demo sign-ins (LinkedIn → admin, others → member)
 - Account deletion purges logs, media, and community content while replacing blog/forum posts with placeholders
+- **Dual-mode operation**: Automatically detects Teams context and adjusts UI accordingly
+
+### 🔗 Microsoft Teams Integration
+The app works seamlessly as both a standalone web app and a Microsoft Teams app:
+
+**Web Mode (Browser)**
+- Full landing page with registration/login
+- Manual authentication required
+- Standard web navigation
+
+**Teams Mode (in Microsoft Teams)**
+- Auto-redirects from landing page to dashboard
+- Automatic SSO authentication (demo: logs in as member)
+- Teams badge shown in header
+- Optimized for Teams viewport
+
+**Setup for Teams**
+See [`teams-app/README.md`](teams-app/README.md) for complete instructions on:
+- Azure AD app registration
+- Manifest configuration
+- Icon creation
+- App package upload to Teams
+
+The app uses `@microsoft/teams-js` SDK to detect context automatically—no environment variables or build flags needed.
 
 ### 🔮 Roadmap
 1. Integrate Azure Cosmos DB (module containers, user/team partition keys)
-2. Connect NextAuth or Entra ID for production social logins
+2. Connect NextAuth or Entra ID for production social logins and Teams SSO validation
 3. Migrate forms to React Hook Form + Zod with server-side mutations
 4. Add persistent media handling via Azure Storage / Blob Storage
 5. Introduce Playwright E2E tests and CI/CD integration
+6. Enhanced Teams features: bot integration, meeting extensions, adaptive cards
 
 ### Closing Note
-The demo gives product, design, and engineering teams a tangible preview of DiveLog Studio's experience—including core account flows, social sign-ins, and an Azure-ready architecture.
+The demo gives product, design, and engineering teams a tangible preview of DiveLog Studio's experience—including core account flows, social sign-ins, dual-mode Teams integration, and an Azure-ready architecture.
 
 ---
 
@@ -105,6 +132,8 @@ npm run dev
 
 ### ✨ Highlights
 - Überarbeitete Landing Page mit klaren Calls-to-Action (Registrierung, Login, Demo)
+- **Microsoft Teams-Integration** – funktioniert als eigenständige Web-App UND Teams-App
+- Automatische Teams-SSO-Authentifizierung mit nahtlosem Web-Fallback
 - Social Sign-In Buttons für Google, Microsoft, Facebook, LinkedIn & Amazon (Demo-Flow)
 - Registrierung mit Passwort-Bestätigung in Echtzeit und Cancel-Option
 - Passwort-Reset samt Validierung und Konto-Löschung inklusive Content-Purge
@@ -171,13 +200,38 @@ Empfehlung: Während der Entwicklung `npm run dev` verwenden und regelmäßig `n
 - Auth-Flows nutzen einen lokalen State (`AuthProvider`) und sind nicht persistent
 - Social Buttons starten Demo-Anmeldungen (LinkedIn → Admin, andere → Member)
 - Konto-Löschungen bereinigen Logs, Medien und Community-Inhalte; Blog/Forum erhalten Platzhalter
+- **Dual-Mode-Betrieb**: Erkennt Teams-Kontext automatisch und passt UI entsprechend an
+
+### 🔗 Microsoft Teams-Integration
+Die App funktioniert nahtlos sowohl als eigenständige Web-App als auch als Microsoft Teams-App:
+
+**Web-Modus (Browser)**
+- Vollständige Landing Page mit Registrierung/Login
+- Manuelle Authentifizierung erforderlich
+- Standard-Web-Navigation
+
+**Teams-Modus (in Microsoft Teams)**
+- Auto-Weiterleitung von Landing Page zum Dashboard
+- Automatische SSO-Authentifizierung (Demo: Login als Member)
+- Teams-Badge im Header sichtbar
+- Optimiert für Teams-Viewport
+
+**Setup für Teams**
+Siehe [`teams-app/README.md`](teams-app/README.md) für vollständige Anleitung zu:
+- Azure AD App-Registrierung
+- Manifest-Konfiguration
+- Icon-Erstellung
+- App-Package-Upload zu Teams
+
+Die App nutzt das `@microsoft/teams-js` SDK zur automatischen Kontext-Erkennung – keine Umgebungsvariablen oder Build-Flags erforderlich.
 
 ### 🔮 Nächste Schritte
 1. Azure Cosmos DB integrieren (Container pro Modul, Partition Keys pro Nutzer/Team)
-2. NextAuth oder Entra ID für echte Social Logins anbinden
+2. NextAuth oder Entra ID für echte Social Logins und Teams-SSO-Validierung anbinden
 3. Formulare auf React Hook Form + Zod mit serverseitigen Mutationen umstellen
 4. Persistente Medienverwaltung via Azure Storage / Blob Storage
 5. E2E-Tests mit Playwright und CI/CD-Integration
+6. Erweiterte Teams-Features: Bot-Integration, Meeting-Extensions, Adaptive Cards
 
 ### Schlusswort
-Die Demo vermittelt Produktteams, Design und Engineering das geplante Erlebnis von DiveLog Studio – inklusive zentraler Account-Flows, Social Sign-Ins und einer Azure-ready Architektur.
+Die Demo vermittelt Produktteams, Design und Engineering das geplante Erlebnis von DiveLog Studio – inklusive zentraler Account-Flows, Social Sign-Ins, Dual-Mode Teams-Integration und einer Azure-ready Architektur.

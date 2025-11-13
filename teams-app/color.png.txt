@@ -1,0 +1,3 @@
+Placeholder for 192x192px color icon.
+Replace this file with actual PNG icon before creating Teams app package.
+Recommended: Use DiveLog Studio branding with #0369a1 (sky-700) background.

@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 import { useAuth } from "@/providers/auth-provider";
 import { useI18n } from "@/providers/i18n-provider";
+import { useTeams } from "@/providers/teams-provider";
 
 type FeatureHighlight = {
   key: string;
@@ -65,6 +68,20 @@ const featureHighlights: FeatureHighlight[] = [
 export default function LandingPage() {
   const { currentUser } = useAuth();
   const { t } = useI18n();
+  const teams = useTeams();
+  const router = useRouter();
+
+  // Auto-redirect to dashboard when in Teams context
+  useEffect(() => {
+    if (teams.isInitialized && teams.isInTeams) {
+      router.push('/dashboard');
+    }
+  }, [teams.isInitialized, teams.isInTeams, router]);
+
+  // Don't render landing page in Teams
+  if (teams.isInTeams) {
+    return null;
+  }
 
   return (
     <section className="bg-gradient-to-b from-white to-slate-100 transition-colors dark:from-slate-950 dark:to-slate-900">

@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import { AppLogo } from "@/components/ui/app-logo";
 import { useAuth } from "@/providers/auth-provider";
 import { useI18n } from "@/providers/i18n-provider";
+import { useTeams } from "@/providers/teams-provider";
 import { useTheme } from "@/providers/theme-provider";
 import type { SupportedLocale } from "@/i18n/translations";
 
@@ -42,10 +43,11 @@ const baseNavLinks: NavLink[] = [
 const adminOnlyLinks: NavLink[] = [{ href: "/dashboard/members", labelKey: "nav.members" }];
 
 export function SiteHeader() {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, isTeamsAuth } = useAuth();
   const firstName = currentUser?.name.split(" ")[0] ?? currentUser?.name ?? "";
   const { isDark, toggleTheme } = useTheme();
   const { t, availableLocales, locale, setLocale } = useI18n();
+  const teams = useTeams();
   const router = useRouter();
   const handleLogout = () => {
     logout();
@@ -72,10 +74,13 @@ export function SiteHeader() {
   return (
     <header className="border-b border-slate-200 bg-white/80 backdrop-blur transition-colors dark:border-slate-800 dark:bg-slate-900/80">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href={teams.isInTeams ? "/dashboard" : "/"} className="flex items-center gap-2">
           <AppLogo />
           <span className="text-lg font-semibold tracking-tight text-slate-900 transition-colors dark:text-slate-100">
             DiveLog Studio
+            {isTeamsAuth && (
+              <span className="ml-2 text-xs text-slate-500 dark:text-slate-400">• Teams</span>
+            )}
           </span>
         </Link>
         <div className="flex items-center gap-6">

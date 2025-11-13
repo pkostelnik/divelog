@@ -1,0 +1,3 @@
+Placeholder for 32x32px transparent outline icon.
+Replace this file with actual PNG icon before creating Teams app package.
+Recommended: White outline/silhouette of dive mask or similar recognizable symbol.
