@@ -71,6 +71,11 @@ export function SiteHeader() {
     return baseNavLinks;
   }, [currentUser?.role]);
 
+  // In Teams: minimal header without navigation
+  if (teams.isInTeams) {
+    return null;
+  }
+
   return (
     <header className="border-b border-slate-200 bg-white/80 backdrop-blur transition-colors dark:border-slate-800 dark:bg-slate-900/80">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
@@ -84,7 +89,7 @@ export function SiteHeader() {
           </span>
         </Link>
         <div className="flex items-center gap-6">
-          {currentUser && (
+          {currentUser && !teams.isInTeams && (
             <nav className="hidden items-center gap-6 text-sm font-medium text-slate-600 transition-colors dark:text-slate-300 md:flex">
               {visibleLinks.map((item) => {
                 if (!item.children) {

@@ -1,7 +1,7 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
   "manifestVersion": "1.17",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "id": "0c905fbb-2a8a-491c-bf3a-55507ba84490",
   "developer": {
     "name": "DiveLog Studio",
@@ -42,6 +42,55 @@
       "name": "Community",
       "contentUrl": "https://divelog.copilot.ovh/dashboard/community",
       "websiteUrl": "https://divelog.copilot.ovh/dashboard/community",
+      "scopes": ["personal"]
+    },
+    {
+      "entityId": "blog",
+      "name": "Blog",
+      "contentUrl": "https://divelog.copilot.ovh/dashboard/community/blog",
+      "websiteUrl": "https://divelog.copilot.ovh/dashboard/community/blog",
+      "scopes": ["personal"]
+    },
+    {
+      "entityId": "forum",
+      "name": "Forum",
+      "contentUrl": "https://divelog.copilot.ovh/dashboard/community/forum",
+      "websiteUrl": "https://divelog.copilot.ovh/dashboard/community/forum",
+      "scopes": ["personal"]
+    },
+    {
+      "entityId": "media",
+      "name": "Media",
+      "contentUrl": "https://divelog.copilot.ovh/dashboard/media",
+      "websiteUrl": "https://divelog.copilot.ovh/dashboard/media",
+      "scopes": ["personal"]
+    },
+    {
+      "entityId": "equipment",
+      "name": "Equipment",
+      "contentUrl": "https://divelog.copilot.ovh/dashboard/equipment",
+      "websiteUrl": "https://divelog.copilot.ovh/dashboard/equipment",
+      "scopes": ["personal"]
+    },
+    {
+      "entityId": "sites",
+      "name": "Dive Sites",
+      "contentUrl": "https://divelog.copilot.ovh/dashboard/sites",
+      "websiteUrl": "https://divelog.copilot.ovh/dashboard/sites",
+      "scopes": ["personal"]
+    },
+    {
+      "entityId": "search",
+      "name": "Search",
+      "contentUrl": "https://divelog.copilot.ovh/dashboard/search",
+      "websiteUrl": "https://divelog.copilot.ovh/dashboard/search",
+      "scopes": ["personal"]
+    },
+    {
+      "entityId": "profile",
+      "name": "Profile",
+      "contentUrl": "https://divelog.copilot.ovh/dashboard/profile",
+      "websiteUrl": "https://divelog.copilot.ovh/dashboard/profile",
       "scopes": ["personal"]
     }
   ],
