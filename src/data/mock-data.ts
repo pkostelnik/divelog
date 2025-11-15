@@ -2,6 +2,8 @@ import { type SupportedLocale } from "@/i18n/translations";
 
 export type DiveLogPreview = {
   id: string;
+  type: "dive";
+  ownerId: string; // Partition key for dive-content container
   logNumber: number;
   title: string;
   location: string;
@@ -16,6 +18,8 @@ export type DiveLogPreview = {
 
 export type EquipmentItem = {
   id: string;
+  type: "equipment";
+  ownerId: string; // Partition key for dive-content container
   manufacturer: string;
   model: string;
   serialNumber: string;
@@ -25,6 +29,8 @@ export type EquipmentItem = {
 
 export type DiveSite = {
   id: string;
+  type: "site";
+  ownerId: string; // Partition key for dive-content container (use 'shared' for community sites)
   name: string;
   country: string;
   difficulty: "Beginner" | "Fortgeschritten" | "Pro";
@@ -33,16 +39,16 @@ export type DiveSite = {
     latitude: number;
     longitude: number;
   };
-  ownerId?: string;
 };
 
 export type MediaItem = {
   id: string;
+  type: "media";
+  ownerId: string; // Partition key for dive-content container
   title: string;
   author: string;
-  ownerId?: string;
   url: string;
-  type: "image" | "video";
+  mediaType: "image" | "video";
   source: "url" | "upload";
   fileName?: string;
 };
@@ -58,9 +64,11 @@ export type CommunityPostAttachment = {
 
 export type CommunityPost = {
   id: string;
+  type: "blog";
+  ownerId: string; // Partition key for dive-content container (authorId)
   title: string;
   author: string;
-  authorId?: string;
+  authorId: string;
   authorEmail?: string;
   body: string;
   likes: number;
@@ -71,6 +79,8 @@ export type CommunityPost = {
 
 export type NotificationItem = {
   id: string;
+  type: "notification";
+  userId: string; // Partition key for users-and-social container
   title: string;
   description: string;
   timestamp: string;
@@ -89,6 +99,8 @@ export type MemberRole = "member" | "admin";
 
 export type MemberProfile = {
   id: string;
+  type: "user";
+  userId: string; // Partition key for users-and-social container
   name: string;
   email: string;
   password: string;
@@ -119,9 +131,11 @@ export type ForumReply = {
 
 export type ForumThread = {
   id: string;
+  type: "forum";
+  ownerId: string; // Partition key for dive-content container (authorId)
   title: string;
   author: string;
-  authorId?: string;
+  authorId: string;
   categoryId: string;
   body: string;
   excerpt: string;
@@ -134,6 +148,8 @@ export type ForumThread = {
 export const diveLogs: DiveLogPreview[] = [
   {
     id: "dive-101",
+    type: "dive",
+    ownerId: "member-01",
     logNumber: 42,
     title: "Wrack der MS Aurora",
     location: "Teneriffa",
@@ -147,6 +163,8 @@ export const diveLogs: DiveLogPreview[] = [
   },
   {
     id: "dive-102",
+    type: "dive",
+    ownerId: "member-02",
     logNumber: 18,
     title: "Korallengarten",
     location: "Rotes Meer",
@@ -160,6 +178,8 @@ export const diveLogs: DiveLogPreview[] = [
   },
   {
     id: "dive-103",
+    type: "dive",
+    ownerId: "member-03",
     logNumber: 57,
     title: "Nachttauchgang Blue Hole",
     location: "Dahab",
@@ -176,6 +196,8 @@ export const diveLogs: DiveLogPreview[] = [
 export const equipment: EquipmentItem[] = [
   {
     id: "gear-01",
+    type: "equipment",
+    ownerId: "member-01",
     manufacturer: "Apeks",
     model: "MTX-R",
     serialNumber: "APX-4472-01",
@@ -184,6 +206,8 @@ export const equipment: EquipmentItem[] = [
   },
   {
     id: "gear-02",
+    type: "equipment",
+    ownerId: "member-02",
     manufacturer: "Suunto",
     model: "D5",
     serialNumber: "SUN-8834-12",
@@ -192,6 +216,8 @@ export const equipment: EquipmentItem[] = [
   },
   {
     id: "gear-03",
+    type: "equipment",
+    ownerId: "member-03",
     manufacturer: "Santi",
     model: "Elite Dry",
     serialNumber: "SAN-2219-07",
@@ -203,6 +229,8 @@ export const equipment: EquipmentItem[] = [
 export const diveSites: DiveSite[] = [
   {
     id: "site-01",
+    type: "site",
+    ownerId: "member-01",
     name: "Shark Point",
     country: "Thailand",
     difficulty: "Fortgeschritten",
@@ -210,11 +238,12 @@ export const diveSites: DiveSite[] = [
     coordinates: {
       latitude: 7.7783,
       longitude: 98.3834
-    },
-    ownerId: "member-01"
+    }
   },
   {
     id: "site-02",
+    type: "site",
+    ownerId: "member-02",
     name: "Silfra-Spalte",
     country: "Island",
     difficulty: "Beginner",
@@ -222,11 +251,12 @@ export const diveSites: DiveSite[] = [
     coordinates: {
       latitude: 64.255,
       longitude: -21.123
-    },
-    ownerId: "member-02"
+    }
   },
   {
     id: "site-03",
+    type: "site",
+    ownerId: "member-03",
     name: "SS Thistlegorm",
     country: "Ägypten",
     difficulty: "Pro",
@@ -234,11 +264,12 @@ export const diveSites: DiveSite[] = [
     coordinates: {
       latitude: 27.8117,
       longitude: 33.9224
-    },
-    ownerId: "member-03"
+    }
   },
   {
     id: "site-04",
+    type: "site",
+    ownerId: "member-01",
     name: "MS Aurora Wrack",
     country: "Spanien",
     difficulty: "Fortgeschritten",
@@ -246,11 +277,12 @@ export const diveSites: DiveSite[] = [
     coordinates: {
       latitude: 28.4636,
       longitude: -16.2518
-    },
-    ownerId: "member-01"
+    }
   },
   {
     id: "site-05",
+    type: "site",
+    ownerId: "member-02",
     name: "Korallengarten",
     country: "Ägypten",
     difficulty: "Beginner",
@@ -258,11 +290,12 @@ export const diveSites: DiveSite[] = [
     coordinates: {
       latitude: 27.2579,
       longitude: 33.8116
-    },
-    ownerId: "member-02"
+    }
   },
   {
     id: "site-06",
+    type: "site",
+    ownerId: "member-03",
     name: "Blue Hole Dahab",
     country: "Ägypten",
     difficulty: "Pro",
@@ -270,46 +303,49 @@ export const diveSites: DiveSite[] = [
     coordinates: {
       latitude: 28.571,
       longitude: 34.5361
-    },
-    ownerId: "member-03"
+    }
   }
 ];
 
 export const media: MediaItem[] = [
   {
     id: "media-01",
+    type: "media",
+    ownerId: "member-01",
     title: "Walhai in freier Wildbahn",
     author: "Lena Hartmann",
-    ownerId: "member-01",
     url: "https://images.unsplash.com/photo-1505761671935-60b3a7427bad",
-    type: "image",
+    mediaType: "image",
     source: "url"
   },
   {
     id: "media-02",
+    type: "media",
+    ownerId: "member-02",
     title: "Team Dive @ Silfra",
     author: "Armin Keller",
-    ownerId: "member-02",
     url: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
-    type: "image",
+    mediaType: "image",
     source: "url"
   },
   {
     id: "media-03",
+    type: "media",
+    ownerId: "member-03",
     title: "Korallengarten Panorama",
     author: "Noah Weiss",
-    ownerId: "member-03",
     url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-    type: "image",
+    mediaType: "image",
     source: "url"
   },
   {
     id: "media-04",
+    type: "media",
+    ownerId: "member-02",
     title: "Schwarm im Morgenlicht (Video)",
     author: "Armin Keller",
-    ownerId: "member-02",
     url: "https://storage.googleapis.com/coverr-main/mp4/Mt_Baker.mp4",
-    type: "video",
+    mediaType: "video",
     source: "url"
   }
 ];
@@ -317,8 +353,11 @@ export const media: MediaItem[] = [
 export const communityPosts: CommunityPost[] = [
   {
     id: "post-01",
+    type: "blog",
+    ownerId: "member-01",
     title: "Meine 5 Tipps für Nachttauchgänge",
     author: "Julian",
+    authorId: "member-01",
     body: "Von der richtigen Lampenwahl bis zum Umgang mit Strömungen: So bleibst du gelassen und sicher, wenn die Sonne untergegangen ist.",
     likes: 42,
     diveLogId: "dive-103",
@@ -335,6 +374,7 @@ export const communityPosts: CommunityPost[] = [
       {
         id: "comment-101",
         author: "Samira",
+        authorId: "member-02",
         message: "Danke für die Tipps! Die Idee mit der Backup-Lampe hat mir echt geholfen.",
         createdAt: "2025-10-25T18:45:00Z"
       }
@@ -342,8 +382,11 @@ export const communityPosts: CommunityPost[] = [
   },
   {
     id: "post-02",
+    type: "blog",
+    ownerId: "member-02",
     title: "Equipment Pflege nach Salzwasser",
     author: "Samira",
+    authorId: "member-02",
     body: "Mit dieser Checkliste hält dein Equipment länger: Spülen, Trocknen, Kontrollieren und richtig lagern.",
     likes: 28,
     diveLogId: "dive-101",
@@ -367,6 +410,7 @@ export const communityPosts: CommunityPost[] = [
       {
         id: "comment-201",
         author: "Lukas",
+        authorId: "member-03",
         message: "Ich ergänze immer noch einen Dichtungstest beim Atemregler.",
         createdAt: "2025-10-24T09:30:00Z"
       }
@@ -395,8 +439,11 @@ export const forumCategories: ForumCategory[] = [
 export const forumThreads: ForumThread[] = [
   {
     id: "thread-01",
+    type: "forum",
+    ownerId: "member-03",
     title: "Buddy für Malediven-Liveaboard 2026 gesucht",
     author: "Mara",
+    authorId: "member-03",
     categoryId: "general",
     body:
       "Hallo Crew, wir planen im März eine zweiwöchige Liveaboard-Tour auf den Malediven mit Fokus auf Strömungstauchgänge und Großfisch. Wir suchen noch zwei Buddies mit Erfahrung in strömungsreichen Spots. Welche Logistik-Tipps habt ihr?",
@@ -409,6 +456,7 @@ export const forumThreads: ForumThread[] = [
       {
         id: "reply-0101",
         author: "Julian",
+        authorId: "member-01",
         message:
           "Ich habe letztes Jahr eine ähnliche Tour gemacht. Achtet darauf, dass alle ein eigenes Current Hook dabeihaben und plant Buffer-Tage für Inlandsflüge ein.",
         createdAt: "2025-10-22T13:10:00Z",
@@ -483,6 +531,8 @@ export const forumThreads: ForumThread[] = [
 export const members: MemberProfile[] = [
   {
     id: "member-01",
+    type: "user",
+    userId: "member-01",
     name: "Lena Hartmann",
     email: "lena@divelog.studio",
     password: "member-demo",
@@ -498,6 +548,8 @@ export const members: MemberProfile[] = [
   },
   {
     id: "member-02",
+    type: "user",
+    userId: "member-02",
     name: "Armin Keller",
     email: "armin@divelog.studio",
     password: "admin-demo",
@@ -513,6 +565,8 @@ export const members: MemberProfile[] = [
   },
   {
     id: "member-03",
+    type: "user",
+    userId: "member-03",
     name: "Noah Weiss",
     email: "noah@divelog.studio",
     password: "reef-lovers",
@@ -527,6 +581,8 @@ export const members: MemberProfile[] = [
   },
   {
     id: "member-demo-de",
+    type: "user",
+    userId: "member-demo-de",
     name: "Demo Account (DE)",
     email: "demo-de@divelog.studio",
     password: "demo-de",
@@ -541,6 +597,8 @@ export const members: MemberProfile[] = [
   },
   {
     id: "member-demo-en",
+    type: "user",
+    userId: "member-demo-en",
     name: "Demo Account (EN)",
     email: "demo-en@divelog.studio",
     password: "demo-en",
@@ -558,12 +616,16 @@ export const members: MemberProfile[] = [
 export const notifications: NotificationItem[] = [
   {
     id: "note-01",
+    type: "notification",
+    userId: "member-01",
     title: "Wartung fällig",
     description: "Suunto D5 braucht eine Revision in 7 Tagen.",
     timestamp: "2025-10-25T08:30:00Z"
   },
   {
     id: "note-02",
+    type: "notification",
+    userId: "member-01",
     title: "Neuer Kommentar",
     description: "Lukas hat deinen Tauchbericht kommentiert.",
     timestamp: "2025-10-24T19:12:00Z"
