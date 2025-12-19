@@ -113,13 +113,25 @@ export function EquipmentStatus() {
       return;
     }
 
-    updateEquipment(editingId, form);
+    const item = equipment.find(e => e.id === editingId);
+    if (!item) return;
+
+    updateEquipment(editingId, {
+      ...form,
+      type: "equipment" as const,
+      ownerId: item.ownerId
+    });
     cancelEdit();
   };
 
   const handleCreateSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    addEquipment(newForm);
+    // Using demo member as owner
+    addEquipment({
+      ...newForm,
+      type: "equipment" as const,
+      ownerId: "member-demo-de"
+    });
     setNewForm(createEquipmentFormState());
   };
 

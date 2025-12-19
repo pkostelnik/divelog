@@ -1,11 +1,11 @@
-import type { SVGProps } from "react";
+import type { SVGProps, ReactElement } from "react";
 
 export type SocialProviderId = "google" | "microsoft" | "facebook" | "linkedin" | "amazon";
 
 type SocialProvider = {
   id: SocialProviderId;
   label: string;
-  Icon: (props: SVGProps<SVGSVGElement>) => JSX.Element;
+  Icon: (props: SVGProps<SVGSVGElement>) => ReactElement;
 };
 
 function GoogleIcon(props: SVGProps<SVGSVGElement>) {

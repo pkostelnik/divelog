@@ -206,6 +206,7 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
 
     updateDiveSite(editingId, {
       ...payload,
+      type: "site" as const,
       ownerId: target.ownerId
     });
     cancelEdit();
@@ -228,6 +229,7 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
 
     addDiveSite({
       ...payload,
+      type: "site" as const,
       ownerId
     });
     setNewForm(createSiteFormState(undefined, { ownerId }));
@@ -567,7 +569,7 @@ export function DiveSiteGallery({ showCreateForm = true }: DiveSiteGalleryProps)
 }
 
 function MediaHighlightPreview({ item, unsupportedMessage }: { item: MediaItem; unsupportedMessage: string }) {
-  if (item.type === "video") {
+  if (item.mediaType === "video") {
     return (
       <video
         controls
@@ -650,7 +652,8 @@ function formStateToPayload(state: DiveSiteFormState, messages: CoordinateValida
       latitude,
       longitude
     },
-    ownerId: state.ownerId
+    type: "site" as const,
+    ownerId: state.ownerId || ""
   } satisfies Omit<DiveSite, "id">;
 }
 

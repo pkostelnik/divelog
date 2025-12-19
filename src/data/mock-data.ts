@@ -474,8 +474,11 @@ export const forumThreads: ForumThread[] = [
   },
   {
     id: "thread-02",
+    type: "forum",
+    ownerId: "member-01",
     title: "Feinjustierung Stage-Rigging",
     author: "Julian",
+    authorId: "member-01",
     categoryId: "training",
     body:
       "Ich teste gerade unterschiedliche Bungee-Setups für Stage-Bottles und suche nach einer Lösung, die auch mit Trockentauchhandschuhen leicht zu bedienen ist. Habt ihr Empfehlungen für Boltsnaps oder zusätzliche Griffe?",
@@ -488,6 +491,7 @@ export const forumThreads: ForumThread[] = [
       {
         id: "reply-0201",
         author: "Chris",
+        authorId: "member-02",
         message:
           "Ich habe gute Erfahrungen mit den größeren 120mm Boltsnaps von Tecline gemacht, die lassen sich auch mit Händen in Trockenhandschuhen gut greifen.",
         createdAt: "2025-10-19T08:23:00Z",
@@ -496,6 +500,7 @@ export const forumThreads: ForumThread[] = [
       {
         id: "reply-0202",
         author: "Nora",
+        authorId: "member-03",
         message:
           "Für die Bungees nutze ich gerne zwei Gummis in verschiedenen Farben, so erkennst du sie auch bei schlechter Sicht sofort.",
         createdAt: "2025-10-23T11:52:00Z",
@@ -505,8 +510,11 @@ export const forumThreads: ForumThread[] = [
   },
   {
     id: "thread-03",
+    type: "forum",
+    ownerId: "member-02",
     title: "Regler-Service: DIY oder abgeben?",
     author: "Samira",
+    authorId: "member-02",
     categoryId: "gear",
     body:
       "Ich überlege, den Service für meinen Atemregler künftig selbst zu übernehmen. Hat jemand den Mares-Kurs besucht und kann berichten, ob sich der Aufwand lohnt?",
@@ -519,6 +527,7 @@ export const forumThreads: ForumThread[] = [
       {
         id: "reply-0301",
         author: "Lukas",
+        authorId: "member-03",
         message:
           "Ich würde es nur mit Original-Kits machen und du brauchst definitiv einen Prüfstand für den Intermediate Pressure, sonst wird es ungenau.",
         createdAt: "2025-10-16T10:32:00Z",

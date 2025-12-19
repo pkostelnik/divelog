@@ -4,19 +4,13 @@ import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "
 
 import type { MemberProfile, MemberRole } from "@/data/mock-data";
 import { useAuth } from "@/providers/auth-provider";
+import { useI18n } from "@/providers/i18n-provider";
 
-function formatDate(value: string) {
-  return new Date(value).toLocaleDateString("de-DE", {
+function formatDate(value: string, locale: string) {
+  return new Date(value).toLocaleDateString(locale === "de" ? "de-DE" : "en-US", {
     year: "numeric",
     month: "short"
   });
-}
-
-function roleLabel(role: string) {
-  if (role === "admin") {
-    return "Administrator";
-  }
-  return "Mitglied";
 }
 
 type MemberFormState = {
@@ -36,6 +30,7 @@ type DirectoryMember = Omit<MemberProfile, "password">;
 
 export function MemberDirectory() {
   const { members, currentUser, updateMember, resetMemberPassword, removeMember } = useAuth();
+  const { t, locale } = useI18n();
   const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
   const [formState, setFormState] = useState<MemberFormState | null>(null);
   const [alerts, setAlerts] = useState<AlertRecord>({});
@@ -128,17 +123,17 @@ export function MemberDirectory() {
     const trimmedEmail = formState.email.trim();
     const completedDives = Number(formState.completedDives);
     if (!Number.isFinite(completedDives) || completedDives < 0) {
-      setAlert(memberId, "error", "Tauchgänge müssen eine positive Zahl sein.");
+      setAlert(memberId, "error", "Dives must be a positive number.");
       return;
     }
 
     if (trimmedName.length < 2) {
-      setAlert(memberId, "error", "Name benötigt mindestens 2 Zeichen.");
+      setAlert(memberId, "error", "Name requires at least 2 characters.");
       return;
     }
 
     if (trimmedEmail.length === 0) {
-      setAlert(memberId, "error", "E-Mail darf nicht leer sein.");
+      setAlert(memberId, "error", "Email cannot be empty.");
       return;
     }
 
@@ -164,11 +159,11 @@ export function MemberDirectory() {
     setSavingId(null);
 
     if (!result.success) {
-      setAlert(memberId, "error", result.error ?? "Aktualisierung fehlgeschlagen.");
+      setAlert(memberId, "error", result.error ?? "Update failed.");
       return;
     }
 
-    setAlert(memberId, "success", "Mitglied wurde aktualisiert.");
+    setAlert(memberId, "success", "Member has been updated.");
     cancelEditing();
   };
 
@@ -179,7 +174,7 @@ export function MemberDirectory() {
   const handlePasswordReset = async (memberId: string) => {
     const draft = (passwordDrafts[memberId] ?? "").trim();
     if (draft.length < 6) {
-      setAlert(memberId, "error", "Passwort benötigt mindestens 6 Zeichen.");
+      setAlert(memberId, "error", t("dashboard.members.password.hint"));
       return;
     }
 
@@ -188,7 +183,7 @@ export function MemberDirectory() {
     setResettingId(null);
 
     if (!result.success) {
-      setAlert(memberId, "error", result.error ?? "Passwort konnte nicht geändert werden.");
+      setAlert(memberId, "error", result.error ?? "Could not update member.");
       return;
     }
 
@@ -197,7 +192,7 @@ export function MemberDirectory() {
       delete next[memberId];
       return next;
     });
-    setAlert(memberId, "success", "Passwort wurde aktualisiert.");
+    setAlert(memberId, "success", t("dashboard.members.password.success"));
   };
 
   const requestMemberDelete = (memberId: string) => {
@@ -222,7 +217,7 @@ export function MemberDirectory() {
     setDeletingId(null);
 
     if (!result.success) {
-      setAlert(memberId, "error", result.error ?? "Mitglied konnte nicht entfernt werden.");
+      setAlert(memberId, "error", result.error ?? "Could not remove member.");
       setPendingDeleteId(memberId);
       return;
     }
@@ -237,9 +232,9 @@ export function MemberDirectory() {
   return (
     <section className="space-y-4">
       <header className="space-y-1">
-        <h2 className="text-lg font-semibold text-slate-900">Crew Übersicht</h2>
+        <h2 className="text-lg font-semibold text-slate-900">{t("dashboard.members.directory.heading")}</h2>
         <p className="text-sm text-slate-600">
-          Alle registrierten Mitglieder der Demo inklusive Rolle, Wohnort und bevorzugter Spots.
+          {t("dashboard.members.directory.description")}
         </p>
       </header>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -268,12 +263,14 @@ export function MemberDirectory() {
               onCancelDelete={cancelMemberDelete}
               onConfirmDelete={confirmMemberDelete}
               isDeleting={deletingId === member.id}
+              t={t}
+              locale={locale}
             />
           </article>
         ))}
         {items.length === 0 && (
           <p className="col-span-full rounded-3xl border border-slate-200 bg-slate-50 p-6 text-sm text-slate-600">
-            Noch keine Mitglieder vorhanden. Lege über die Registrierung einen ersten Zugang an.
+            {t("dashboard.members.directory.empty")}
           </p>
         )}
       </div>
@@ -303,6 +300,8 @@ type MemberCardContentProps = {
   onCancelDelete: () => void;
   onConfirmDelete: (memberId: string) => Promise<void>;
   isDeleting: boolean;
+  t: (key: string, defaultValue?: string) => string;
+  locale: string;
 };
 
 function MemberCardContent({
@@ -324,12 +323,20 @@ function MemberCardContent({
   onRequestDelete,
   onCancelDelete,
   onConfirmDelete,
-  isDeleting
+  isDeleting,
+  t,
+  locale
 }: MemberCardContentProps) {
   const isEditing = editingMemberId === member.id;
   const isSaving = savingId === member.id;
   const isResetting = resettingId === member.id;
   const alert = alerts[member.id];
+
+  const roleLabel = (role: string) => {
+    return role === "admin" 
+      ? t("dashboard.members.card.role.admin") 
+      : t("dashboard.members.card.role.member");
+  };
 
   return (
     <div className="space-y-3">
@@ -338,106 +345,106 @@ function MemberCardContent({
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="flex-1 space-y-2">
               <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-                Name
+                {t("dashboard.members.form.field.name")}
                 <input
                   name="name"
                   value={formState?.name ?? member.name}
                   onChange={onFormChange}
-                  className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                  className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                   required
                   minLength={2}
                 />
               </label>
               <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-                E-Mail
+                {t("dashboard.members.form.field.email")}
                 <input
                   name="email"
                   type="email"
                   value={formState?.email ?? member.email}
                   onChange={onFormChange}
-                  className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                  className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                   required
                 />
               </label>
             </div>
             <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-              Rolle
+              {t("dashboard.members.form.field.role")}
               <select
                 name="role"
                 value={formState?.role ?? member.role}
                 onChange={onFormChange}
-                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
               >
-                <option value="member">Mitglied</option>
-                <option value="admin">Administrator</option>
+                <option value="member">{t("dashboard.members.form.field.role.member")}</option>
+                <option value="admin">{t("dashboard.members.form.field.role.admin")}</option>
               </select>
             </label>
           </div>
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-            Über dich
+            {t("dashboard.members.form.field.about")}
             <textarea
               name="about"
               value={formState?.about ?? member.about}
               onChange={onFormChange}
-              className="min-h-[100px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+              className="min-h-[100px] rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
             />
           </label>
           <div className="grid gap-3 md:grid-cols-2">
             <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-              Wohnort
+              {t("dashboard.members.form.field.city")}
               <input
                 name="city"
                 value={formState?.city ?? member.city}
                 onChange={onFormChange}
-                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
               />
             </label>
             <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-              Lieblingsplatz
+              {t("dashboard.members.form.field.favoriteSite")}
               <input
                 name="favoriteDiveSite"
                 value={formState?.favoriteDiveSite ?? member.favoriteDiveSite}
                 onChange={onFormChange}
-                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
               />
             </label>
             <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-              Zertifizierungen
+              {t("dashboard.members.form.field.certifications")}
               <textarea
                 name="certifications"
                 value={formState?.certifications ?? member.certifications.join(", ")}
                 onChange={onFormChange}
-                className="min-h-[80px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
-                placeholder="Kommagetrennt, z. B. Rescue Diver, Nitrox"
+                className="min-h-[80px] rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                placeholder={t("dashboard.members.form.field.certifications.placeholder")}
               />
             </label>
             <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
-              Logbucheinträge
+              {t("dashboard.members.form.field.completedDives")}
               <input
                 name="completedDives"
                 type="number"
                 min={0}
                 value={formState?.completedDives ?? String(member.completedDives)}
                 onChange={onFormChange}
-                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
               />
             </label>
           </div>
-          <p className="text-[11px] text-slate-500">Mitglied seit {formatDate(member.joinedAt)}</p>
+          <p className="text-[11px] text-slate-500">{t("dashboard.members.card.field.memberSince")} {formatDate(member.joinedAt, locale)}</p>
           <div className="flex flex-wrap gap-2">
             <button
               type="submit"
               disabled={isSaving}
-              className="inline-flex items-center rounded-xl bg-ocean-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-ocean-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center rounded-xl bg-ocean-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-ocean-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSaving ? "Speichern..." : "Änderungen speichern"}
+              {isSaving ? t("dashboard.members.form.actions.saving") : t("dashboard.members.form.actions.save")}
             </button>
             <button
               type="button"
               onClick={onCancelEditing}
-              className="inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-slate-400 hover:text-slate-700"
+              className="inline-flex items-center rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-slate-400 hover:text-slate-700"
             >
-              Abbrechen
+              {t("dashboard.members.form.actions.cancel")}
             </button>
             {canDelete && (
               isDeletePending ? (
@@ -448,16 +455,16 @@ function MemberCardContent({
                       void onConfirmDelete(member.id);
                     }}
                     disabled={isDeleting}
-                    className="inline-flex items-center rounded-xl border border-rose-300 bg-rose-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex items-center rounded-xl border border-rose-300 bg-rose-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Löschen bestätigen
+                    {t("dashboard.members.card.actions.deleteConfirm")}
                   </button>
                   <button
                     type="button"
                     onClick={onCancelDelete}
-                    className="inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-slate-400 hover:text-slate-700"
+                    className="inline-flex items-center rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-slate-400 hover:text-slate-700"
                   >
-                    Löschen abbrechen
+                    {t("dashboard.members.card.actions.deleteCancel")}
                   </button>
                 </>
               ) : (
@@ -465,9 +472,9 @@ function MemberCardContent({
                   type="button"
                   onClick={() => onRequestDelete(member.id)}
                   disabled={isDeleting}
-                  className="inline-flex items-center rounded-xl border border-rose-200 px-4 py-2 text-xs font-semibold text-rose-700 shadow-sm transition hover:border-rose-300 hover:text-rose-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex items-center rounded-xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700 shadow-sm transition hover:border-rose-300 hover:text-rose-800 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Mitglied löschen
+                  {t("dashboard.members.card.actions.delete")}
                 </button>
               )
             )}
@@ -487,20 +494,20 @@ function MemberCardContent({
           <p className="text-sm text-slate-600">{member.about}</p>
           <dl className="grid grid-cols-2 gap-2 text-xs text-slate-500">
             <div>
-              <dt className="font-semibold text-slate-600">Wohnort</dt>
-              <dd>{member.city || "Auf Reisen"}</dd>
+              <dt className="font-semibold text-slate-600">{t("dashboard.members.form.field.city")}</dt>
+              <dd>{member.city || t("dashboard.members.card.field.cityFallback")}</dd>
             </div>
             <div>
-              <dt className="font-semibold text-slate-600">Lieblingsplatz</dt>
-              <dd>{member.favoriteDiveSite || "Noch nicht angegeben"}</dd>
+              <dt className="font-semibold text-slate-600">{t("dashboard.members.form.field.favoriteSite")}</dt>
+              <dd>{member.favoriteDiveSite || t("dashboard.members.card.field.siteNotSpecified")}</dd>
             </div>
             <div>
-              <dt className="font-semibold text-slate-600">Mitglied seit</dt>
-              <dd>{formatDate(member.joinedAt)}</dd>
+              <dt className="font-semibold text-slate-600">{t("dashboard.members.card.field.memberSince")}</dt>
+              <dd>{formatDate(member.joinedAt, locale)}</dd>
             </div>
             <div>
-              <dt className="font-semibold text-slate-600">Logbuch</dt>
-              <dd>{member.completedDives} Tauchgänge</dd>
+              <dt className="font-semibold text-slate-600">{t("dashboard.members.card.field.logbook")}</dt>
+              <dd>{member.completedDives} {t("dashboard.members.card.field.dives")}</dd>
             </div>
           </dl>
           {member.certifications.length > 0 && (
@@ -519,9 +526,9 @@ function MemberCardContent({
             <button
               type="button"
               onClick={() => onStartEditing(member.id)}
-              className="inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-slate-400 hover:text-slate-700"
+              className="inline-flex items-center rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-slate-400 hover:text-slate-700"
             >
-              Bearbeiten
+              {t("dashboard.members.card.actions.edit")}
             </button>
             {canDelete && (
               isDeletePending ? (
@@ -532,16 +539,16 @@ function MemberCardContent({
                       void onConfirmDelete(member.id);
                     }}
                     disabled={isDeleting}
-                    className="inline-flex items-center rounded-xl border border-rose-300 bg-rose-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex items-center rounded-xl border border-rose-300 bg-rose-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Löschen bestätigen
+                    {t("dashboard.members.card.actions.deleteConfirm")}
                   </button>
                   <button
                     type="button"
                     onClick={onCancelDelete}
-                    className="inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-slate-400 hover:text-slate-700"
+                    className="inline-flex items-center rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-slate-400 hover:text-slate-700"
                   >
-                    Löschen abbrechen
+                    {t("dashboard.members.card.actions.deleteCancel")}
                   </button>
                 </>
               ) : (
@@ -549,9 +556,9 @@ function MemberCardContent({
                   type="button"
                   onClick={() => onRequestDelete(member.id)}
                   disabled={isDeleting}
-                  className="inline-flex items-center rounded-xl border border-rose-200 px-4 py-2 text-xs font-semibold text-rose-700 shadow-sm transition hover:border-rose-300 hover:text-rose-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex items-center rounded-xl border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700 shadow-sm transition hover:border-rose-300 hover:text-rose-800 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Mitglied löschen
+                  {t("dashboard.members.card.actions.delete")}
                 </button>
               )
             )}
@@ -571,24 +578,24 @@ function MemberCardContent({
 
       <section className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
         <header className="flex items-center justify-between text-xs font-semibold text-slate-600">
-          <span>Passwort zurücksetzen</span>
-          <span className="text-[11px] font-normal text-slate-400">Mindestens 6 Zeichen</span>
+          <span>{t("dashboard.members.password.heading")}</span>
+          <span className="text-[11px] font-normal text-slate-400">{t("dashboard.members.password.hint")}</span>
         </header>
         <div className="mt-3 flex flex-col gap-2 sm:flex-row">
           <input
             type="password"
             value={passwordDraft}
             onChange={(event) => onPasswordDraftChange(member.id, event.target.value)}
-            className="flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
-            placeholder="Neues Passwort"
+            className="flex-1 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+            placeholder={t("dashboard.members.password.placeholder")}
           />
           <button
             type="button"
             onClick={() => onPasswordReset(member.id)}
             disabled={isResetting}
-            className="inline-flex items-center justify-center rounded-xl bg-slate-800 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center rounded-xl bg-slate-800 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-60 sm:whitespace-nowrap"
           >
-            {isResetting ? "Aktualisiere..." : "Zurücksetzen"}
+            {isResetting ? t("dashboard.members.password.resetting") : t("dashboard.members.password.button")}
           </button>
         </div>
       </section>

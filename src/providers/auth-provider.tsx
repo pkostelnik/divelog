@@ -259,8 +259,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const now = new Date().toISOString();
       const preferredLocale = payload.preferredLocale ?? "de";
+      const newMemberId = generateId();
       const newMember: InternalMember = {
-        id: generateId(),
+        id: newMemberId,
+        type: "user" as const,
+        userId: newMemberId,
         name: payload.name.trim(),
         email,
         password: payload.password,

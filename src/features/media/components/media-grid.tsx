@@ -21,7 +21,7 @@ import { useI18n } from "@/providers/i18n-provider";
 type MediaFormState = {
   title: string;
   author: string;
-  type: MediaItem["type"];
+  mediaType: MediaItem["mediaType"];
   source: MediaItem["source"];
   url: string;
   fileName?: string;
@@ -38,7 +38,7 @@ const MAX_UPLOAD_SIZE_MB = MAX_UPLOAD_SIZE_BYTES / (1024 * 1024);
 const initialMediaForm: MediaFormState = {
   title: "",
   author: "",
-  type: "image",
+  mediaType: "image",
   source: "url",
   url: "",
   fileName: undefined,
@@ -53,7 +53,7 @@ function createMediaForm(
     return {
       title: initial.title,
       author: initial.author,
-      type: initial.type,
+      mediaType: initial.mediaType,
       source: initial.source,
       url: initial.url,
       fileName: initial.fileName,
@@ -192,7 +192,7 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
       setter((previous) => ({
         ...previous,
         source: "upload",
-        type: file.type.startsWith("video") ? "video" : "image",
+        mediaType: file.type.startsWith("video") ? "video" : "image",
         url: dataUrl,
         fileName: file.name
       }));
@@ -229,7 +229,8 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
       title: newForm.title,
       author: authorName,
       ownerId,
-      type: newForm.type,
+      type: "media" as const,
+      mediaType: newForm.mediaType,
       source: newForm.source,
       url: newForm.url,
       fileName: newForm.fileName
@@ -284,7 +285,8 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
       title: form.title,
       author: form.author,
       ownerId: target.ownerId,
-      type: form.type,
+      type: "media" as const,
+      mediaType: form.mediaType,
       source: form.source,
       url: form.url,
       fileName: form.fileName
@@ -350,7 +352,7 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
               {t("dashboard.media.form.fields.type.label")}
               <select
                 name="type"
-                value={newForm.type}
+                value={newForm.mediaType}
                 onChange={handleFieldChange(setNewForm)}
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
               >
@@ -388,7 +390,7 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
                   {t("dashboard.media.form.fields.file.label")}
                   <input
                     type="file"
-                    accept={newForm.type === "video" ? "video/*" : "image/*"}
+                    accept={newForm.mediaType === "video" ? "video/*" : "image/*"}
                     onChange={handleFileChange(setNewForm)}
                     className="cursor-pointer rounded-xl border border-dashed border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none"
                   />
@@ -426,7 +428,7 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
         {sortedMedia.map((item) => {
           const isEditing = editingId === item.id;
           const userCanModify = canModifyMedia(item);
-          const typeLabel = item.type === "video"
+          const typeLabel = item.mediaType === "video"
             ? t("dashboard.media.labels.type.video")
             : t("dashboard.media.labels.type.image");
           const sourceLabel = item.source === "upload"
@@ -483,7 +485,7 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
                         {t("dashboard.media.form.fields.type.label")}
                         <select
                           name="type"
-                          value={form.type}
+                          value={form.mediaType}
                           onChange={handleFieldChange(setForm)}
                           className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                         >
@@ -522,7 +524,7 @@ export function MediaGrid({ showCreateForm = true }: MediaGridProps) {
                           {t("dashboard.media.edit.file.replace")}
                           <input
                             type="file"
-                            accept={form.type === "video" ? "video/*" : "image/*"}
+                            accept={form.mediaType === "video" ? "video/*" : "image/*"}
                             onChange={handleFileChange(setForm)}
                             className="cursor-pointer rounded-xl border border-dashed border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none"
                           />
@@ -627,7 +629,7 @@ function readFileAsDataUrl(file: File, fallbackMessage: string): Promise<string>
 function MediaPreview({ item }: { item: MediaItem }) {
   const { t } = useI18n();
 
-  if (item.type === "video") {
+  if (item.mediaType === "video") {
     return (
       <video
         controls
@@ -691,8 +693,8 @@ function MediaPreviewOverlay({ item, onClose }: { item: MediaItem; onClose: () =
     return null;
   }
 
-  const optimizable = item.type === "image" && item.source !== "upload" && isOptimizableImageUrl(item.url);
-  const typeLabel = item.type === "video"
+  const optimizable = item.mediaType === "image" && item.source !== "upload" && isOptimizableImageUrl(item.url);
+  const typeLabel = item.mediaType === "video"
     ? t("dashboard.media.labels.type.video")
     : t("dashboard.media.labels.type.image");
   const authorLine = t("dashboard.media.labels.author").replace("{name}", item.author);
@@ -721,7 +723,7 @@ function MediaPreviewOverlay({ item, onClose }: { item: MediaItem; onClose: () =
           {t("dashboard.media.preview.close")}
         </button>
         <div className="flex max-h-[70vh] w-full items-center justify-center overflow-hidden rounded-2xl bg-slate-900">
-          {item.type === "video" ? (
+          {item.mediaType === "video" ? (
             <video
               controls
               autoPlay

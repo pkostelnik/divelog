@@ -235,7 +235,9 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
 
     const normalizedPayload = {
       ...result.data,
-      siteId: result.data.siteId || undefined
+      siteId: result.data.siteId || undefined,
+      type: "dive" as const,
+      ownerId: result.data.diverId
     } satisfies Omit<DiveLogPreview, "id">;
 
     if (isEditing && initialValue) {

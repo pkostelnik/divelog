@@ -164,7 +164,7 @@ type DemoAction =
   | { type: "ADD_MEDIA_ITEM"; payload: AddMediaItemPayload }
   | { type: "UPDATE_MEDIA_ITEM"; payload: { id: string; data: UpdateMediaItemPayload } }
   | { type: "REMOVE_MEDIA_ITEM"; payload: { id: string } }
-  | { type: "ADD_NOTIFICATION"; payload: { title: string; description: string } }
+  | { type: "ADD_NOTIFICATION"; payload: { title: string; description: string; userId?: string } }
   | { type: "MARK_NOTIFICATION"; payload: { id: string; read: boolean } }
   | { type: "DISMISS_NOTIFICATION"; payload: { id: string } }
   | { type: "TOGGLE_MEDIA_FAVORITE"; payload: { id: string } }
@@ -299,14 +299,17 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
       const id = action.payload.id ?? generateId();
       const likes = action.payload.likes ?? 0;
       const attachments = normalizePostAttachments(action.payload.attachments);
+      const authorId = action.payload.authorId ?? "";
       const newPost: DemoCommunityPost = {
         id,
+        type: "blog" as const,
+        ownerId: authorId,
         title: action.payload.title,
         author: action.payload.author,
-        authorId: action.payload.authorId,
-        authorEmail: action.payload.authorEmail,
+        authorId,
+        authorEmail: action.payload.authorEmail ?? "",
         body: action.payload.body,
-        diveLogId: action.payload.diveLogId,
+        diveLogId: action.payload.diveLogId ?? "",
         likes,
         likedByMe: false,
         attachments,
@@ -331,12 +334,12 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
             data.diveLogId === undefined
               ? post.diveLogId
               : data.diveLogId === null || data.diveLogId === ""
-                ? undefined
+                ? ""
                 : data.diveLogId;
           const nextAuthorId =
-            data.authorId === undefined ? post.authorId : data.authorId || undefined;
+            data.authorId === undefined ? post.authorId : data.authorId || "";
           const nextAuthorEmail =
-            data.authorEmail === undefined ? post.authorEmail : data.authorEmail || undefined;
+            data.authorEmail === undefined ? post.authorEmail : data.authorEmail || "";
           const nextAttachments =
             data.attachments === undefined
               ? post.attachments ?? []
@@ -432,11 +435,14 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
       const id = action.payload.id ?? generateId();
       const createdAt = new Date().toISOString();
       const excerpt = action.payload.excerpt ?? createExcerpt(action.payload.body);
+      const authorId = action.payload.authorId ?? "";
       const newThread: DemoForumThread = {
         id,
+        type: "forum" as const,
+        ownerId: authorId,
         title: action.payload.title,
         author: action.payload.author,
-        authorId: action.payload.authorId,
+        authorId,
         categoryId: action.payload.categoryId,
         body: action.payload.body,
         excerpt,
@@ -473,7 +479,7 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
                   ? createExcerpt(nextBody)
                   : thread.excerpt;
             const nextAuthorId =
-              data.authorId === undefined ? thread.authorId : data.authorId || undefined;
+              data.authorId === undefined ? thread.authorId : data.authorId || "";
 
             return {
               ...thread,
@@ -642,8 +648,11 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
     }
     case "ADD_EQUIPMENT": {
       const id = action.payload.id ?? generateId();
+      const ownerId = action.payload.ownerId ?? "";
       const nextItem: EquipmentItem = {
         id,
+        type: "equipment" as const,
+        ownerId,
         manufacturer: action.payload.manufacturer,
         model: action.payload.model,
         serialNumber: action.payload.serialNumber,
@@ -683,6 +692,7 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
       const id = action.payload.id ?? generateId();
       const nextSite: DiveSite = {
         id,
+        type: "site" as const,
         name: action.payload.name,
         country: action.payload.country,
         difficulty: action.payload.difficulty,
@@ -710,6 +720,7 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
 
           return {
             id,
+            type: "site" as const,
             name: data.name,
             country: data.country,
             difficulty: data.difficulty,
@@ -737,9 +748,10 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
         id,
         title: action.payload.title,
         author: action.payload.author,
-          ownerId: action.payload.ownerId,
+        ownerId: action.payload.ownerId,
         url: action.payload.url,
-        type: action.payload.type,
+        type: "media" as const,
+        mediaType: action.payload.mediaType,
         source: action.payload.source,
         fileName: action.payload.fileName
       };
@@ -778,8 +790,11 @@ function demoReducer(state: DemoState, action: DemoAction): DemoState {
     }
     case "ADD_NOTIFICATION": {
       const now = new Date().toISOString();
+      const userId = action.payload.userId ?? "";
       const nextNote: DemoNotification = {
         id: generateId(),
+        type: "notification" as const,
+        userId,
         title: action.payload.title,
         description: action.payload.description,
         timestamp: now,

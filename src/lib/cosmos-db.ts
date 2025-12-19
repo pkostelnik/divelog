@@ -5,7 +5,7 @@
  * - dive-content: Dives, equipment, media, sites, blogs, forum posts (partitioned by ownerId)
  */
 
-import { CosmosClient } from "@azure/cosmos";
+import { CosmosClient, SqlParameter } from "@azure/cosmos";
 
 if (!process.env.COSMOS_ENDPOINT) {
   throw new Error("COSMOS_ENDPOINT environment variable is not set");
@@ -84,7 +84,7 @@ export async function queryUsersSocial<T extends CosmosEntity>(
   const { resources } = await container.items
     .query<T>({
       query,
-      parameters,
+      parameters: parameters as SqlParameter[],
     })
     .fetchAll();
   return resources;
@@ -98,7 +98,7 @@ export async function queryDiveContent<T extends CosmosEntity>(
   const { resources } = await container.items
     .query<T>({
       query,
-      parameters,
+      parameters: parameters as SqlParameter[],
     })
     .fetchAll();
   return resources;
