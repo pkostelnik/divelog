@@ -49,14 +49,18 @@ Then open `http://localhost:3000`. The landing page links straight to registrati
 | Technology                   | Version |
 | ---------------------------- | ------- |
 | Next.js                      | 16.0.1  |
-| React                        | 18.3.0  |
+| React                        | 19.2.3  |
 | TypeScript                   | 5.5.3   |
-| Tailwind CSS                 | 3.4.10  |
+| Tailwind CSS                 | 4.1.18  |
+| @tailwindcss/postcss         | 4.1.18  |
+| @tailwindcss/forms           | 0.5.11  |
 | eslint / eslint-config-next  | 9.5.0 / 16.0.1 |
-| Zod                          | 3.23.0  |
+| Zod                          | 4.2.1   |
 | @tanstack/react-query        | 5.45.0  |
+| @azure/cosmos                | 4.7.0   |
+| @microsoft/teams-js          | 2.47.0  |
 
-Additional libraries: `lucide-react`, `clsx`, `react-simple-maps`, `@tailwindcss/forms`.
+Additional libraries: `lucide-react` (0.562.0), `clsx` (2.1.0), `react-simple-maps` (3.0.0).
 
 ### 🧭 Project Structure
 - `app/` – App Router pages, layouts, and API stubs
@@ -166,14 +170,18 @@ npm run dev
 | Technologie                  | Version |
 | ---------------------------- | ------- |
 | Next.js                      | 16.0.1  |
-| React                        | 18.3.0  |
+| React                        | 19.2.3  |
 | TypeScript                   | 5.5.3   |
-| Tailwind CSS                 | 3.4.10  |
+| Tailwind CSS                 | 4.1.18  |
+| @tailwindcss/postcss         | 4.1.18  |
+| @tailwindcss/forms           | 0.5.11  |
 | eslint / eslint-config-next  | 9.5.0 / 16.0.1 |
-| Zod                          | 3.23.0  |
+| Zod                          | 4.2.1   |
 | @tanstack/react-query        | 5.45.0  |
+| @azure/cosmos                | 4.7.0   |
+| @microsoft/teams-js          | 2.47.0  |
 
-Weitere Bibliotheken: `lucide-react`, `clsx`, `react-simple-maps`, `@tailwindcss/forms`.
+Weitere Bibliotheken: `lucide-react` (0.562.0), `clsx` (2.1.0), `react-simple-maps` (3.0.0).
 
 ### 🧭 Projektstruktur
 - `app/` – App Router Seiten, Layouts und API-Stubs
