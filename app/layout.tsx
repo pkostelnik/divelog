@@ -17,7 +17,11 @@ export const metadata: Metadata = {
   title: "DiveLog Studio",
   description:
     "Demo einer modernen Dive-Log-Plattform mit Dashboard, Community und Medienverwaltung.",
-  metadataBase: new URL("https://example.com")
+  metadataBase: new URL("https://example.com"),
+  icons: {
+    icon: '/icon',
+    apple: '/apple-icon',
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

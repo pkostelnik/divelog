@@ -1,14 +1,20 @@
 "use client";
 
 import { memo, useCallback, useEffect, useMemo, useState, type KeyboardEvent } from "react";
-import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from "react-simple-maps";
+import dynamic from "next/dynamic";
+import type { Map as LeafletMap } from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 import type { DiveSite } from "@/data/mock-data";
 import { useDemoData } from "@/providers/demo-data-provider";
 import { useAuth } from "@/providers/auth-provider";
 import { useI18n } from "@/providers/i18n-provider";
 
-const GEOJSON_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+// Dynamically import Leaflet components to avoid SSR issues
+const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), { ssr: false });
+const TileLayer = dynamic(() => import("react-leaflet").then((mod) => mod.TileLayer), { ssr: false });
+const CircleMarker = dynamic(() => import("react-leaflet").then((mod) => mod.CircleMarker), { ssr: false });
+const Tooltip = dynamic(() => import("react-leaflet").then((mod) => mod.Tooltip), { ssr: false });
 
 type SiteMarker = {
   id: string;
@@ -19,7 +25,7 @@ type SiteMarker = {
 };
 
 type MapView = {
-  coordinates: [number, number];
+  center: [number, number];
   zoom: number;
 };
 
@@ -31,6 +37,12 @@ const difficultyColor: Record<DiveSite["difficulty"], string> = {
   Beginner: "#38BDF8",
   Fortgeschritten: "#0EA5E9",
   Pro: "#0369A1"
+};
+
+const difficultyRadius: Record<DiveSite["difficulty"], number> = {
+  Beginner: 6,
+  Fortgeschritten: 7,
+  Pro: 8
 };
 
 function DiveSiteMapComponent({ mode = "visited" }: DiveSiteMapProps) {
@@ -93,6 +105,7 @@ function DiveSiteMapComponent({ mode = "visited" }: DiveSiteMapProps) {
 
   const [view, setView] = useState<MapView>(initialView);
   const [activeSiteId, setActiveSiteId] = useState<string | null>(markers[0]?.id ?? null);
+  const [mapInstance, setMapInstance] = useState<LeafletMap | null>(null);
 
   useEffect(() => {
     setView(initialView);
@@ -103,6 +116,12 @@ function DiveSiteMapComponent({ mode = "visited" }: DiveSiteMapProps) {
       return markers[0]?.id ?? null;
     });
   }, [initialView, markers]);
+
+  useEffect(() => {
+    if (mapInstance) {
+      mapInstance.setView(view.center, view.zoom);
+    }
+  }, [mapInstance, view]);
 
   const activeSite = useMemo(() => {
     if (!activeSiteId) {
@@ -115,14 +134,16 @@ function DiveSiteMapComponent({ mode = "visited" }: DiveSiteMapProps) {
     (id: string) => {
       setActiveSiteId(id);
       const marker = markers.find((item) => item.id === id);
-      if (marker) {
-        setView({
-          coordinates: [marker.longitude, marker.latitude],
+      if (marker && mapInstance) {
+        const newView = {
+          center: [marker.latitude, marker.longitude] as [number, number],
           zoom: determineFocusedZoom(markers.length)
-        });
+        };
+        setView(newView);
+        mapInstance.setView(newView.center, newView.zoom);
       }
     },
-    [markers]
+    [markers, mapInstance]
   );
 
   const handleKeySelect = useCallback(
@@ -199,69 +220,45 @@ function DiveSiteMapComponent({ mode = "visited" }: DiveSiteMapProps) {
           </button>
         </div>
       </header>
-      <div className="mt-4 h-[360px] w-full">
-        <ComposableMap
-          projectionConfig={{ scale: 140 }}
+      <div className="mt-4 h-[360px] w-full relative">
+        <MapContainer
+          center={view.center}
+          zoom={view.zoom}
           style={{ width: "100%", height: "100%" }}
+          className="rounded-lg"
+          ref={setMapInstance}
         >
-          <ZoomableGroup
-            center={view.coordinates}
-            zoom={view.zoom}
-            minZoom={0.9}
-            maxZoom={6}
-            translateExtent={[[-220, -120], [220, 120]]}
-          >
-            <Geographies geography={GEOJSON_URL}>
-              {({ geographies }) =>
-                geographies.map((geo) => (
-                  <Geography
-                    key={geo.rsmKey}
-                    geography={geo}
-                    fill="#E2E8F0"
-                    stroke="#CBD5F5"
-                    strokeWidth={0.5}
-                    className="transition-colors hover:fill-slate-300"
-                  />
-                ))
-              }
-            </Geographies>
-            {markers.map((marker) => {
-              const isActive = marker.id === activeSiteId;
-              return (
-                <Marker
-                  key={marker.id}
-                  coordinates={[marker.longitude, marker.latitude]}
-                >
-                  <g
-                    tabIndex={0}
-                    role="button"
-                    aria-pressed={isActive}
-                    onClick={() => handleMarkerSelect(marker.id)}
-                    onKeyDown={(event) => handleKeySelect(event, marker.id)}
-                    focusable="true"
-                    className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-ocean-400 focus:ring-offset-2"
-                  >
-                    <circle
-                      r={isActive ? 6 : 4.5}
-                      fill={difficultyColor[marker.difficulty]}
-                      stroke="#FFFFFF"
-                      strokeWidth={1.5}
-                    />
-                    {isActive && (
-                      <circle r={10} fill="none" stroke="rgba(14,116,144,0.4)" strokeWidth={2} />
-                    )}
-                    <title>
-                      {t("dashboard.sites.map.tooltip")
-                        .replace("{name}", marker.name)
-                        .replace("{latitude}", marker.latitude.toFixed(2))
-                        .replace("{longitude}", marker.longitude.toFixed(2))}
-                    </title>
-                  </g>
-                </Marker>
-              );
-            })}
-          </ZoomableGroup>
-        </ComposableMap>
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          {markers.map((marker) => {
+            const isActive = marker.id === activeSiteId;
+            return (
+              <CircleMarker
+                key={marker.id}
+                center={[marker.latitude, marker.longitude]}
+                radius={isActive ? difficultyRadius[marker.difficulty] + 2 : difficultyRadius[marker.difficulty]}
+                pathOptions={{
+                  fillColor: difficultyColor[marker.difficulty],
+                  fillOpacity: isActive ? 0.9 : 0.7,
+                  color: "#FFFFFF",
+                  weight: isActive ? 2 : 1.5
+                }}
+                eventHandlers={{
+                  click: () => handleMarkerSelect(marker.id)
+                }}
+              >
+                <Tooltip>
+                  {t("dashboard.sites.map.tooltip")
+                    .replace("{name}", marker.name)
+                    .replace("{latitude}", marker.latitude.toFixed(2))
+                    .replace("{longitude}", marker.longitude.toFixed(2))}
+                </Tooltip>
+              </CircleMarker>
+            );
+          })}
+        </MapContainer>
       </div>
       <div className="mt-4 grid gap-4 lg:grid-cols-[1.2fr_1fr]">
         <ul className="grid gap-2 text-xs text-slate-500 sm:grid-cols-2 lg:grid-cols-1">
@@ -325,16 +322,16 @@ export const DiveSiteMap = memo(DiveSiteMapComponent);
 function calculateInitialView(markers: SiteMarker[]): MapView {
   if (markers.length === 0) {
     return {
-      coordinates: [0, 0],
-      zoom: 1.2
+      center: [0, 0],
+      zoom: 2
     };
   }
 
-  const coordinates = calculateCenter(markers);
+  const center = calculateCenter(markers);
   const zoom = determineZoom(markers.length);
 
   return {
-    coordinates,
+    center,
     zoom
   };
 }
@@ -353,31 +350,31 @@ function calculateCenter(markers: SiteMarker[]): [number, number] {
   const latitude = latitudeSum / markers.length;
   const longitude = longitudeSum / markers.length;
 
-  return [longitude, latitude];
+  return [latitude, longitude];
 }
 
 function determineZoom(count: number): number {
   if (count === 1) {
-    return 3;
+    return 8;
   }
   if (count <= 3) {
-    return 2;
+    return 6;
   }
   if (count <= 6) {
-    return 1.5;
+    return 4;
   }
-  return 1.2;
+  return 3;
 }
 
 function determineFocusedZoom(count: number): number {
   if (count === 1) {
-    return 4;
+    return 10;
   }
   if (count <= 3) {
-    return 3;
+    return 8;
   }
   if (count <= 6) {
-    return 2.3;
+    return 6;
   }
-  return 2;
+  return 5;
 }

@@ -1,0 +1,73 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- High-res icon variant for various uses -->
+  <defs>
+    <linearGradient id="oceanGradientHD" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0EA5E9" />
+      <stop offset="100%" stop-color="#0369A1" />
+    </linearGradient>
+    <linearGradient id="bubbleGradientHD" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#0EA5E9" stop-opacity="0.6" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Ocean Background Circle -->
+  <circle cx="256" cy="256" r="256" fill="url(#oceanGradientHD)" />
+  
+  <!-- Subtle wave pattern -->
+  <path d="M0 300 Q128 280 256 300 T512 300 V512 H0 Z" fill="rgba(3, 105, 161, 0.3)" />
+  <path d="M0 350 Q128 330 256 350 T512 350 V512 H0 Z" fill="rgba(3, 105, 161, 0.2)" />
+  
+  <!-- Diver Silhouette -->
+  <!-- Head -->
+  <ellipse cx="256" cy="180" rx="45" ry="48" fill="white" opacity="0.95" />
+  <!-- Diving mask -->
+  <ellipse cx="256" cy="185" rx="38" ry="25" fill="rgba(3, 105, 161, 0.4)" />
+  
+  <!-- Body -->
+  <rect x="228" y="220" width="56" height="100" rx="10" fill="white" opacity="0.95" />
+  
+  <!-- Left Arm -->
+  <ellipse cx="200" cy="260" rx="18" ry="55" fill="white" opacity="0.95" transform="rotate(-35 200 260)" />
+  
+  <!-- Right Arm -->
+  <ellipse cx="312" cy="260" rx="18" ry="55" fill="white" opacity="0.95" transform="rotate(35 312 260)" />
+  
+  <!-- Left Leg -->
+  <ellipse cx="238" cy="350" rx="16" ry="65" fill="white" opacity="0.95" transform="rotate(-8 238 350)" />
+  
+  <!-- Right Leg -->
+  <ellipse cx="274" cy="350" rx="16" ry="65" fill="white" opacity="0.95" transform="rotate(8 274 350)" />
+  
+  <!-- Fins -->
+  <ellipse cx="235" cy="405" rx="25" ry="15" fill="white" opacity="0.9" transform="rotate(-15 235 405)" />
+  <ellipse cx="277" cy="405" rx="25" ry="15" fill="white" opacity="0.9" transform="rotate(15 277 405)" />
+  
+  <!-- Air Tank -->
+  <rect x="244" y="225" width="24" height="60" rx="12" fill="rgba(255, 255, 255, 0.4)" />
+  <circle cx="256" cy="222" r="10" fill="rgba(255, 255, 255, 0.5)" />
+  
+  <!-- Air Bubbles with glow effect -->
+  <g filter="url(#glow)">
+    <circle cx="180" cy="150" r="20" fill="url(#bubbleGradientHD)" />
+    <circle cx="340" cy="130" r="16" fill="url(#bubbleGradientHD)" />
+    <circle cx="150" cy="220" r="14" fill="url(#bubbleGradientHD)" />
+    <circle cx="370" cy="200" r="18" fill="url(#bubbleGradientHD)" />
+    <circle cx="120" cy="280" r="12" fill="url(#bubbleGradientHD)" />
+    <circle cx="390" cy="270" r="15" fill="url(#bubbleGradientHD)" />
+    <circle cx="160" cy="340" r="11" fill="url(#bubbleGradientHD)" />
+    <circle cx="360" cy="330" r="13" fill="url(#bubbleGradientHD)" />
+  </g>
+  
+  <!-- Small detail bubbles -->
+  <circle cx="200" cy="100" r="8" fill="rgba(255, 255, 255, 0.5)" />
+  <circle cx="320" cy="85" r="6" fill="rgba(255, 255, 255, 0.45)" />
+  <circle cx="140" cy="180" r="7" fill="rgba(255, 255, 255, 0.48)" />
+</svg>

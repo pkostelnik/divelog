@@ -1,0 +1,39 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Simplified icon variant for small sizes -->
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0EA5E9" />
+      <stop offset="100%" stop-color="#0369A1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="128" height="128" rx="28" fill="url(#bg)" />
+  
+  <!-- Diver simplified -->
+  <!-- Head -->
+  <circle cx="64" cy="42" r="12" fill="white" opacity="0.95" />
+  
+  <!-- Body -->
+  <rect x="56" y="52" width="16" height="32" rx="4" fill="white" opacity="0.95" />
+  
+  <!-- Left Arm -->
+  <rect x="44" y="60" width="14" height="6" rx="3" fill="white" opacity="0.95" transform="rotate(-25 51 63)" />
+  
+  <!-- Right Arm -->
+  <rect x="70" y="60" width="14" height="6" rx="3" fill="white" opacity="0.95" transform="rotate(25 77 63)" />
+  
+  <!-- Left Leg -->
+  <rect x="58" y="82" width="6" height="20" rx="3" fill="white" opacity="0.95" />
+  
+  <!-- Right Leg -->
+  <rect x="64" y="82" width="6" height="20" rx="3" fill="white" opacity="0.95" />
+  
+  <!-- Air Bubbles -->
+  <circle cx="40" cy="35" r="5" fill="rgba(255, 255, 255, 0.7)" />
+  <circle cx="88" cy="30" r="4" fill="rgba(255, 255, 255, 0.65)" />
+  <circle cx="32" cy="60" r="3.5" fill="rgba(255, 255, 255, 0.6)" />
+  <circle cx="96" cy="55" r="4.5" fill="rgba(255, 255, 255, 0.68)" />
+  <circle cx="36" cy="85" r="3" fill="rgba(255, 255, 255, 0.62)" />
+  <circle cx="92" cy="80" r="3.8" fill="rgba(255, 255, 255, 0.66)" />
+</svg>

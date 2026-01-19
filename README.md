@@ -27,7 +27,11 @@ Then open `http://localhost:3000`. The landing page links straight to registrati
 - Dashboard covering community, dive, and equipment modules
 - Responsive layout illustrating mobile and desktop views
 
-### 📋 Feature Overview
+### 📋 Feature Overview**Branding & Design**
+- Professional diver-themed logo with ocean gradient
+- Dynamic favicon generation for browser and Apple devices
+- Multiple logo variants (icon, horizontal, high-res) in `/public/assets/`
+- Responsive design with dark mode support
 **Landing & Marketing**
 - Hero section listing the tech stack, calls to action, and supporting content
 - Feature tiles for dive logs, equipment, members, and community
@@ -48,28 +52,35 @@ Then open `http://localhost:3000`. The landing page links straight to registrati
 
 | Technology                   | Version |
 | ---------------------------- | ------- |
-| Next.js                      | 16.0.1  |
+| Next.js                      | 16.1.3  |
 | React                        | 19.2.3  |
-| TypeScript                   | 5.5.3   |
+| TypeScript                   | 5.9.3   |
 | Tailwind CSS                 | 4.1.18  |
 | @tailwindcss/postcss         | 4.1.18  |
 | @tailwindcss/forms           | 0.5.11  |
-| eslint / eslint-config-next  | 9.5.0 / 16.0.1 |
-| Zod                          | 4.2.1   |
-| @tanstack/react-query        | 5.45.0  |
-| @azure/cosmos                | 4.7.0   |
-| @microsoft/teams-js          | 2.47.0  |
+| eslint / eslint-config-next  | 9.39.2 / 16.1.3 |
+| Zod                          | 4.3.5   |
+| @tanstack/react-query        | 5.90.19 |
+| @azure/cosmos                | 4.9.0   |
+| @microsoft/teams-js          | 2.48.0  |
+| leaflet                      | 1.9.4   |
+| react-leaflet                | 5.0.0   |
 
-Additional libraries: `lucide-react` (0.562.0), `clsx` (2.1.0), `react-simple-maps` (3.0.0).
+Additional libraries: `lucide-react` (0.562.0), `clsx` (2.1.1), `autoprefixer` (10.4.23), `postcss` (8.5.6).
 
 ### 🧭 Project Structure
 - `app/` – App Router pages, layouts, and API stubs
 - `app/page.tsx` – landing page
+- `app/icon.tsx` – dynamic favicon generation (32x32)
+- `app/apple-icon.tsx` – Apple touch icon generation (180x180)
 - `app/auth/*` – login, logout, and registration screens
+- `src/components/ui/app-logo.tsx` – Logo component with size variants
 - `src/features/*` – feature components (auth, community, dives, etc.)
+- `src/features/sites/components/dive-site-map.tsx` – Interactive map with Leaflet
 - `src/providers/*` – state management for auth and demo data
 - `src/data/mock-data.ts` – mock datasets including sequences and attachments
 - `src/features/auth/components/social-providers.tsx` – reusable social login assets
+- `public/assets/` – Logo variants (logo.svg, logo-icon.svg, logo-horizontal.svg)
 
 ### 🧪 Development Workflow
 Available npm scripts:
@@ -148,7 +159,11 @@ npm run dev
 - Dashboard mit Community-, Dive- und Equipment-Modulen
 - Responsive Layout demonstriert Mobile- und Desktop-Ansicht
 
-### 📋 Feature-Überblick
+### 📋 Feature-Überblick**Branding & Design**
+- Professionelles Taucher-Logo mit Ozean-Farbverlauf
+- Dynamische Favicon-Generierung für Browser und Apple-Geräte
+- Mehrere Logo-Varianten (Icon, Horizontal, Hochauflösend) in `/public/assets/`
+- Responsives Design mit Dark-Mode-Unterstützung
 **Landing & Marketing**
 - Hero mit Technologie-Stack, Call-to-Actions und erklärendem Secondary-Content
 - Feature-Kacheln für Dive Logs, Equipment, Mitglieder und Community
@@ -169,28 +184,35 @@ npm run dev
 
 | Technologie                  | Version |
 | ---------------------------- | ------- |
-| Next.js                      | 16.0.1  |
+| Next.js                      | 16.1.3  |
 | React                        | 19.2.3  |
-| TypeScript                   | 5.5.3   |
+| TypeScript                   | 5.9.3   |
 | Tailwind CSS                 | 4.1.18  |
 | @tailwindcss/postcss         | 4.1.18  |
 | @tailwindcss/forms           | 0.5.11  |
-| eslint / eslint-config-next  | 9.5.0 / 16.0.1 |
-| Zod                          | 4.2.1   |
-| @tanstack/react-query        | 5.45.0  |
-| @azure/cosmos                | 4.7.0   |
-| @microsoft/teams-js          | 2.47.0  |
+| eslint / eslint-config-next  | 9.39.2 / 16.1.3 |
+| Zod                          | 4.3.5   |
+| @tanstack/react-query        | 5.90.19 |
+| @azure/cosmos                | 4.9.0   |
+| @microsoft/teams-js          | 2.48.0  |
+| leaflet                      | 1.9.4   |
+| react-leaflet                | 5.0.0   |
 
-Weitere Bibliotheken: `lucide-react` (0.562.0), `clsx` (2.1.0), `react-simple-maps` (3.0.0).
+Weitere Bibliotheken: `lucide-react` (0.562.0), `clsx` (2.1.1), `autoprefixer` (10.4.23), `postcss` (8.5.6).
 
 ### 🧭 Projektstruktur
 - `app/` – App Router Seiten, Layouts und API-Stubs
 - `app/page.tsx` – Landing Page
+- `app/icon.tsx` – Dynamische Favicon-Generierung (32x32)
+- `app/apple-icon.tsx` – Apple Touch Icon Generierung (180x180)
 - `app/auth/*` – Login-, Logout- und Registrierungsseiten
+- `src/components/ui/app-logo.tsx` – Logo-Komponente mit Größenvarianten
 - `src/features/*` – Feature-Komponenten (Auth, Community, Dives usw.)
+- `src/features/sites/components/dive-site-map.tsx` – Interaktive Karte mit Leaflet
 - `src/providers/*` – State-Management für Auth & Demo-Daten
 - `src/data/mock-data.ts` – Mock-Datensätze inklusive Sequenzen und Attachments
 - `src/features/auth/components/social-providers.tsx` – Social-Login-Assets
+- `public/assets/` – Logo-Varianten (logo.svg, logo-icon.svg, logo-horizontal.svg)
 
 ### 🧪 Entwicklungs-Workflow
 Verfügbare NPM-Skripte:
