@@ -1,0 +1,53 @@
+{
+  "name": "DiveLog Studio",
+  "short_name": "DiveLog",
+  "description": "Moderne Dive-Log-Plattform mit Dashboard, Community und Medienverwaltung",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0369a1",
+  "theme_color": "#0ea5e9",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/logo-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-icon",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["sports", "lifestyle", "social"],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Öffne das Dashboard",
+      "url": "/dashboard",
+      "icons": [{ "src": "/assets/logo-icon.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "Neuer Tauchgang",
+      "short_name": "Neuer Dive",
+      "description": "Neuen Tauchgang hinzufügen",
+      "url": "/dashboard/dives",
+      "icons": [{ "src": "/assets/logo-icon.svg", "sizes": "96x96" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/assets/DiveLogStudio.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ]
+}
