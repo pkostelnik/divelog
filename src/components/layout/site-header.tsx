@@ -22,14 +22,6 @@ const baseNavLinks: NavLink[] = [
   { href: "/dashboard", labelKey: "nav.dashboard" },
   { href: "/dashboard/dives", labelKey: "nav.dives" },
   {
-    href: "/dashboard/community",
-    labelKey: "nav.community",
-    children: [
-      { href: "/dashboard/community/blog", labelKey: "nav.community.blog" },
-      { href: "/dashboard/community/forum", labelKey: "nav.community.forum" }
-    ]
-  },
-  {
     href: "/dashboard/data",
     labelKey: "nav.content",
     children: [
@@ -39,6 +31,17 @@ const baseNavLinks: NavLink[] = [
     ]
   },
   { href: "/dashboard/search", labelKey: "nav.search" }
+];
+
+const communityNavLinks: NavLink[] = [
+  {
+    href: "/dashboard/community",
+    labelKey: "nav.community",
+    children: [
+      { href: "/dashboard/community/blog", labelKey: "nav.community.blog" },
+      { href: "/dashboard/community/forum", labelKey: "nav.community.forum" }
+    ]
+  }
 ];
 
 const adminOnlyLinks: NavLink[] = [{ href: "/dashboard/members", labelKey: "nav.members" }];
@@ -57,21 +60,23 @@ export function SiteHeader() {
     router.push("/auth/logout");
   };
   const visibleLinks = useMemo(() => {
+    let links = [...baseNavLinks];
+    
+    // Add community links for all users
+    links = [...links.slice(0, 2), ...communityNavLinks, ...links.slice(2)];
+    
     if (currentUser?.role === "admin") {
-      const base = [...baseNavLinks];
       const membersLink = adminOnlyLinks[0];
-      const searchIndex = base.findIndex((item) => item.href === "/dashboard/search");
+      const searchIndex = links.findIndex((item) => item.href === "/dashboard/search");
 
       if (searchIndex >= 0) {
-        base.splice(searchIndex, 0, membersLink);
+        links.splice(searchIndex, 0, membersLink);
       } else {
-        base.push(membersLink);
+        links.push(membersLink);
       }
-
-      return base;
     }
 
-    return baseNavLinks;
+    return links;
   }, [currentUser?.role]);
 
   // In Teams: minimal header without navigation
@@ -95,47 +100,50 @@ export function SiteHeader() {
         <div className="flex items-center gap-6">
           {!teams.isInTeams && (
             <>
-              {/* Desktop Navigation - sichtbar ab 1080px, nur für angemeldete User */}
-              {currentUser && (
-                <nav className="hidden items-center gap-6 text-sm font-medium text-slate-600 transition-colors dark:text-slate-300 xl:flex">
-                  {visibleLinks.map((item) => {
-                    if (!item.children) {
-                      return (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          className="transition-colors hover:text-ocean-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-500 dark:hover:text-ocean-300"
-                        >
-                          {t(item.labelKey)}
-                        </Link>
-                      );
-                    }
+              {/* Desktop Navigation - sichtbar ab 1080px */}
+              <nav className="hidden items-center gap-6 text-sm font-medium text-slate-600 transition-colors dark:text-slate-300 xl:flex">
+                {visibleLinks.map((item) => {
+                  // Skip dashboard and data navigation for non-logged-in users
+                  if (!currentUser && (item.href === "/dashboard" || item.href === "/dashboard/data" || item.href === "/dashboard/dives" || item.href === "/dashboard/search")) {
+                    return null;
+                  }
 
+                  if (!item.children) {
                     return (
-                      <div key={item.href} className="relative group">
-                        <Link
-                          href={item.href}
-                          aria-haspopup="true"
-                          className="inline-flex items-center gap-1 transition-colors hover:text-ocean-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-500 dark:hover:text-ocean-300"
-                        >
-                          {t(item.labelKey)}
-                        </Link>
-                        <div className="pointer-events-none absolute left-0 top-full z-20 hidden w-48 -translate-y-1 flex-col rounded-xl border border-slate-200 bg-white py-2 text-sm opacity-0 shadow-xl transition will-change-transform group-hover:pointer-events-auto group-hover:flex group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:flex group-focus-within:translate-y-0 group-focus-within:opacity-100 dark:border-slate-700 dark:bg-slate-900/95">
-                          {item.children.map((child) => (
-                            <Link
-                              key={child.href}
-                              href={child.href}
-                              className="px-4 py-2 text-slate-600 transition hover:bg-ocean-50 hover:text-ocean-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-500 dark:text-slate-300 dark:hover:bg-ocean-900/30 dark:hover:text-ocean-200"
-                            >
-                              {t(child.labelKey)}
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="transition-colors hover:text-ocean-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-500 dark:hover:text-ocean-300"
+                      >
+                        {t(item.labelKey)}
+                      </Link>
                     );
-                  })}
-                </nav>
-              )}
+                  }
+
+                  return (
+                    <div key={item.href} className="relative group">
+                      <Link
+                        href={item.href}
+                        aria-haspopup="true"
+                        className="inline-flex items-center gap-1 transition-colors hover:text-ocean-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-500 dark:hover:text-ocean-300"
+                      >
+                        {t(item.labelKey)}
+                      </Link>
+                      <div className="pointer-events-none absolute left-0 top-full z-20 hidden w-48 -translate-y-1 flex-col rounded-xl border border-slate-200 bg-white py-2 text-sm opacity-0 shadow-xl transition will-change-transform group-hover:pointer-events-auto group-hover:flex group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:flex group-focus-within:translate-y-0 group-focus-within:opacity-100 dark:border-slate-700 dark:bg-slate-900/95">
+                        {item.children.map((child) => (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            className="px-4 py-2 text-slate-600 transition hover:bg-ocean-50 hover:text-ocean-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-500 dark:text-slate-300 dark:hover:bg-ocean-900/30 dark:hover:text-ocean-200"
+                          >
+                            {t(child.labelKey)}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </nav>
               
               {/* Mobile Menu Button - sichtbar unter 1080px, auch ohne Login */}
               <button
@@ -228,10 +236,55 @@ export function SiteHeader() {
       {isMobileMenuOpen && !teams.isInTeams && (
         <div className="border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 md:hidden">
           <nav className="container mx-auto flex flex-col px-6 py-4">
+            {/* Community Links für alle User */}
+            {communityNavLinks.map((item) => {
+              if (!item.children) {
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="rounded-lg px-4 py-3 text-base font-medium text-slate-600 transition hover:bg-ocean-50 hover:text-ocean-700 dark:text-slate-300 dark:hover:bg-ocean-900/30 dark:hover:text-ocean-200"
+                  >
+                    {t(item.labelKey)}
+                  </Link>
+                );
+              }
+
+              return (
+                <div key={item.href} className="flex flex-col">
+                  <Link
+                    href={item.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="rounded-lg px-4 py-3 text-base font-medium text-slate-600 transition hover:bg-ocean-50 hover:text-ocean-700 dark:text-slate-300 dark:hover:bg-ocean-900/30 dark:hover:text-ocean-200"
+                  >
+                    {t(item.labelKey)}
+                  </Link>
+                  <div className="ml-4 flex flex-col border-l-2 border-slate-200 pl-4 dark:border-slate-700">
+                    {item.children.map((child) => (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="rounded-lg px-4 py-2 text-sm text-slate-600 transition hover:bg-ocean-50 hover:text-ocean-700 dark:text-slate-300 dark:hover:bg-ocean-900/30 dark:hover:text-ocean-200"
+                      >
+                        {t(child.labelKey)}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+
             {currentUser ? (
               <>
                 {/* Navigation Links für angemeldete User */}
                 {visibleLinks.map((item) => {
+                  // Skip community links (already shown above) and hidden items
+                  if (item.href === "/dashboard/community" || (!currentUser && (item.href === "/dashboard" || item.href === "/dashboard/data" || item.href === "/dashboard/dives" || item.href === "/dashboard/search"))) {
+                    return null;
+                  }
+
                   if (!item.children) {
                     return (
                       <Link
@@ -269,6 +322,7 @@ export function SiteHeader() {
                     </div>
                   );
                 })}
+                
                 
                 {/* Mobile User Actions für angemeldete User */}
                 <div className="mt-4 flex flex-col gap-3 border-t border-slate-200 pt-4 dark:border-slate-700">

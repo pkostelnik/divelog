@@ -1,11 +1,15 @@
 "use client";
 
+import Link from "next/link";
+
 import { CommunityForumBoard } from "@/features/community/components/community-forum-board";
 import { ForumThreadForm } from "@/features/community/components/forum-thread-form";
+import { useAuth } from "@/providers/auth-provider";
 import { useI18n } from "@/providers/i18n-provider";
 
 export default function CommunityForumPage() {
   const { t } = useI18n();
+  const { currentUser } = useAuth();
 
   return (
     <div className="space-y-6">
@@ -15,7 +19,7 @@ export default function CommunityForumPage() {
         </h1>
         <p className="text-sm text-slate-600">{t("dashboard.community.forum.page.description")}</p>
       </header>
-      <ForumThreadForm />
+      {currentUser && <ForumThreadForm />}
       <CommunityForumBoard />
     </div>
   );

@@ -1,11 +1,22 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
+import { useAuth } from "@/providers/auth-provider";
 import { useI18n } from "@/providers/i18n-provider";
 
 export default function LogoutPage() {
   const { t } = useI18n();
+  const { logout } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    // Perform logout and redirect immediately without delay
+    logout();
+    router.push("/");
+  }, []);
 
   return (
     <section className="bg-gradient-to-b from-white via-slate-50 to-slate-100 py-20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
