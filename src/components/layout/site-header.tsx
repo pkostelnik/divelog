@@ -85,7 +85,7 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="border-b border-slate-200 bg-white/80 backdrop-blur transition-colors dark:border-slate-800 dark:bg-slate-900/80">
+    <header className="relative z-50 border-b border-slate-200 bg-white/80 backdrop-blur transition-colors dark:border-slate-800 dark:bg-slate-900/80">
       <div className="mx-auto flex h-16 w-full items-center justify-between px-6">
         <Link href={teams.isInTeams ? "/dashboard" : "/"} className="flex items-center gap-2">
           <AppLogo />
@@ -129,7 +129,7 @@ export function SiteHeader() {
                       >
                         {t(item.labelKey)}
                       </Link>
-                      <div className="pointer-events-none absolute left-0 top-full z-20 hidden w-48 -translate-y-1 flex-col rounded-xl border border-slate-200 bg-white py-2 text-sm opacity-0 shadow-xl transition will-change-transform group-hover:pointer-events-auto group-hover:flex group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:flex group-focus-within:translate-y-0 group-focus-within:opacity-100 dark:border-slate-700 dark:bg-slate-900/95">
+                        <div className="pointer-events-none absolute left-0 top-full z-40 hidden w-52 -translate-y-1 flex-col rounded-xl border border-slate-200 bg-white py-2 text-sm opacity-0 shadow-2xl transition will-change-transform group-hover:pointer-events-auto group-hover:flex group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:flex group-focus-within:translate-y-0 group-focus-within:opacity-100 dark:border-slate-700 dark:bg-slate-900">
                         {item.children.map((child) => (
                           <Link
                             key={child.href}

@@ -18,6 +18,15 @@ const config: Config = {
           800: "#064b82",
           900: "#063f6b"
         }
+      },
+      keyframes: {
+        float: {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-20px)" }
+        }
+      },
+      animation: {
+        float: "float 6s ease-in-out infinite"
       }
     }
   },
