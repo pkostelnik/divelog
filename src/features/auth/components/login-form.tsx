@@ -85,27 +85,33 @@ export function LoginForm() {
           {t("auth.login.email.label")}
           <input
             type="email"
+            id="login-email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder={t("auth.login.email.placeholder")}
             className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
             required
+            aria-describedby={error ? "login-error" : undefined}
           />
         </label>
         <label className="flex flex-col gap-2 text-xs font-semibold text-slate-700">
           {t("auth.login.password.label")}
           <input
             type="password"
+            id="login-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder={t("auth.login.password.placeholder")}
             className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
             required
+            aria-describedby={error ? "login-error" : undefined}
           />
         </label>
-        {error && (
-          <p className="text-sm font-medium text-rose-600">{error}</p>
-        )}
+        <div role="alert" aria-live="polite" aria-atomic="true">
+          {error && (
+            <p id="login-error" className="text-sm font-medium text-rose-600">{error}</p>
+          )}
+        </div>
         <button
           type="submit"
           className="w-full rounded-xl bg-ocean-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-ocean-700 disabled:cursor-not-allowed disabled:opacity-70"

@@ -21,8 +21,10 @@ export function AppLogo({ variant = "icon", size = "md" }: AppLogoProps) {
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className="flex-shrink-0"
-        aria-label="DiveLog Studio Logo"
+        role="img"
+        aria-labelledby="divelog-logo-title"
       >
+        <title id="divelog-logo-title">DiveLog Studio Logo</title>
         {/* Gradient Definitions */}
         <defs>
           <linearGradient id="oceanGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -68,8 +70,10 @@ export function AppLogo({ variant = "icon", size = "md" }: AppLogoProps) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className="flex-shrink-0"
-      aria-label="DiveLog Studio Full Logo"
+      role="img"
+      aria-labelledby="divelog-full-logo-title"
     >
+      <title id="divelog-full-logo-title">DiveLog Studio</title>
       <defs>
         <linearGradient id="oceanGradientFull" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stopColor="#0EA5E9" />

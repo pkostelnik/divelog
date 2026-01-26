@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import {
+import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ChangeEvent,
   type Dispatch,
@@ -635,7 +636,9 @@ function MediaPreview({ item }: { item: MediaItem }) {
         controls
         className="h-56 w-full bg-slate-900 object-cover"
         src={item.url}
+        aria-label={item.title}
       >
+        <track kind="captions" label="Captions" />
         {t("dashboard.media.preview.unsupported")}
       </video>
     );
@@ -672,12 +675,35 @@ function MediaPreview({ item }: { item: MediaItem }) {
 
 function MediaPreviewOverlay({ item, onClose }: { item: MediaItem; onClose: () => void }) {
   const { t } = useI18n();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         onClose();
       }
+
+      // Focus trap implementation
+      if (event.key === "Tab" && dialogRef.current) {
+        const focusableElements = dialogRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (event.shiftKey && document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement?.focus();
+        } else if (!event.shiftKey && document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement?.focus();
+        }
+      }
     };
+
+    // Focus the close button when dialog opens
+    closeButtonRef.current?.focus();
 
     window.addEventListener("keydown", handleKeyDown);
     const originalOverflow = document.body.style.overflow;
@@ -708,14 +734,16 @@ function MediaPreviewOverlay({ item, onClose }: { item: MediaItem; onClose: () =
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-6"
       role="dialog"
       aria-modal="true"
-      aria-label={t("dashboard.media.preview.label").replace("{title}", item.title)}
+      aria-labelledby="media-preview-title"
       onClick={onClose}
     >
       <div
+        ref={dialogRef}
         className="relative z-10 flex w-full max-w-5xl flex-col gap-4 overflow-hidden rounded-3xl bg-slate-950/90 p-4 shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >
         <button
+          ref={closeButtonRef}
           type="button"
           onClick={onClose}
           className="absolute right-4 top-4 inline-flex items-center justify-center rounded-full border border-slate-600 bg-slate-900/70 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-200 transition hover:border-slate-400 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-400"
@@ -730,7 +758,9 @@ function MediaPreviewOverlay({ item, onClose }: { item: MediaItem; onClose: () =
               playsInline
               className="max-h-[70vh] w-full rounded-2xl bg-black object-contain"
               src={item.url}
+              aria-label={item.title}
             >
+              <track kind="captions" label="Captions" />
               {t("dashboard.media.preview.unsupported")}
             </video>
           ) : (
@@ -747,7 +777,7 @@ function MediaPreviewOverlay({ item, onClose }: { item: MediaItem; onClose: () =
           )}
         </div>
         <div className="space-y-1 text-sm text-slate-300">
-          <p className="text-base font-semibold text-white">{item.title}</p>
+          <h2 id="media-preview-title" className="text-base font-semibold text-white">{item.title}</h2>
           <p className="text-xs text-slate-400">{authorLine}</p>
           <p className="text-xs uppercase tracking-wide text-slate-500">{metaLine}</p>
         </div>

@@ -113,6 +113,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="de" className={inter.className}>
       <body className="min-h-screen bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-ocean-600 focus:px-4 focus:py-2 focus:text-white focus:outline-none focus:ring-2 focus:ring-ocean-400"
+        >
+          Skip to main content
+        </a>
         <TeamsProvider>
           <I18nProvider>
             <ThemeProvider>
@@ -120,7 +126,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 <DemoDataProvider>
                   <div className="flex min-h-screen flex-col">
                     <SiteHeader />
-                    <main className="flex-1">{children}</main>
+                    <main id="main-content" className="flex-1" tabIndex={-1}>{children}</main>
                     <SiteFooter />
                   </div>
                 </DemoDataProvider>

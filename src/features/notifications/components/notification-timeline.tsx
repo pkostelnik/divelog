@@ -32,10 +32,10 @@ export function NotificationTimeline() {
           {t("dashboard.notifications.section.subtitle")}
         </p>
       </div>
-      <ol className="relative space-y-4 border-l border-slate-200 pl-6">
+      <ol className="relative space-y-4 border-l border-slate-200 pl-6" aria-label="Notifications timeline">
         {notifications.map((note) => (
           <li key={note.id} className="space-y-2">
-            <div className="absolute -left-[10px] h-2.5 w-2.5 rounded-full border border-white bg-ocean-500" />
+            <div className="absolute -left-[10px] h-2.5 w-2.5 rounded-full border border-white bg-ocean-500" aria-hidden="true" />
             <div className="flex items-center justify-between gap-4">
               <p className="text-sm font-semibold text-slate-900">{note.title}</p>
               <div className="flex items-center gap-2 text-xs">

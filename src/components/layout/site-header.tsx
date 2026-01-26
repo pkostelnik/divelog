@@ -101,7 +101,7 @@ export function SiteHeader() {
           {!teams.isInTeams && (
             <>
               {/* Desktop Navigation - sichtbar ab 1080px */}
-              <nav className="hidden items-center gap-6 text-sm font-medium text-slate-600 transition-colors dark:text-slate-300 xl:flex">
+              <nav aria-label="Main navigation" className="hidden items-center gap-6 text-sm font-medium text-slate-600 transition-colors dark:text-slate-300 xl:flex">
                 {visibleLinks.map((item) => {
                   // Skip dashboard and data navigation for non-logged-in users
                   if (!currentUser && (item.href === "/dashboard" || item.href === "/dashboard/data" || item.href === "/dashboard/dives" || item.href === "/dashboard/search")) {
@@ -124,16 +124,19 @@ export function SiteHeader() {
                     <div key={item.href} className="relative group">
                       <Link
                         href={item.href}
-                        aria-haspopup="true"
+                        aria-haspopup="menu"
+                        aria-expanded="false"
                         className="inline-flex items-center gap-1 transition-colors hover:text-ocean-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-500 dark:hover:text-ocean-300"
                       >
                         {t(item.labelKey)}
+                        <span className="sr-only"> (has submenu)</span>
                       </Link>
-                        <div className="pointer-events-none absolute left-0 top-full z-40 hidden w-52 -translate-y-1 flex-col rounded-xl border border-slate-200 bg-white py-2 text-sm opacity-0 shadow-2xl transition will-change-transform group-hover:pointer-events-auto group-hover:flex group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:flex group-focus-within:translate-y-0 group-focus-within:opacity-100 dark:border-slate-700 dark:bg-slate-900">
+                        <div role="menu" aria-label={`${t(item.labelKey)} submenu`} className="pointer-events-none absolute left-0 top-full z-40 hidden w-52 -translate-y-1 flex-col rounded-xl border border-slate-200 bg-white py-2 text-sm opacity-0 shadow-2xl transition will-change-transform group-hover:pointer-events-auto group-hover:flex group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:flex group-focus-within:translate-y-0 group-focus-within:opacity-100 dark:border-slate-700 dark:bg-slate-900">
                         {item.children.map((child) => (
                           <Link
                             key={child.href}
                             href={child.href}
+                            role="menuitem"
                             className="px-4 py-2 text-slate-600 transition hover:bg-ocean-50 hover:text-ocean-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-500 dark:text-slate-300 dark:hover:bg-ocean-900/30 dark:hover:text-ocean-200"
                           >
                             {t(child.labelKey)}
@@ -151,8 +154,10 @@ export function SiteHeader() {
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="inline-flex items-center justify-center rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 md:hidden"
                 aria-label={isMobileMenuOpen ? "Menü schließen" : "Menü öffnen"}
+                aria-expanded={isMobileMenuOpen}
+                aria-controls="mobile-menu"
               >
-                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                {isMobileMenuOpen ? <X size={24} aria-hidden="true" /> : <Menu size={24} aria-hidden="true" />}
               </button>
             </>
           )}
@@ -234,8 +239,8 @@ export function SiteHeader() {
       
       {/* Mobile Menu Overlay - sichtbar unter 768px */}
       {isMobileMenuOpen && !teams.isInTeams && (
-        <div className="border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 md:hidden">
-          <nav className="container mx-auto flex flex-col px-6 py-4">
+        <div id="mobile-menu" className="border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 md:hidden">
+          <nav aria-label="Mobile navigation" className="container mx-auto flex flex-col px-6 py-4">
             {/* Community Links für alle User */}
             {communityNavLinks.map((item) => {
               if (!item.children) {

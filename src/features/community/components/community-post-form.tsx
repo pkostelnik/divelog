@@ -244,36 +244,45 @@ export function CommunityPostForm({ onSubmitSuccess }: CommunityPostFormProps) {
             {t("dashboard.community.postForm.fields.title.label")}
             <input
               name="title"
+              id="post-title"
               value={form.title}
               onChange={handleChange}
               placeholder={t("dashboard.community.postForm.fields.title.placeholder")}
               className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+              aria-invalid={!!errors.title}
+              aria-describedby={errors.title ? "post-title-error" : undefined}
             />
-            {errors.title && <span className="text-xs font-normal text-rose-600">{errors.title}</span>}
+            {errors.title && <span id="post-title-error" role="alert" className="text-xs font-normal text-rose-600">{errors.title}</span>}
           </label>
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
             {t("dashboard.community.postForm.fields.author.label")}
             <input
               name="author"
+              id="post-author"
               value={form.author}
               onChange={handleChange}
               placeholder={t("dashboard.community.postForm.fields.author.placeholder")}
               readOnly={authorLocked}
               className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+              aria-invalid={!!errors.author}
+              aria-describedby={errors.author ? "post-author-error" : undefined}
             />
-            {errors.author && <span className="text-xs font-normal text-rose-600">{errors.author}</span>}
+            {errors.author && <span id="post-author-error" role="alert" className="text-xs font-normal text-rose-600">{errors.author}</span>}
           </label>
         </div>
         <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
           {t("dashboard.community.postForm.fields.body.label")}
           <textarea
             name="body"
+            id="post-body"
             value={form.body}
             onChange={handleChange}
             placeholder={t("dashboard.community.postForm.fields.body.placeholder")}
             className="min-h-[120px] rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+            aria-invalid={!!errors.body}
+            aria-describedby={errors.body ? "post-body-error" : undefined}
           />
-          {errors.body && <span className="text-xs font-normal text-rose-600">{errors.body}</span>}
+          {errors.body && <span id="post-body-error" role="alert" className="text-xs font-normal text-rose-600">{errors.body}</span>}
         </label>
         <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
           {t("dashboard.community.postForm.fields.dive.label")}

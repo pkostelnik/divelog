@@ -202,27 +202,33 @@ export function ForumThreadForm() {
               {t("dashboard.community.forum.form.fields.title.label")}
               <input
                 name="title"
+                id="thread-title"
                 value={form.title}
                 onChange={handleChange}
                 placeholder={t("dashboard.community.forum.form.fields.title.placeholder")}
                 className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                aria-invalid={!!errors.title}
+                aria-describedby={errors.title ? "thread-title-error" : undefined}
               />
               {errors.title && (
-                <span className="text-xs font-normal text-rose-600">{errors.title}</span>
+                <span id="thread-title-error" role="alert" className="text-xs font-normal text-rose-600">{errors.title}</span>
               )}
             </label>
             <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
               {t("dashboard.community.forum.form.fields.author.label")}
               <input
                 name="author"
+                id="thread-author"
                 value={form.author}
                 onChange={handleChange}
                 placeholder={t("dashboard.community.forum.form.fields.author.placeholder")}
                 readOnly={authorLocked}
                 className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                aria-invalid={!!errors.author}
+                aria-describedby={errors.author ? "thread-author-error" : undefined}
               />
               {errors.author && (
-                <span className="text-xs font-normal text-rose-600">{errors.author}</span>
+                <span id="thread-author-error" role="alert" className="text-xs font-normal text-rose-600">{errors.author}</span>
               )}
             </label>
           </div>
@@ -230,9 +236,12 @@ export function ForumThreadForm() {
             {t("dashboard.community.forum.form.fields.category.label")}
             <select
               name="categoryId"
+              id="thread-category"
               value={form.categoryId}
               onChange={handleChange}
               className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+              aria-invalid={!!errors.categoryId}
+              aria-describedby={errors.categoryId ? "thread-category-error" : undefined}
             >
               <option value="">{t("dashboard.community.forum.form.fields.category.placeholder")}</option>
               {categoryOptions.map((option) => (
@@ -242,20 +251,23 @@ export function ForumThreadForm() {
               ))}
             </select>
             {errors.categoryId && (
-              <span className="text-xs font-normal text-rose-600">{errors.categoryId}</span>
+              <span id="thread-category-error" role="alert" className="text-xs font-normal text-rose-600">{errors.categoryId}</span>
             )}
           </label>
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
             {t("dashboard.community.forum.form.fields.body.label")}
             <textarea
               name="body"
+              id="thread-body"
               value={form.body}
               onChange={handleChange}
               placeholder={t("dashboard.community.forum.form.fields.body.placeholder")}
               className="min-h-[140px] rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+              aria-invalid={!!errors.body}
+              aria-describedby={errors.body ? "thread-body-error" : undefined}
             />
             {errors.body && (
-              <span className="text-xs font-normal text-rose-600">{errors.body}</span>
+              <span id="thread-body-error" role="alert" className="text-xs font-normal text-rose-600">{errors.body}</span>
             )}
           </label>
           <div className="flex flex-wrap items-center justify-between gap-3 text-xs">

@@ -568,6 +568,7 @@ function MemberCardContent({
 
       {alert && (
         <p
+          role="alert"
           className={`text-xs font-semibold ${
             alert.variant === "error" ? "text-rose-600" : "text-emerald-600"
           }`}
@@ -576,18 +577,23 @@ function MemberCardContent({
         </p>
       )}
 
-      <section className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+      <section className="rounded-2xl border border-slate-100 bg-slate-50 p-4" aria-labelledby={`password-heading-${member.id}`}>
         <header className="flex items-center justify-between text-xs font-semibold text-slate-600">
-          <span>{t("dashboard.members.password.heading")}</span>
-          <span className="text-[11px] font-normal text-slate-400">{t("dashboard.members.password.hint")}</span>
+          <span id={`password-heading-${member.id}`}>{t("dashboard.members.password.heading")}</span>
+          <span id={`password-hint-${member.id}`} className="text-[11px] font-normal text-slate-400">{t("dashboard.members.password.hint")}</span>
         </header>
         <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+          <label className="sr-only" htmlFor={`password-${member.id}`}>
+            {t("dashboard.members.password.placeholder")}
+          </label>
           <input
+            id={`password-${member.id}`}
             type="password"
             value={passwordDraft}
             onChange={(event) => onPasswordDraftChange(member.id, event.target.value)}
             className="flex-1 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
             placeholder={t("dashboard.members.password.placeholder")}
+            aria-describedby={`password-hint-${member.id}`}
           />
           <button
             type="button"

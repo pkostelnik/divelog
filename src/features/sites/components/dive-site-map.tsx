@@ -203,13 +203,13 @@ function DiveSiteMapComponent({ mode = "visited" }: DiveSiteMapProps) {
         </div>
         <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-500">
           <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-[#38BDF8]" /> {difficultyLabelMap.Beginner}
+            <span className="h-2 w-2 rounded-full bg-[#38BDF8]" aria-hidden="true" /> {difficultyLabelMap.Beginner}
           </span>
           <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-[#0EA5E9]" /> {difficultyLabelMap.Fortgeschritten}
+            <span className="h-2 w-2 rounded-full bg-[#0EA5E9]" aria-hidden="true" /> {difficultyLabelMap.Fortgeschritten}
           </span>
           <span className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-[#0369A1]" /> {difficultyLabelMap.Pro}
+            <span className="h-2 w-2 rounded-full bg-[#0369A1]" aria-hidden="true" /> {difficultyLabelMap.Pro}
           </span>
           <button
             type="button"

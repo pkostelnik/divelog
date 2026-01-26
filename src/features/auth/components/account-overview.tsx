@@ -367,6 +367,7 @@ export function AccountOverview() {
             )}
             {actionFeedback && (
               <p
+                role="alert"
                 className={`rounded-xl px-4 py-2 text-xs font-semibold ${
                   actionFeedback.variant === "success"
                     ? "border border-emerald-200 bg-emerald-50 text-emerald-700"

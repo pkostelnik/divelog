@@ -177,15 +177,18 @@ export function RegisterForm() {
           {t("auth.register.passwordConfirm.label")}
           <input
             type="password"
+            id="register-confirm-password"
             value={form.confirmPassword}
             onChange={(event) => handleChange("confirmPassword")(event.target.value)}
             placeholder={t("auth.register.passwordConfirm.placeholder")}
             minLength={6}
             className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
             required
+            aria-invalid={passwordMismatch}
+            aria-describedby={passwordMismatch ? "password-confirm-error" : undefined}
           />
           {passwordMismatch && (
-            <span className="text-xs font-normal text-rose-600">
+            <span id="password-confirm-error" role="alert" className="text-xs font-normal text-rose-600">
               {t("auth.register.passwordConfirm.error")}
             </span>
           )}
@@ -199,7 +202,7 @@ export function RegisterForm() {
             className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
           />
         </label>
-        {error && <p className="text-sm font-medium text-rose-600">{error}</p>}
+        {error && <p id="register-error" role="alert" className="text-sm font-medium text-rose-600">{error}</p>}
         <div className="grid gap-3 md:grid-cols-2">
           <button
             type="submit"

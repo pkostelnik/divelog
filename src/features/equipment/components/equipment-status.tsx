@@ -340,7 +340,11 @@ export function EquipmentStatus() {
                   </div>
                   <div className="flex flex-col items-end gap-3 sm:flex-row sm:items-center">
                     <div className="flex items-center gap-3">
+                      <label className="sr-only" htmlFor={`status-${item.id}`}>
+                        {t("dashboard.equipment.form.fields.status.label")}
+                      </label>
                       <select
+                        id={`status-${item.id}`}
                         value={item.status}
                         onChange={handleStatusChange(item.id)}
                         className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600 shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"

@@ -272,20 +272,26 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
             {t("dashboard.dives.form.fields.title.label")}
             <input
               name="title"
+              id="dive-title"
               value={form.title}
               onChange={handleChange}
               placeholder={t("dashboard.dives.form.fields.title.placeholder")}
               className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+              aria-invalid={!!errors.title}
+              aria-describedby={errors.title ? "dive-title-error" : undefined}
             />
-            {errors.title && <span className="text-xs font-normal text-rose-600">{errors.title}</span>}
+            {errors.title && <span id="dive-title-error" role="alert" className="text-xs font-normal text-rose-600">{errors.title}</span>}
           </label>
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
             {t("dashboard.dives.form.fields.diver.label")}
             <select
               name="diverId"
+              id="dive-diver"
               value={form.diverId}
               onChange={handleChange}
               className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+              aria-invalid={!!errors.diverId}
+              aria-describedby={errors.diverId ? "dive-diver-error" : undefined}
             >
               <option value="" disabled>
                 {t("dashboard.dives.form.fields.diver.placeholder")}
@@ -296,7 +302,7 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
                 </option>
               ))}
             </select>
-            {errors.diverId && <span className="text-xs font-normal text-rose-600">{errors.diverId}</span>}
+            {errors.diverId && <span id="dive-diver-error" role="alert" className="text-xs font-normal text-rose-600">{errors.diverId}</span>}
           </label>
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-600">
             {t("dashboard.dives.form.fields.logNumber.label")}
@@ -469,11 +475,13 @@ export function AddDiveLogForm({ initialValue, onSubmitSuccess, onCancelEdit }: 
             </button>
           )}
         </div>
-        {status === "success" && !hasErrors && (
-          <p className="text-xs font-semibold text-emerald-600">
-            {t("dashboard.dives.form.status.success")}
-          </p>
-        )}
+        <div role="status" aria-live="polite" aria-atomic="true">
+          {status === "success" && !hasErrors && (
+            <p className="text-xs font-semibold text-emerald-600">
+              {t("dashboard.dives.form.status.success")}
+            </p>
+          )}
+        </div>
       </form>
     </section>
   );

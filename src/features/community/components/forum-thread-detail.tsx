@@ -113,7 +113,7 @@ function ReplyForm({ onSubmit, currentUserId, currentUserName, anonymousAuthorId
           />
         </label>
       </div>
-      {error && <p className="text-xs font-medium text-rose-600">{error}</p>}
+      {error && <p role="alert" className="text-xs font-medium text-rose-600">{error}</p>}
       <div className="flex justify-end">
         <button
           type="submit"
@@ -629,6 +629,7 @@ export function ForumThreadDetail({ threadId }: ForumThreadDetailProps) {
         </div>
         {threadAlert && (
           <p
+            role="alert"
             className={`text-xs font-semibold ${
               threadAlert.variant === "error" ? "text-rose-600" : "text-emerald-600"
             }`}
@@ -759,6 +760,7 @@ export function ForumThreadDetail({ threadId }: ForumThreadDetailProps) {
                   )}
                   {replyAlerts[reply.id] && (
                     <p
+                      role="alert"
                       className={`text-[11px] font-semibold ${
                         replyAlerts[reply.id]?.variant === "error"
                           ? "text-rose-600"

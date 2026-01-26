@@ -88,10 +88,10 @@ export default function LandingPage() {
       {/* Hero Section with Ocean Background */}
       <section className="relative overflow-hidden bg-gradient-to-b from-ocean-900 via-ocean-800 to-ocean-700 transition-colors dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
         {/* Dark Overlay for better contrast */}
-        <div className="absolute inset-0 bg-black/30"></div>
+        <div className="absolute inset-0 bg-black/30" aria-hidden="true"></div>
         
         {/* Animated Background Pattern */}
-        <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 600%22><defs><pattern id=%22ocean%22 x=%220%22 y=%220%22 width=%22100%22 height=%22100%22 patternUnits=%22userSpaceOnUse%22><path d=%22M0,50 Q25,30 50,50 T100,50%22 fill=%22none%22 stroke=%22rgba(255,255,255,0.1)%22 stroke-width=%222%22/><circle cx=%2220%22 cy=%2230%22 r=%222%22 fill=%22rgba(255,255,255,0.15)%22/><circle cx=%2280%22 cy=%2270%22 r=%223%22 fill=%22rgba(255,255,255,0.1)%22/></pattern></defs><rect width=%221200%22 height=%22600%22 fill=%22url(%23ocean)%22/></svg>')] opacity-30 animate-pulse"></div>
           
           {/* Floating Elements */}

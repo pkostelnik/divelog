@@ -575,7 +575,9 @@ function MediaHighlightPreview({ item, unsupportedMessage }: { item: MediaItem; 
         controls
         className="h-48 w-full bg-slate-900 object-cover"
         src={item.url}
+        aria-label={item.title}
       >
+        <track kind="captions" label="Captions" />
         {unsupportedMessage}
       </video>
     );

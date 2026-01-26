@@ -934,6 +934,8 @@ export function CommunityHighlights() {
       <h2 className="text-lg font-semibold text-slate-900">{t("dashboard.community.highlights.heading")}</h2>
       {globalAlert && (
         <p
+          role="alert"
+          aria-live="polite"
           className={`rounded-xl border px-4 py-3 text-xs font-semibold ${globalAlert.variant === "error" ? "border-rose-200 bg-rose-50 text-rose-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}
         >
           {globalAlert.message}
@@ -1219,6 +1221,8 @@ export function CommunityHighlights() {
               )}
               {alert && (
                 <p
+                  role="alert"
+                  aria-live="polite"
                   className={`mt-3 text-xs font-semibold ${
                     alert.variant === "error" ? "text-rose-600" : "text-emerald-600"
                   }`}
@@ -1314,10 +1318,20 @@ function AttachmentPreviewOverlay({
   onClose: () => void;
 }) {
   const { t } = useI18n();
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
+    // Focus the close button when opened
+    closeButtonRef.current?.focus();
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         onClose();
+      }
+      // Keep focus within the dialog
+      if (event.key === "Tab") {
+        event.preventDefault();
+        closeButtonRef.current?.focus();
       }
     };
 
@@ -1353,6 +1367,7 @@ function AttachmentPreviewOverlay({
         onClick={(event) => event.stopPropagation()}
       >
         <button
+          ref={closeButtonRef}
           type="button"
           onClick={onClose}
           className="absolute right-4 top-4 inline-flex items-center justify-center rounded-full border border-slate-600 bg-slate-900/70 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-200 transition hover:border-slate-400 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-400"
