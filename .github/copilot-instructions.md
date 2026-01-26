@@ -18,7 +18,7 @@ This is a modern dive log web application built with Next.js, TypeScript, Tailwi
 - Responsive Design
 
 ## Tech Stack
-- Next.js 15+ with TypeScript
+- Next.js 16+ with TypeScript
 - Tailwind CSS for styling
 - Azure Cosmos DB for data storage
 - Modern authentication system
@@ -30,3 +30,4 @@ This is a modern dive log web application built with Next.js, TypeScript, Tailwi
 - Implement proper error handling and validation
 - Use Azure Cosmos DB best practices for data modeling
 - Ensure responsive design across devices
+- Ensure full accessibility compatibility across all devices

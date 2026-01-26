@@ -420,21 +420,78 @@ type LanguageSwitcherProps = {
   label: string;
 };
 
+function FlagIcon({ locale }: { locale: SupportedLocale }) {
+  if (locale === "de") {
+    return (
+      <svg viewBox="0 0 640 480" className="h-4 w-5 shrink-0" aria-hidden="true">
+        <path fill="#000" d="M0 0h640v160H0z" />
+        <path fill="#D00" d="M0 160h640v160H0z" />
+        <path fill="#FFCE00" d="M0 320h640v160H0z" />
+      </svg>
+    );
+  }
+  // English (US)
+  return (
+    <svg viewBox="0 0 640 480" className="h-4 w-5 shrink-0" aria-hidden="true">
+      <path fill="#BD3D44" d="M0 0h640v37H0zm0 74h640v37H0zm0 73h640v37H0zm0 74h640v37H0zm0 73h640v37H0zm0 74h640v36H0z" />
+      <path fill="#FFF" d="M0 37h640v37H0zm0 73h640v37H0zm0 74h640v37H0zm0 73h640v37H0zm0 74h640v37H0z" />
+      <path fill="#192F5D" d="M0 0h256v259H0z" />
+      <path fill="#FFF" d="m22 22 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm22 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zM11 41l3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm22 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zM22 59l3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm22 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zM11 78l3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm22 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zM22 97l3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm22 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zM11 115l3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm22 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zM22 134l3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm22 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zM11 152l3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm22 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zM22 171l3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm22 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zM11 190l3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm22 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zM22 208l3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm22 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zM11 227l3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm22 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zM22 245l3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm22 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6zm21 0 3 9-8-6h10l-8 6z" />
+    </svg>
+  );
+}
+
 function LanguageSwitcher({ currentLocale, setLocale, availableLocales, label }: LanguageSwitcherProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const currentOption = availableLocales.find((opt) => opt.value === currentLocale);
+
   return (
     <div className="relative inline-flex">
-      <select
+      <button
+        type="button"
         aria-label={label}
-        value={currentLocale}
-        onChange={(event) => setLocale(event.target.value as SupportedLocale)}
-        className="appearance-none rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-ocean-300 focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+        onClick={() => setIsOpen(!isOpen)}
+        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-ocean-300 focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
       >
-        {availableLocales.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.flag} {option.label}
-          </option>
-        ))}
-      </select>
+        <FlagIcon locale={currentLocale} />
+        <span>{currentOption?.label ?? currentLocale.toUpperCase()}</span>
+      </button>
+      {isOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setIsOpen(false)}
+            aria-hidden="true"
+          />
+          <ul
+            role="listbox"
+            aria-label={label}
+            className="absolute right-0 top-full z-50 mt-1 min-w-[140px] rounded-xl border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-900"
+          >
+            {availableLocales.map((option) => (
+              <li key={option.value} role="option" aria-selected={option.value === currentLocale}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLocale(option.value);
+                    setIsOpen(false);
+                  }}
+                  className={`flex w-full items-center gap-2 px-3 py-2 text-sm transition hover:bg-ocean-50 dark:hover:bg-ocean-900/30 ${
+                    option.value === currentLocale
+                      ? "font-semibold text-ocean-700 dark:text-ocean-300"
+                      : "text-slate-600 dark:text-slate-300"
+                  }`}
+                >
+                  <FlagIcon locale={option.value} />
+                  <span>{option.label}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   );
 }

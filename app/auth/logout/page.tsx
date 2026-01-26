@@ -16,7 +16,7 @@ export default function LogoutPage() {
     // Perform logout and redirect immediately without delay
     logout();
     router.push("/");
-  }, []);
+  }, [logout, router]);
 
   return (
     <section className="bg-gradient-to-b from-white via-slate-50 to-slate-100 py-20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">

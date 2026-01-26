@@ -155,7 +155,7 @@ export function LoginForm() {
                 onClick={() => handleLocaleDemoLogin(option.value)}
                 className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-ocean-700 shadow-sm transition hover:border-ocean-400 hover:text-ocean-800"
               >
-                {t("auth.login.demo.locale.option").replace("{label}", option.label)}
+                {option.flag} {t("auth.login.demo.locale.option").replace("{label}", option.label)}
               </button>
             ))}
           </div>
