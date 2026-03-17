@@ -1,5 +1,8 @@
 import { communityPosts } from "@/data/mock-data";
+import { withErrorHandler } from "../_helpers";
 
-export async function GET() {
-  return Response.json(communityPosts);
-}
+export const GET = withErrorHandler(async () => {
+  return Response.json(communityPosts, {
+    headers: { "Cache-Control": "private, no-store" }
+  });
+});

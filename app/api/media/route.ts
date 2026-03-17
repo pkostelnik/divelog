@@ -1,5 +1,8 @@
 import { media } from "@/data/mock-data";
+import { withErrorHandler } from "../_helpers";
 
-export async function GET() {
-  return Response.json(media);
-}
+export const GET = withErrorHandler(async () => {
+  return Response.json(media, {
+    headers: { "Cache-Control": "private, no-store" }
+  });
+});

@@ -66,10 +66,17 @@ export function createNotification(
   };
 }
 
+function generateId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 export function createMember(
   data: Omit<MemberProfile, "id" | "type" | "userId">
 ): Omit<MemberProfile, "id"> {
-  const userId = `member-${Date.now()}`;
+  const userId = `member-${generateId()}`;
   return {
     ...data,
     type: "user",

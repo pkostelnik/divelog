@@ -1,5 +1,8 @@
 import { diveLogs } from "@/data/mock-data";
+import { withErrorHandler } from "../_helpers";
 
-export async function GET() {
-  return Response.json(diveLogs);
-}
+export const GET = withErrorHandler(async () => {
+  return Response.json(diveLogs, {
+    headers: { "Cache-Control": "private, no-store" }
+  });
+});

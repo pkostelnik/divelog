@@ -1,5 +1,8 @@
 import { notifications } from "@/data/mock-data";
+import { withErrorHandler } from "../_helpers";
 
-export async function GET() {
-  return Response.json(notifications);
-}
+export const GET = withErrorHandler(async () => {
+  return Response.json(notifications, {
+    headers: { "Cache-Control": "private, no-store" }
+  });
+});
