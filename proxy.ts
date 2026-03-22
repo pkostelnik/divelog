@@ -1,11 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server";
 
 /**
- * Next.js Middleware
+ * Next.js Proxy
  *
  * Applies additional security measures to API routes and protects
  * authenticated routes. In the current demo setup authentication is
- * handled client-side so the middleware focuses on:
+ * handled client-side so the proxy focuses on:
  *
  *  1. Rate-limiting API calls (simple in-memory, per-IP, sliding window)
  *  2. Adding CSRF-style protection for mutating API requests
@@ -57,9 +57,9 @@ if (typeof globalThis !== "undefined") {
 }
 
 // ---------------------------------------------------------------------------
-// Middleware handler
+// Proxy handler
 // ---------------------------------------------------------------------------
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // ---- Rate limiting for API routes ----

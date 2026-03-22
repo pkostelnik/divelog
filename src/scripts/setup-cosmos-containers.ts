@@ -31,7 +31,7 @@ async function setupContainers() {
 
   // Container 1: users-and-social
   console.log("📦 Creating container: users-and-social");
-  const { container: usersSocial } = await database.containers.createIfNotExists({
+  await database.containers.createIfNotExists({
     id: "users-and-social",
     partitionKey: {
       paths: ["/userId"],
@@ -50,7 +50,7 @@ async function setupContainers() {
 
   // Container 2: dive-content
   console.log("📦 Creating container: dive-content");
-  const { container: diveContent } = await database.containers.createIfNotExists({
+  await database.containers.createIfNotExists({
     id: "dive-content",
     partitionKey: {
       paths: ["/ownerId"],

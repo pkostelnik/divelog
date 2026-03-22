@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useEffect, useMemo, useState, type KeyboardEvent } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import type { Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -144,16 +144,6 @@ function DiveSiteMapComponent({ mode = "visited" }: DiveSiteMapProps) {
       }
     },
     [markers, mapInstance]
-  );
-
-  const handleKeySelect = useCallback(
-    (event: KeyboardEvent<SVGGElement>, id: string) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        handleMarkerSelect(id);
-      }
-    },
-    [handleMarkerSelect]
   );
 
   const handleResetView = useCallback(() => {

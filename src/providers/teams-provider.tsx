@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import * as microsoftTeams from '@microsoft/teams-js';
 
 interface TeamsContext {
@@ -58,7 +58,7 @@ export function TeamsProvider({ children }: TeamsProviderProps) {
           team: teamsContext.team?.groupId,
           channel: teamsContext.channel?.id,
         });
-      } catch (error) {
+      } catch {
         // Not running in Teams - this is normal for web browser access
         setIsInTeams(false);
         console.log('[Teams] Running in web browser mode');
@@ -70,7 +70,7 @@ export function TeamsProvider({ children }: TeamsProviderProps) {
     initTeams();
   }, []);
 
-  const getAuthToken = async (): Promise<string | null> => {
+  const getAuthToken = useCallback(async (): Promise<string | null> => {
     if (!isInTeams) {
       return null;
     }
@@ -82,9 +82,9 @@ export function TeamsProvider({ children }: TeamsProviderProps) {
       console.error('[Teams] Failed to get auth token:', error);
       return null;
     }
-  };
+  }, [isInTeams]);
 
-  const value: TeamsContext = {
+  const value = useMemo<TeamsContext>(() => ({
     isInTeams,
     isInitialized,
     context,
@@ -93,7 +93,7 @@ export function TeamsProvider({ children }: TeamsProviderProps) {
     teamId: context?.team?.groupId,
     channelId: context?.channel?.id,
     getAuthToken,
-  };
+  }), [isInTeams, isInitialized, context, theme, getAuthToken]);
 
   return <TeamsContext.Provider value={value}>{children}</TeamsContext.Provider>;
 }

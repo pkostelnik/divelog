@@ -10,6 +10,10 @@ export default function MembersPage() {
   const { currentUser } = useAuth();
   const { t } = useI18n();
 
+  const hint = t("dashboard.members.access.denied.hint");
+  const [hintBefore, hintRest] = hint.split("{profile}");
+  const [hintBetween, hintAfter] = (hintRest ?? "").split("{login}");
+
   if (!currentUser || currentUser.role !== "admin") {
     return (
       <div className="space-y-6">
@@ -21,16 +25,15 @@ export default function MembersPage() {
         </header>
         <div className="rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-sm">
           <p>
-            {t("dashboard.members.access.denied.hint", "Wechsle zu deinem {profile} oder nutze den Demo-Admin-Zugang über die {login}.")
-              .replace("{profile}", "")}
+            {hintBefore}
             <Link href="/dashboard/profile" className="text-ocean-600 hover:underline">
               {t("dashboard.members.access.denied.profile")}
             </Link>
-            {" " + t("dashboard.members.access.denied.hint").split("{profile}")[1].split("{login}")[0]}
+            {hintBetween}
             <Link href="/auth/login" className="text-ocean-600 hover:underline">
               {t("dashboard.members.access.denied.login")}
             </Link>
-            .
+            {hintAfter}
           </p>
         </div>
       </div>

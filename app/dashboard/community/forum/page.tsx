@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-
 import { CommunityForumBoard } from "@/features/community/components/community-forum-board";
 import { ForumThreadForm } from "@/features/community/components/forum-thread-form";
 import { useAuth } from "@/providers/auth-provider";

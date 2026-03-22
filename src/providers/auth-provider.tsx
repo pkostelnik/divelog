@@ -150,7 +150,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 }
 
 function sanitize(member: InternalMember): PublicMember {
-  const { password, ...rest } = member;
+  const { password: _password, ...rest } = member;
   return rest;
 }
 
@@ -177,16 +177,17 @@ function broadcastPreferredLocale(locale: SupportedLocale) {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
   const teams = useTeams();
+  const { isInitialized: teamsIsInitialized, isInTeams, getAuthToken } = teams;
 
   // Auto-login via Teams SSO when in Teams context
   useEffect(() => {
     const attemptTeamsLogin = async () => {
-      if (!teams.isInitialized || !teams.isInTeams || state.currentUser) {
+      if (!teamsIsInitialized || !isInTeams || state.currentUser) {
         return;
       }
 
       try {
-        const token = await teams.getAuthToken();
+        const token = await getAuthToken();
         if (!token) {
           console.log('[Auth] Teams SSO token not available, using web auth');
           return;
@@ -206,7 +207,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     attemptTeamsLogin();
-  }, [teams.isInitialized, teams.isInTeams, state.currentUser, state.members, teams]);
+  }, [teamsIsInitialized, isInTeams, getAuthToken, state.currentUser, state.members]);
 
   const value = useMemo<AuthContextValue>(() => {
     const publicMembers = state.members.map(sanitize);
@@ -318,7 +319,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: "Tauchgänge müssen eine Zahl sein." };
       }
 
-  const sanitized: Partial<Omit<InternalMember, "id" | "password">> = { ...payload.data };
+      const sanitized: Partial<Omit<InternalMember, "id" | "password">> = { ...payload.data };
 
       if ("name" in sanitized && typeof sanitized.name === "string") {
         sanitized.name = sanitized.name.trim();
@@ -410,7 +411,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return {
       members: publicMembers,
       currentUser: publicCurrent,
-      isTeamsAuth: teams.isInTeams && !!publicCurrent,
+      isTeamsAuth: isInTeams && !!publicCurrent,
       login,
       loginAsDemoMember: () => loginByRole("member"),
       loginAsDemoAdmin: () => loginByRole("admin"),
@@ -421,7 +422,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       removeMember,
       logout
     };
-  }, [state, teams.isInTeams]);
+  }, [state, isInTeams]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
