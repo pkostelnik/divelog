@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -11,8 +11,14 @@ export default function LogoutPage() {
   const { t } = useI18n();
   const { logout } = useAuth();
   const router = useRouter();
+  const didLogoutRef = useRef(false);
 
   useEffect(() => {
+    if (didLogoutRef.current) {
+      return;
+    }
+
+    didLogoutRef.current = true;
     // Perform logout and redirect immediately without delay
     logout();
     router.push("/");
