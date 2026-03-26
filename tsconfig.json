@@ -19,25 +19,24 @@
     "jsx": "react-jsx",
     "incremental": true,
     "tsBuildInfoFile": ".tsbuildinfo",
-    "baseUrl": ".",
     "paths": {
       "@/components/*": [
-        "src/components/*"
+        "./src/components/*"
       ],
       "@/features/*": [
-        "src/features/*"
+        "./src/features/*"
       ],
       "@/lib/*": [
-        "src/lib/*"
+        "./src/lib/*"
       ],
       "@/providers/*": [
-        "src/providers/*"
+        "./src/providers/*"
       ],
       "@/data/*": [
-        "src/data/*"
+        "./src/data/*"
       ],
       "@/i18n/*": [
-        "src/i18n/*"
+        "./src/i18n/*"
       ]
     },
     "plugins": [
