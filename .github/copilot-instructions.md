@@ -2,6 +2,12 @@
 
 # Dive Log Web Application
 This is a modern dive log web application built with Next.js, TypeScript, Tailwind CSS, and Azure Cosmos DB.
+Always create a README.md for GitHub repositories. The README.md should include the following sections:
+- screenshots of the application
+- features list
+- tech stack
+- development guidelines
+- multilangual support (if applicable)
 
 ## Features
 - User Management
