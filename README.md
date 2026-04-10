@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![DiveLog Studio](public/assets/DiveLogStudio.png)
+![DiveLog Studio](public/assets/Copilot_20260410_212123.png)
 
 **Moderne Dive-Log-Plattform für Gerätetaucher**
 
@@ -46,11 +46,11 @@ npm run dev
 ### 📋 Features
 
 #### Branding & Design
-- Taucher-Logo mit Ozean-Farbgradient (Cyan → Smaragd)
+- Illustriertes DiveLog-Branding als zentrales App-, PWA- und Browser-Icon
 - 5 Farbpaletten: Ocean, Abyss, Coral, Sand, Reef
 - Glasmorphe Header/Footer mit Backdrop-Blur
 - Wellenteiler-SVG zwischen Sektionen
-- Dynamische Favicon-Generierung (Browser + Apple)
+- Einheitliche PNG-Icons fuer Browser, Apple Touch und Web App Manifest
 
 #### Authentifizierung & Konto
 - Login via E-Mail/Passwort oder Demo-Zugänge (Member/Admin)

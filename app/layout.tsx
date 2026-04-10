@@ -42,8 +42,8 @@ export const metadata: Metadata = {
     telephone: false,
   },
   icons: {
-    icon: '/icon',
-    apple: '/apple-icon',
+    icon: '/assets/Copilot_20260410_212123.png?v=2',
+    apple: '/assets/Copilot_20260410_212123.png?v=2',
   },
   manifest: '/manifest.json',
   
