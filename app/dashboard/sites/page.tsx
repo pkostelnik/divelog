@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import Image from "next/image";
+
 import { DiveSiteGallery } from "@/features/sites/components/dive-site-gallery";
 import { useI18n } from "@/providers/i18n-provider";
 
@@ -11,6 +13,17 @@ export default function DashboardSitesPage() {
 
   return (
     <div className="space-y-6">
+      {/* Sites Hero Banner */}
+      <div className="relative -m-8 mb-0 overflow-hidden rounded-t-3xl">
+        <Image
+          src="https://images.unsplash.com/photo-1682687218982-6c508299e107?auto=format&fit=crop&w=1400&q=70"
+          alt="Kristallklares tropisches Wasser über Korallenriff"
+          width={1400}
+          height={400}
+          className="h-36 w-full object-cover sm:h-44"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/60 to-transparent dark:from-[#0c1f2e] dark:via-[#0c1f2e]/60"></div>
+      </div>
       <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-2">
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">{t("dashboard.sites.heading")}</h1>

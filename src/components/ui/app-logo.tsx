@@ -27,13 +27,14 @@ export function AppLogo({ variant = "icon", size = "md" }: AppLogoProps) {
         <title id="divelog-logo-title">DiveLog Studio Logo</title>
         {/* Gradient Definitions */}
         <defs>
-          <linearGradient id="oceanGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#0EA5E9" />
-            <stop offset="100%" stopColor="#0369A1" />
+          <linearGradient id="oceanGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#06b6d4" />
+            <stop offset="50%" stopColor="#0891b2" />
+            <stop offset="100%" stopColor="#047857" />
           </linearGradient>
           <linearGradient id="bubbleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#0EA5E9" stopOpacity="0.6" />
+            <stop offset="0%" stopColor="#67e8f9" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#34d399" stopOpacity="0.6" />
           </linearGradient>
         </defs>
         

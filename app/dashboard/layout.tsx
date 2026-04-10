@@ -17,10 +17,10 @@ function isGuestAccessible(path: string | null): boolean {
 
 function AccessDenied() {
   return (
-    <div className="bg-slate-100 py-12" role="alert">
+    <div className="bg-gradient-to-b from-ocean-50/50 to-white py-12 dark:from-slate-900 dark:to-slate-950" role="alert">
       <div className="mx-auto w-full max-w-3xl px-6">
-        <div className="space-y-4 rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Anmeldung erforderlich</h1>
+        <div className="space-y-4 rounded-3xl border border-ocean-100/50 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Anmeldung erforderlich</h1>
           <p className="text-sm text-slate-600">
             Bitte melde dich an, um auf diesen Bereich zuzugreifen. Die Community-Inhalte bleiben als Leseansicht frei zugänglich.
           </p>
@@ -56,9 +56,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="bg-slate-100 py-12">
+    <div className="bg-gradient-to-b from-ocean-50/50 to-white py-12 dark:from-slate-900 dark:to-slate-950">
       <div className="mx-auto w-full max-w-6xl px-6">
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+        <div className="rounded-3xl border border-ocean-100/50 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
           {children}
         </div>
       </div>

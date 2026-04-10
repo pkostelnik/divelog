@@ -6,13 +6,13 @@
 :root {
   color-scheme: light;
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background-color: #f8fafc;
+  background-color: #f0fdfa;
   color: #0f172a;
 }
 
 .dark {
   color-scheme: dark;
-  background-color: #0b1120;
+  background-color: #0a1628;
   color: #e2e8f0;
 }
 
@@ -61,84 +61,97 @@ form textarea {
   min-height: 5rem;
 }
 
-/* Dark mode overrides */
+/* Dark mode overrides — deep tropical ocean theme */
 .dark body {
-  background-color: #0b1120;
-  color: #e2e8f0;
+  background-color: #071620;
+  color: #e0f2fe;
 }
 
 .dark .bg-white {
-  background-color: #111c2f !important;
+  background-color: #0c1f2e !important;
 }
 
 .dark .bg-slate-50 {
-  background-color: #0f172a !important;
+  background-color: #0a1a28 !important;
 }
 
 .dark .bg-slate-100 {
-  background-color: #13233d !important;
+  background-color: #0e2236 !important;
 }
 
 .dark .bg-slate-200 {
-  background-color: #1b2f4d !important;
+  background-color: #133044 !important;
 }
 
 .dark .bg-slate-300 {
-  background-color: #213b5d !important;
+  background-color: #1a3d54 !important;
 }
 
 .dark .bg-white\/80 {
-  background-color: rgba(17, 28, 47, 0.8) !important;
+  background-color: rgba(12, 31, 46, 0.85) !important;
 }
 
 .dark .text-slate-900 {
-  color: #f8fafc !important;
+  color: #ecfeff !important;
 }
 
 .dark .text-slate-800 {
-  color: #e2e8f0 !important;
+  color: #cffafe !important;
 }
 
 .dark .text-slate-700 {
-  color: #cbd5f5 !important;
+  color: #a5f3fc !important;
 }
 
 .dark .text-slate-600 {
-  color: #cbd5f5 !important;
+  color: #93c5e8 !important;
 }
 
 .dark .text-slate-500 {
-  color: #94a3b8 !important;
+  color: #6db4d5 !important;
 }
 
 .dark .text-slate-400 {
-  color: #7c8faa !important;
+  color: #5198b8 !important;
 }
 
 .dark .border-slate-200 {
-  border-color: #1d293b !important;
+  border-color: #164e63 !important;
 }
 
 .dark .border-slate-300 {
-  border-color: #24344a !important;
+  border-color: #1a5c74 !important;
 }
 
 .dark .border-ocean-200 {
-  border-color: rgba(20, 150, 255, 0.35) !important;
+  border-color: rgba(34, 211, 238, 0.3) !important;
 }
 
 .dark .bg-ocean-50 {
-  background-color: rgba(20, 150, 255, 0.15) !important;
+  background-color: rgba(6, 182, 212, 0.12) !important;
 }
 
 .dark .text-ocean-600 {
-  color: rgba(110, 220, 255, 0.9) !important;
+  color: #22d3ee !important;
 }
 
 .dark .text-ocean-700 {
-  color: rgba(135, 226, 255, 0.85) !important;
+  color: #67e8f9 !important;
 }
 
 .dark .shadow-sm {
-  box-shadow: 0 10px 25px rgba(8, 15, 35, 0.45) !important;
+  box-shadow: 0 10px 25px rgba(4, 20, 35, 0.6) !important;
+}
+
+/* Accent color dark overrides */
+.dark .bg-ocean-600 {
+  background-color: #0891b2 !important;
+}
+
+.dark .hover\:bg-ocean-700:hover {
+  background-color: #0e7490 !important;
+}
+
+.dark .border-ocean-100\/50 {
+  border-color: rgba(6, 182, 212, 0.15) !important;
 }

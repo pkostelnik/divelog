@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 import { useI18n } from "@/providers/i18n-provider";
@@ -25,6 +26,17 @@ export default function DashboardCommunityPage() {
 
   return (
     <div className="space-y-8">
+      {/* Community Hero Banner */}
+      <div className="relative -m-8 mb-0 overflow-hidden rounded-t-3xl">
+        <Image
+          src="https://images.unsplash.com/photo-1583212292454-1fe6229603b7?auto=format&fit=crop&w=1400&q=70"
+          alt="Gruppe von Tauchern im tropischen Meer"
+          width={1400}
+          height={400}
+          className="h-36 w-full object-cover sm:h-44"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/60 to-transparent dark:from-[#0c1f2e] dark:via-[#0c1f2e]/60"></div>
+      </div>
       <header className="space-y-2">
         <h1 className="text-2xl font-bold tracking-tight text-slate-900">{t("dashboard.community.heading")}</h1>
         <p className="text-sm text-slate-600">

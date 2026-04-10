@@ -112,7 +112,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="de" className={inter.className}>
-      <body className="min-h-screen bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
+      <body className="min-h-screen bg-gradient-to-b from-ocean-50/30 to-white text-slate-900 antialiased dark:from-[#071620] dark:to-[#0a1a28] dark:text-ocean-50">
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-ocean-600 focus:px-4 focus:py-2 focus:text-white focus:outline-none focus:ring-2 focus:ring-ocean-400"

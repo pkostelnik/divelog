@@ -85,11 +85,11 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="relative z-50 border-b border-slate-200 bg-white/80 backdrop-blur transition-colors dark:border-slate-800 dark:bg-slate-900/80">
+    <header className="relative z-50 border-b border-ocean-100/50 bg-white/90 backdrop-blur-md transition-colors dark:border-slate-800 dark:bg-slate-900/90">
       <div className="mx-auto flex h-16 w-full items-center justify-between px-6">
         <Link href={teams.isInTeams ? "/dashboard" : "/"} className="flex items-center gap-2">
           <AppLogo />
-          <span className="text-lg font-semibold tracking-tight text-slate-900 transition-colors dark:text-slate-100">
+          <span className="bg-gradient-to-r from-ocean-700 to-ocean-500 bg-clip-text text-lg font-bold tracking-tight text-transparent transition-colors dark:from-ocean-300 dark:to-ocean-500">
             DiveLog Studio
             {isTeamsAuth && (
               <span className="ml-2 text-xs text-slate-500 dark:text-slate-400">• Teams</span>
@@ -131,7 +131,7 @@ export function SiteHeader() {
                         {t(item.labelKey)}
                         <span className="sr-only"> (has submenu)</span>
                       </Link>
-                        <div role="menu" aria-label={`${t(item.labelKey)} submenu`} className="pointer-events-none absolute left-0 top-full z-40 hidden w-52 -translate-y-1 flex-col rounded-xl border border-slate-200 bg-white py-2 text-sm opacity-0 shadow-2xl transition will-change-transform group-hover:pointer-events-auto group-hover:flex group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:flex group-focus-within:translate-y-0 group-focus-within:opacity-100 dark:border-slate-700 dark:bg-slate-900">
+                        <div role="menu" aria-label={`${t(item.labelKey)} submenu`} className="pointer-events-none absolute left-0 top-full z-40 hidden w-52 -translate-y-1 flex-col rounded-xl border border-ocean-100 bg-white/95 py-2 text-sm opacity-0 shadow-2xl backdrop-blur-sm transition will-change-transform group-hover:pointer-events-auto group-hover:flex group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:flex group-focus-within:translate-y-0 group-focus-within:opacity-100 dark:border-ocean-800/40 dark:bg-[#0c1f2e]/95">
                         {item.children.map((child) => (
                           <Link
                             key={child.href}
@@ -204,13 +204,13 @@ export function SiteHeader() {
               <>
                 <Link
                   href="/auth/login"
-                  className="rounded-full border border-slate-200 px-3 py-1 text-sm transition hover:border-ocean-300 hover:text-ocean-700"
+                  className="rounded-full border border-ocean-200 px-3 py-1 text-sm text-ocean-700 transition hover:border-ocean-400 hover:bg-ocean-50 dark:border-ocean-700 dark:text-ocean-200 dark:hover:border-ocean-500 dark:hover:bg-ocean-900/30"
                 >
                   {t("header.auth.login")}
                 </Link>
                 <Link
                   href="/auth/register"
-                  className="rounded-full bg-ocean-600 px-3 py-1 text-sm text-white transition hover:bg-ocean-700"
+                  className="rounded-full bg-gradient-to-r from-ocean-500 to-ocean-600 px-3 py-1 text-sm text-white shadow-sm shadow-ocean-500/20 transition hover:from-ocean-600 hover:to-ocean-700 dark:from-ocean-600 dark:to-ocean-500"
                 >
                   {t("header.auth.register")}
                 </Link>
@@ -239,7 +239,7 @@ export function SiteHeader() {
       
       {/* Mobile Menu Overlay - sichtbar unter 768px */}
       {isMobileMenuOpen && !teams.isInTeams && (
-        <div id="mobile-menu" className="border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 md:hidden">
+        <div id="mobile-menu" className="border-t border-ocean-100/50 bg-white/95 backdrop-blur-sm dark:border-ocean-800/30 dark:bg-[#0c1f2e]/95 md:hidden">
           <nav aria-label="Mobile navigation" className="container mx-auto flex flex-col px-6 py-4">
             {/* Community Links für alle User */}
             {communityNavLinks.map((item) => {
