@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { Menu, X } from "lucide-react";
 
 import { AppLogo } from "@/components/ui/app-logo";
+import { MemberAvatar } from "@/components/ui/member-avatar";
 import { useAuth } from "@/providers/auth-provider";
 import { useI18n } from "@/providers/i18n-provider";
 import { useTeams } from "@/providers/teams-provider";
@@ -168,12 +169,13 @@ export function SiteHeader() {
               <>
                 <Link
                   href="/dashboard/profile"
-                  className="inline-flex items-center gap-2 rounded-full border border-ocean-200 bg-ocean-50 px-3 py-1 text-xs font-semibold text-ocean-700 transition hover:border-ocean-300 hover:bg-ocean-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:border-ocean-400"
+                  className="inline-flex items-center gap-2 rounded-full border border-ocean-200 bg-ocean-50 px-1.5 py-1 text-xs font-semibold text-ocean-700 transition hover:border-ocean-300 hover:bg-ocean-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:border-ocean-400"
                 >
+                  <MemberAvatar name={currentUser.name} email={currentUser.email} avatarUrl={currentUser.avatarUrl} size="sm" />
                   <span className="text-[11px] uppercase tracking-wide text-ocean-600">
                     {currentUser.role === "admin" ? t("header.role.admin") : t("header.role.member")}
                   </span>
-                  <span className="text-sm text-ocean-800 dark:text-slate-100">{firstName || currentUser.name}</span>
+                  <span className="pr-1.5 text-sm text-ocean-800 dark:text-slate-100">{firstName || currentUser.name}</span>
                 </Link>
                 <button
                   type="button"

@@ -341,6 +341,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         sanitized.favoriteDiveSite = sanitized.favoriteDiveSite.trim();
       }
 
+      if ("avatarUrl" in sanitized) {
+        if (typeof sanitized.avatarUrl === "string") {
+          const trimmed = sanitized.avatarUrl.trim();
+          if (trimmed === "") {
+            sanitized.avatarUrl = undefined;
+          } else if (/^https:\/\//i.test(trimmed)) {
+            sanitized.avatarUrl = trimmed;
+          } else {
+            delete sanitized.avatarUrl;
+          }
+        } else {
+          sanitized.avatarUrl = undefined;
+        }
+      }
+
       if ("certifications" in sanitized && Array.isArray(sanitized.certifications)) {
         sanitized.certifications = sanitized.certifications.map((cert) => cert.trim()).filter(Boolean);
       }

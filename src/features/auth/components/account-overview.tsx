@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { MemberAvatar } from "@/components/ui/member-avatar";
 import { useAuth } from "@/providers/auth-provider";
 import { useI18n } from "@/providers/i18n-provider";
 import { type SupportedLocale } from "@/i18n/translations";
@@ -32,6 +33,9 @@ export function AccountOverview() {
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [selectedLocale, setSelectedLocale] = useState<SupportedLocale>(currentUser?.preferredLocale ?? locale);
   const [languageStatus, setLanguageStatus] = useState<"idle" | "saving">("idle");
+  const [avatarUrlInput, setAvatarUrlInput] = useState(currentUser?.avatarUrl ?? "");
+  const [avatarMode, setAvatarMode] = useState<"gravatar" | "custom">(currentUser?.avatarUrl ? "custom" : "gravatar");
+  const [avatarSaving, setAvatarSaving] = useState(false);
 
   useEffect(() => {
     if (currentUser?.preferredLocale) {
@@ -169,11 +173,19 @@ export function AccountOverview() {
 
   return (
     <section className="space-y-6">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-          {greeting}
-        </h1>
-        <p className="text-sm text-slate-600">{t("auth.account.welcome")}</p>
+      <header className="flex items-center gap-4">
+        <MemberAvatar
+          name={currentUser.name}
+          email={currentUser.email}
+          avatarUrl={currentUser.avatarUrl}
+          size="xl"
+        />
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            {greeting}
+          </h1>
+          <p className="text-sm text-slate-600">{t("auth.account.welcome")}</p>
+        </div>
       </header>
       <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
         <article className="space-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -279,6 +291,76 @@ export function AccountOverview() {
                 {languageStatus === "saving"
                   ? t("auth.account.language.saving")
                   : t("auth.account.language.save")}
+              </button>
+            </div>
+            {/* Avatar Settings Panel */}
+            <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Avatar</p>
+                <p className="text-xs text-slate-500">Wähle einen eigenen Avatar oder nutze deinen Gravatar.</p>
+              </div>
+              <div className="flex items-center justify-center">
+                <MemberAvatar
+                  name={currentUser.name}
+                  email={currentUser.email}
+                  avatarUrl={avatarMode === "custom" ? avatarUrlInput || undefined : undefined}
+                  size="xl"
+                />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setAvatarMode("gravatar"); setAvatarUrlInput(""); }}
+                  className={`flex-1 rounded-xl px-3 py-2 text-xs font-semibold transition ${avatarMode === "gravatar" ? "bg-ocean-600 text-white" : "border border-slate-200 text-slate-600 hover:border-ocean-300"}`}
+                >
+                  Gravatar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAvatarMode("custom")}
+                  className={`flex-1 rounded-xl px-3 py-2 text-xs font-semibold transition ${avatarMode === "custom" ? "bg-ocean-600 text-white" : "border border-slate-200 text-slate-600 hover:border-ocean-300"}`}
+                >
+                  Eigener Avatar
+                </button>
+              </div>
+              {avatarMode === "gravatar" && (
+                <p className="text-[11px] text-slate-500">
+                  Dein Avatar wird automatisch über <a href="https://gravatar.com" target="_blank" rel="noopener noreferrer" className="text-ocean-600 hover:underline">gravatar.com</a> geladen, basierend auf deiner E-Mail-Adresse.
+                </p>
+              )}
+              {avatarMode === "custom" && (
+                <div className="space-y-2">
+                  <input
+                    type="url"
+                    value={avatarUrlInput}
+                    onChange={(e) => setAvatarUrlInput(e.target.value)}
+                    placeholder="https://example.com/mein-avatar.jpg"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm shadow-sm focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                  />
+                  <p className="text-[11px] text-slate-500">Gib eine HTTPS-URL zu deinem Profilbild ein.</p>
+                </div>
+              )}
+              <button
+                type="button"
+                disabled={avatarSaving}
+                onClick={async () => {
+                  if (!currentUser) return;
+                  setAvatarSaving(true);
+                  const newUrl = avatarMode === "custom" ? avatarUrlInput.trim() : "";
+                  const result = await updateMember({
+                    id: currentUser.id,
+                    data: { avatarUrl: newUrl || undefined }
+                  });
+                  setAvatarSaving(false);
+                  if (result.success) {
+                    setActionFeedback({ variant: "success", message: "Avatar gespeichert." });
+                  } else {
+                    setActionFeedback({ variant: "error", message: result.error ?? "Avatar konnte nicht gespeichert werden." });
+                  }
+                }}
+                className="w-full rounded-xl bg-ocean-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-ocean-700 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {avatarSaving ? "Speichern…" : "Avatar speichern"}
               </button>
             </div>
             {showPasswordForm && (

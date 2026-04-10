@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 
 import type { MemberProfile, MemberRole } from "@/data/mock-data";
+import { MemberAvatar } from "@/components/ui/member-avatar";
 import { useAuth } from "@/providers/auth-provider";
 import { useI18n } from "@/providers/i18n-provider";
 
@@ -483,9 +484,12 @@ function MemberCardContent({
       ) : (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-base font-semibold text-slate-900">{member.name}</p>
-              <p className="text-xs text-slate-500">{member.email}</p>
+            <div className="flex items-center gap-3">
+              <MemberAvatar name={member.name} email={member.email} avatarUrl={member.avatarUrl} size="md" />
+              <div>
+                <p className="text-base font-semibold text-slate-900">{member.name}</p>
+                <p className="text-xs text-slate-500">{member.email}</p>
+              </div>
             </div>
             <span className="rounded-full bg-ocean-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-ocean-700">
               {roleLabel(member.role)}

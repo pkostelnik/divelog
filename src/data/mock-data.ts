@@ -112,6 +112,7 @@ export type MemberProfile = {
   favoriteDiveSite: string;
   completedDives: number;
   preferredLocale: SupportedLocale;
+  avatarUrl?: string; // Custom avatar URL, falls back to Gravatar when empty
 };
 
 export type ForumCategory = {
