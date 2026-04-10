@@ -1,3 +1,4 @@
+/** GET /api/dives — Gibt die Liste der Tauchgänge aus den Mock-Daten zurück. */
 import { diveLogs } from "@/data/mock-data";
 import { withErrorHandler } from "../_helpers";
 

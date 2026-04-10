@@ -1,3 +1,6 @@
+/**
+ * Tauchplatz-Galerie — Karten mit Schwierigkeitsgrad und Highlights.
+ */
 "use client";
 
 import Image from "next/image";

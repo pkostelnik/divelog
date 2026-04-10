@@ -1,3 +1,4 @@
+/** GET /api/media — Gibt Medieneinträge aus den Mock-Daten zurück. */
 import { media } from "@/data/mock-data";
 import { withErrorHandler } from "../_helpers";
 

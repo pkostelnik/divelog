@@ -1,3 +1,6 @@
+/**
+ * Globaler Site-Footer mit Copyright und Links zu Impressum/Datenschutz.
+ */
 "use client";
 
 import Link from "next/link";

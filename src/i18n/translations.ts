@@ -1,3 +1,11 @@
+/**
+ * Übersetzungen für die DiveLog Studio App.
+ *
+ * Enthält alle UI-Texte in Deutsch (de) und Englisch (en).
+ * Die Übersetzungsschlüssel sind hierarchisch strukturiert
+ * (z.B. "dashboard.dives.heading") und werden über die
+ * t()-Funktion des I18nProviders aufgelöst.
+ */
 export type SupportedLocale = "de" | "en";
 
 type LocaleOption = {

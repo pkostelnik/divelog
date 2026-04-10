@@ -1,3 +1,4 @@
+/** GET /api/community — Gibt Community-Beiträge aus den Mock-Daten zurück. */
 import { communityPosts } from "@/data/mock-data";
 import { withErrorHandler } from "../_helpers";
 

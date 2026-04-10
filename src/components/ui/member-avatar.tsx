@@ -1,3 +1,12 @@
+/**
+ * Mitglieder-Avatar-Komponente mit dreistufigem Fallback:
+ *
+ * 1. Eigener Avatar (avatarUrl) — vom Nutzer hinterlegte HTTPS-URL
+ * 2. Gravatar — automatisch aus der E-Mail-Adresse generiert (SHA-256)
+ * 3. Initialen — farbiger Gradient-Kreis mit Namensbuchstaben
+ *
+ * Verfügbare Größen: sm (32px), md (40px), lg (56px), xl (96px)
+ */
 "use client";
 
 import { useEffect, useState } from "react";

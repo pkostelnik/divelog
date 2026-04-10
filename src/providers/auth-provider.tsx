@@ -1,3 +1,16 @@
+/**
+ * Authentifizierungs-Provider — verwaltet Benutzeranmeldung, Registrierung
+ * und Mitgliederverwaltung im Client-State (Demo-Modus).
+ *
+ * Unterstützt:
+ * - E-Mail/Passwort-Login
+ * - Demo-Zugänge (Member, Admin, Sprach-Demos)
+ * - Teams-SSO-Auto-Login
+ * - Mitglieder-CRUD (Update, Passwort-Reset, Löschung)
+ * - Avatar-Verwaltung (eigene URL oder Gravatar)
+ *
+ * In Produktion: Durch serverseitige Auth (NextAuth.js o.ä.) ersetzen.
+ */
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useReducer, type ReactNode } from "react";

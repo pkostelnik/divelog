@@ -1,3 +1,6 @@
+/**
+ * Tauchgangs-Formular — Erstellen/Bearbeiten von Tauchlog-Einträgen.
+ */
 "use client";
 
 import { useCallback, useEffect, useId, useMemo, useState, type ChangeEvent, type FormEvent } from "react";

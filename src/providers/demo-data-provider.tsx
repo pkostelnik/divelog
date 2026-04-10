@@ -1,3 +1,10 @@
+/**
+ * Demo-Daten-Provider — stellt Mock-Daten für Tauchgänge, Ausrüstung,
+ * Medien, Tauchplätze, Community-Beiträge und Forum-Threads bereit.
+ *
+ * Ermöglicht CRUD-Operationen im Client-State, ohne Backend-Anbindung.
+ * Daten gehen beim Neuladen verloren (kein Persistenz im Demo-Modus).
+ */
 'use client';
 
 import { createContext, useContext, useMemo, useReducer, type ReactNode } from "react";

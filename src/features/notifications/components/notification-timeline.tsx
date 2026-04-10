@@ -1,3 +1,6 @@
+/**
+ * Benachrichtigungs-Timeline — chronologische Liste mit Dismiss-Funktion.
+ */
 "use client";
 
 import { useMemo } from "react";

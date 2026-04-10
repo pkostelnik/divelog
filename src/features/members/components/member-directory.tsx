@@ -1,3 +1,6 @@
+/**
+ * Mitglieder-Verzeichnis — Admin-Ansicht mit Inline-Bearbeitung und CRUD.
+ */
 "use client";
 
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";

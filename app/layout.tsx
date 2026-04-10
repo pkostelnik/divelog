@@ -1,3 +1,10 @@
+/**
+ * Root Layout — globales HTML-Gerüst der DiveLog Studio App.
+ *
+ * Bindet alle Provider (Teams, i18n, Theme, Auth, DemoData) ein,
+ * setzt globale Metadaten (SEO, Open Graph, Twitter Cards) und
+ * rendert Header + Footer um den Seiteninhalt.
+ */
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import type { ReactNode } from "react";

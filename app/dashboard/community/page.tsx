@@ -1,3 +1,6 @@
+/**
+ * Community-Übersichtsseite — Einstiegspunkt für Blog und Forum.
+ */
 "use client";
 
 import { useMemo } from "react";

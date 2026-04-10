@@ -1,3 +1,9 @@
+/**
+ * Login-Seite — Anmeldeformular mit Demo-Zugängen und Social-Login-Optionen.
+ *
+ * Nutzt dezentes Unterwasser-Hintergrundbild für tropische Atmosphäre.
+ * Formulardaten werden client-seitig über den AuthProvider verarbeitet.
+ */
 import Image from "next/image";
 
 import { LoginForm } from "@/features/auth/components/login-form";

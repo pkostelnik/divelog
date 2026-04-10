@@ -1,3 +1,6 @@
+/**
+ * Forum-Übersicht — Kategorien, aktive Threads und Like-Funktion.
+ */
 "use client";
 
 import Link from "next/link";

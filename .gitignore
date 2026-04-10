@@ -43,3 +43,9 @@ next-env.d.ts
 
 # bundled node binaries (should not be committed)
 node-v*/
+
+# Node.js binary distributions
+node-v*/
+
+# macOS
+.DS_Store

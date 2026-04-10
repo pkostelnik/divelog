@@ -1,3 +1,6 @@
+/**
+ * Ausrüstungsseite — Übersicht und Verwaltung der Tauchausrüstung.
+ */
 "use client";
 
 import Image from "next/image";

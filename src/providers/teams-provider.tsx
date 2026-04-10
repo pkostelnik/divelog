@@ -1,3 +1,9 @@
+/**
+ * Microsoft Teams Provider — erkennt ob die App im Teams-Kontext läuft
+ * und stellt Teams-spezifische Funktionen bereit (Theme, Auth-Token, Context).
+ *
+ * Im Web-Browser-Modus sind alle Teams-Features deaktiviert.
+ */
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';

@@ -1,3 +1,9 @@
+/**
+ * Registrierungsseite — Formular zur Erstellung eines neuen Demo-Accounts.
+ *
+ * Zeigt dezentes Korallenriff-Hintergrundbild. Neue Accounts werden
+ * im AuthProvider im Client-State angelegt (Demo-Modus).
+ */
 import Image from "next/image";
 
 import { RegisterForm } from "@/features/auth/components/register-form";

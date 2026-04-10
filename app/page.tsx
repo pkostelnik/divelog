@@ -1,3 +1,11 @@
+/**
+ * Landing Page — öffentliche Startseite der DiveLog Studio App.
+ *
+ * Zeigt Hero-Bereich mit tropischem Unterwasser-Hintergrundbild,
+ * Feature-Übersicht mit thematischen Bildern, Showcase-Galerie
+ * und Call-to-Action-Sektion. Leitet in Teams-Kontext automatisch
+ * zum Dashboard weiter.
+ */
 "use client";
 
 import Image from "next/image";

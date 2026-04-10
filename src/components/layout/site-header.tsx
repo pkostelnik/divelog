@@ -1,3 +1,10 @@
+/**
+ * Globaler Site-Header mit Navigation, Benutzeraktionen und Theme-/Sprachwechsel.
+ *
+ * Zeigt für eingeloggte Nutzer das Avatar-Pill, Dashboard-Navigation
+ * und Admin-Links. Im Teams-Kontext wird der Header ausgeblendet.
+ * Enthält auch die mobile Hamburger-Navigation.
+ */
 "use client";
 
 import Link from "next/link";

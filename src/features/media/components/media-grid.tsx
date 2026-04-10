@@ -1,3 +1,6 @@
+/**
+ * Medien-Galerie — Bilder/Videos im Grid mit Lightbox und Upload.
+ */
 "use client";
 
 import Image from "next/image";

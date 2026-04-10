@@ -1,3 +1,6 @@
+/**
+ * Hook für Account-Aktionen — kapselt Passwort-Reset und Account-Löschung.
+ */
 "use client";
 
 import { useCallback } from "react";

@@ -1,3 +1,6 @@
+/**
+ * Registrierungsformular — neuer Demo-Account mit Profilfeldern.
+ */
 "use client";
 
 import { useState, type FormEvent } from "react";

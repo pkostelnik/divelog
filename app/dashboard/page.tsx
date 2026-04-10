@@ -1,3 +1,7 @@
+/**
+ * Dashboard-Übersichtsseite — zeigt Tauchgänge, Karte, Ausrüstung
+ * und Benachrichtigungen in einem Two-Column-Layout mit Hero-Banner.
+ */
 "use client";
 
 import Image from "next/image";

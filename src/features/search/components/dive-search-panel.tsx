@@ -1,3 +1,6 @@
+/**
+ * Such-Panel — Echtzeit-Suche über Tauchgänge, Plätze und Ausrüstung.
+ */
 "use client";
 
 import type { ChangeEvent } from "react";

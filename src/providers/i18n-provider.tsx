@@ -1,3 +1,10 @@
+/**
+ * Internationalisierungs-Provider (i18n) — verwaltet die aktive Sprache
+ * und stellt die Übersetzungsfunktion t() bereit.
+ *
+ * Unterstützte Sprachen: Deutsch (de), English (en)
+ * Persistenz: localStorage + Event-basierte Synchronisation mit AuthProvider.
+ */
 "use client";
 
 import {

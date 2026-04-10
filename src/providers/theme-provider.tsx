@@ -1,3 +1,9 @@
+/**
+ * Theme-Provider — verwaltet den Hell/Dunkel-Modus.
+ *
+ * Persistiert die Auswahl in localStorage und synchronisiert
+ * mit der System-Präferenz (prefers-color-scheme).
+ */
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";

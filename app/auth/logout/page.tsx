@@ -1,3 +1,9 @@
+/**
+ * Logout-Seite — führt den Logout durch und zeigt Bestätigung.
+ *
+ * Der Logout-Effekt wird über einen useRef-Guard genau einmal
+ * ausgeführt, um React-Update-Schleifen zu vermeiden.
+ */
 "use client";
 
 import { useEffect, useRef } from "react";

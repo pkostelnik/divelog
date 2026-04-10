@@ -1,3 +1,6 @@
+/**
+ * Community-Highlights — Blog-Beiträge mit Bildern und Kommentaren.
+ */
 "use client";
 
 import Image from "next/image";

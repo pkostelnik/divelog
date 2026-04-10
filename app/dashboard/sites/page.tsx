@@ -1,3 +1,6 @@
+/**
+ * Tauchplätze-Seite — Galerie aller Dive Sites mit Erstellungsformular.
+ */
 "use client";
 
 import { useState } from "react";

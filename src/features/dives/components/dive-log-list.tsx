@@ -1,3 +1,6 @@
+/**
+ * Tauchgangs-Liste — sortierbare Liste mit Suche und Akkordeon-Details.
+ */
 "use client";
 
 import { useMemo, useState, type ChangeEvent } from "react";

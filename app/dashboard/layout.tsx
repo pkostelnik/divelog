@@ -1,3 +1,9 @@
+/**
+ * Dashboard-Layout — Auth-Guard für alle /dashboard/* Routen.
+ *
+ * Prüft ob der Nutzer eingeloggt ist (Community-Seiten ausgenommen).
+ * Zeigt eine Zugriff-verweigert-Seite mit Login-/Community-Links.
+ */
 "use client";
 
 import Link from "next/link";

@@ -1,3 +1,4 @@
+/** GET /api/notifications — Gibt Benachrichtigungen aus den Mock-Daten zurück. */
 import { notifications } from "@/data/mock-data";
 import { withErrorHandler } from "../_helpers";
 

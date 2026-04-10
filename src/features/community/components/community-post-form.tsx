@@ -1,3 +1,6 @@
+/**
+ * Blog-Beitragsformular — Erstellen/Bearbeiten mit Bild-Anhängen.
+ */
 "use client";
 
 import Image from "next/image";

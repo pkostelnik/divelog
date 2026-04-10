@@ -1,3 +1,6 @@
+/**
+ * Tauchgänge-Seite — Liste aller Tauchgänge mit Erstellungs-/Bearbeitungsformular.
+ */
 "use client";
 
 import { useState } from "react";

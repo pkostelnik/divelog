@@ -1,3 +1,20 @@
+/**
+ * Mock-Daten für den Demo-Modus der DiveLog Studio App.
+ *
+ * Definiert TypeScript-Typen und Beispieldaten für:
+ * - Tauchgänge (DiveLogPreview)
+ * - Ausrüstung (EquipmentItem)
+ * - Tauchplätze (DiveSite)
+ * - Medien (MediaItem)
+ * - Community-Beiträge (CommunityPost)
+ * - Forum (ForumCategory, ForumThread)
+ * - Mitglieder (MemberProfile)
+ * - Benachrichtigungen (NotificationItem)
+ *
+ * Datenmodell orientiert sich an der Azure Cosmos DB 2-Container-Architektur:
+ * - users-and-social: partitioniert nach userId
+ * - dive-content: partitioniert nach ownerId
+ */
 import { type SupportedLocale } from "@/i18n/translations";
 
 export type DiveLogPreview = {

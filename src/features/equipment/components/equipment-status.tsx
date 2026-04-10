@@ -1,3 +1,6 @@
+/**
+ * Ausrüstungs-Status — Geräteübersicht mit Service-Status und Formular.
+ */
 "use client";
 
 import clsx from "clsx";

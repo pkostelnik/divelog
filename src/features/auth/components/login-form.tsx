@@ -1,3 +1,6 @@
+/**
+ * Login-Formular — E-Mail/Passwort, Demo-Zugänge und Social-Login-Buttons.
+ */
 "use client";
 
 import Link from "next/link";

@@ -1,3 +1,9 @@
+/**
+ * App-Logo-Komponente — SVG-Taucher-Icon mit ozeanischem Farbgradient.
+ *
+ * Unterstützt die Varianten "icon" (nur Symbol) und "full" (mit Text)
+ * sowie drei Größen: sm (24px), md (32px), lg (48px).
+ */
 type AppLogoProps = {
   variant?: "full" | "icon";
   size?: "sm" | "md" | "lg";

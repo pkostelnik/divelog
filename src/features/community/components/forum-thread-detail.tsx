@@ -1,3 +1,6 @@
+/**
+ * Forum-Thread-Detailansicht — Thread mit Antworten und Antwortformular.
+ */
 "use client";
 
 import Link from "next/link";

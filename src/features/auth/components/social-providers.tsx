@@ -1,3 +1,6 @@
+/**
+ * Social-Login-Provider — OAuth-Provider-Icons (Google, Microsoft, etc.).
+ */
 import type { SVGProps, ReactElement } from "react";
 
 export type SocialProviderId = "google" | "microsoft" | "facebook" | "linkedin" | "amazon";

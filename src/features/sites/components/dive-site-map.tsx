@@ -1,3 +1,6 @@
+/**
+ * Tauchplatz-Karte — interaktive Leaflet-Karte mit Markern und Popups.
+ */
 "use client";
 
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
