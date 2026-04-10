@@ -1,267 +1,270 @@
-# DiveLog Studio Demo
+# 🤿 DiveLog Studio
 
-![DiveLog Studio Screenshot](public/assets/DiveLogStudio.png)
+<div align="center">
 
-> :uk: English content first · :de: Deutsche Fassung folgt weiter unten.
+![DiveLog Studio](public/assets/DiveLogStudio.png)
 
-## :uk: English
+**Moderne Dive-Log-Plattform für Gerätetaucher**
 
-### 🚀 Quickstart
-```bash
-npm install
-npm run dev
-```
-Then open `http://localhost:3000`. The landing page links straight to registration, login, mock social sign-ins, and the full dashboard.
+Verwalte Tauchgänge, Ausrüstung und Tauchplätze — teile Erlebnisse mit der Community.
 
-### ✨ Highlights
-- Refined landing page with clear calls to action (registration, login, demo)
-- **Microsoft Teams integration** - works as standalone web app AND Teams app
-- Automatic Teams SSO authentication with seamless web fallback
-- Social sign-in buttons for Google, Microsoft, Facebook, LinkedIn & Amazon (demo flow)
-- Registration flow with real-time password confirmation and cancel option
-- Password reset with validation plus account deletion and content purge
-- Community, dive log, and equipment modules powered by responsive mock data
+![Screenshot](public/assets/screenshot-landing.png)
 
-#### A Glimpse Inside The App
-- Hero, feature tiles, and demo navigation at a glance
-- Dashboard covering community, dive, and equipment modules
-- Responsive layout illustrating mobile and desktop views
+[![Next.js](https://img.shields.io/badge/Next.js-16.2-black?logo=next.js)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue?logo=typescript)](https://typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.2-38bdf8?logo=tailwindcss)](https://tailwindcss.com)
+[![React](https://img.shields.io/badge/React-19.2-61dafb?logo=react)](https://react.dev)
+[![ESLint](https://img.shields.io/badge/ESLint-10.2-4B32C3?logo=eslint)](https://eslint.org)
 
-### 📋 Feature Overview**Branding & Design**
-- Professional diver-themed logo with ocean gradient
-- Dynamic favicon generation for browser and Apple devices
-- Multiple logo variants (icon, horizontal, high-res) in `/public/assets/`
-- Responsive design with dark mode support
-**Landing & Marketing**
-- Hero section listing the tech stack, calls to action, and supporting content
-- Feature tiles for dive logs, equipment, members, and community
-- “Everything for your team” spotlight highlighting auth and UX workflows
-
-**Authentication & Account**
-- Login via email/password, demo access, and social buttons
-- Registration with double password entry and live mismatch feedback
-- Account dashboard for password reset and account deletion (email confirmation)
-- Demo data is anonymised or replaced when accounts are removed
-
-**Dashboard Modules**
-- Dive logs with filters, sequential numbers, and an add form
-- Equipment, sites, community, and notifications sections with mock content
-- Community posts supporting attachments, overlays, and forum entry points
-
-### 🛠️ Tech Stack & Versions
-
-| Technology                   | Version |
-| ---------------------------- | ------- |
-| Next.js                      | 16.1.3  |
-| React                        | 19.2.3  |
-| TypeScript                   | 5.9.3   |
-| Tailwind CSS                 | 4.1.18  |
-| @tailwindcss/postcss         | 4.1.18  |
-| @tailwindcss/forms           | 0.5.11  |
-| eslint / eslint-config-next  | 9.39.2 / 16.1.3 |
-| Zod                          | 4.3.5   |
-| @tanstack/react-query        | 5.90.19 |
-| @azure/cosmos                | 4.9.0   |
-| @microsoft/teams-js          | 2.48.0  |
-| leaflet                      | 1.9.4   |
-| react-leaflet                | 5.0.0   |
-
-Additional libraries: `lucide-react` (0.562.0), `clsx` (2.1.1), `autoprefixer` (10.4.23), `postcss` (8.5.6).
-
-### 🧭 Project Structure
-- `app/` – App Router pages, layouts, and API stubs
-- `app/page.tsx` – landing page
-- `app/icon.tsx` – dynamic favicon generation (32x32)
-- `app/apple-icon.tsx` – Apple touch icon generation (180x180)
-- `app/auth/*` – login, logout, and registration screens
-- `src/components/ui/app-logo.tsx` – Logo component with size variants
-- `src/features/*` – feature components (auth, community, dives, etc.)
-- `src/features/sites/components/dive-site-map.tsx` – Interactive map with Leaflet
-- `src/providers/*` – state management for auth and demo data
-- `src/data/mock-data.ts` – mock datasets including sequences and attachments
-- `src/features/auth/components/social-providers.tsx` – reusable social login assets
-- `public/assets/` – Logo variants (logo.svg, logo-icon.svg, logo-horizontal.svg)
-
-### 🧪 Development Workflow
-Available npm scripts:
-```bash
-npm run dev       # Dev server with hot reload
-npm run lint      # ESLint for TS/TSX
-npm run build     # Production build
-npm run start     # Production server after build
-npm run typecheck # TypeScript strict mode without emit
-```
-Recommendation: keep `npm run dev` running during development and lint frequently.
-
-### 📦 Demo Data & Behaviour
-- All data originates from `src/data/mock-data.ts` and lives on the client
-- Auth flows rely on local state via `AuthProvider` (non-persistent)
-- Social buttons trigger demo sign-ins (LinkedIn → admin, others → member)
-- Account deletion purges logs, media, and community content while replacing blog/forum posts with placeholders
-- **Dual-mode operation**: Automatically detects Teams context and adjusts UI accordingly
-
-### 🔗 Microsoft Teams Integration
-The app works seamlessly as both a standalone web app and a Microsoft Teams app:
-
-**Web Mode (Browser)**
-- Full landing page with registration/login
-- Manual authentication required
-- Standard web navigation
-
-**Teams Mode (in Microsoft Teams)**
-- Auto-redirects from landing page to dashboard
-- Automatic SSO authentication (demo: logs in as member)
-- Teams badge shown in header
-- Optimized for Teams viewport
-
-**Setup for Teams**
-See [`teams-app/README.md`](teams-app/README.md) for complete instructions on:
-- Azure AD app registration
-- Manifest configuration
-- Icon creation
-- App package upload to Teams
-
-The app uses `@microsoft/teams-js` SDK to detect context automatically—no environment variables or build flags needed.
-
-### 🔮 Roadmap
-1. Integrate Azure Cosmos DB (module containers, user/team partition keys)
-2. Connect NextAuth or Entra ID for production social logins and Teams SSO validation
-3. Migrate forms to React Hook Form + Zod with server-side mutations
-4. Add persistent media handling via Azure Storage / Blob Storage
-5. Introduce Playwright E2E tests and CI/CD integration
-6. Enhanced Teams features: bot integration, meeting extensions, adaptive cards
-
-### Closing Note
-The demo gives product, design, and engineering teams a tangible preview of DiveLog Studio's experience—including core account flows, social sign-ins, dual-mode Teams integration, and an Azure-ready architecture.
+</div>
 
 ---
 
-## :de: Deutsch
+> 🇬🇧 English below · 🇩🇪 Deutsche Fassung zuerst
+
+## 🇩🇪 Deutsch
 
 ### 🚀 Schnellstart
+
 ```bash
 npm install
 npm run dev
 ```
-Öffne danach `http://localhost:3000`. Die Landing Page verweist auf Registrierung, Login, Social Logins (Mock) sowie das Dashboard.
+
+Öffne [http://localhost:3000](http://localhost:3000). Die Landing Page bietet Registrierung, Login, Demo-Zugänge und Zugang zum Dashboard.
 
 ### ✨ Highlights
-- Überarbeitete Landing Page mit klaren Calls-to-Action (Registrierung, Login, Demo)
-- **Microsoft Teams-Integration** – funktioniert als eigenständige Web-App UND Teams-App
-- Automatische Teams-SSO-Authentifizierung mit nahtlosem Web-Fallback
-- Social Sign-In Buttons für Google, Microsoft, Facebook, LinkedIn & Amazon (Demo-Flow)
-- Registrierung mit Passwort-Bestätigung in Echtzeit und Cancel-Option
-- Passwort-Reset samt Validierung und Konto-Löschung inklusive Content-Purge
-- Module für Community, Dive Logs und Equipment auf Basis responsiver Mock-Daten
 
-#### Blick in die App
-- Hero, Feature-Kacheln und Demo-Navigation auf einen Blick
-- Dashboard mit Community-, Dive- und Equipment-Modulen
-- Responsive Layout demonstriert Mobile- und Desktop-Ansicht
+- 🌊 **Tropisches Ozean-Theme** — Farbpalette inspiriert von Korallenriffen, türkisem Wasser und tropischen Tauchplätzen (Hell- & Dunkelmodus)
+- 🖼️ **Thematische Bildwelten** — Unterwasser-Hero, Showcase-Galerie und Banner auf allen Dashboard-Seiten
+- 🤿 **Avatar-System** — Eigene Avatar-URL oder automatische Gravatar-Integration (SHA-256)
+- 🏢 **Microsoft Teams-Integration** — Funktioniert als Web-App und als Teams-App mit automatischer SSO-Erkennung
+- 🌐 **Zweisprachig** — Deutsch und Englisch mit persistenter Sprachauswahl
+- 🌙 **Dark Mode** — Tiefes Ozean-Teal statt generischem Grau
+- 📱 **Responsive Design** — Mobile-first mit Hamburger-Navigation
 
-### 📋 Feature-Überblick**Branding & Design**
-- Professionelles Taucher-Logo mit Ozean-Farbverlauf
-- Dynamische Favicon-Generierung für Browser und Apple-Geräte
-- Mehrere Logo-Varianten (Icon, Horizontal, Hochauflösend) in `/public/assets/`
-- Responsives Design mit Dark-Mode-Unterstützung
-**Landing & Marketing**
-- Hero mit Technologie-Stack, Call-to-Actions und erklärendem Secondary-Content
-- Feature-Kacheln für Dive Logs, Equipment, Mitglieder und Community
-- „Alles für dein Team“-Sektion mit Fokus auf Auth- und UX-Workflows
+### 📋 Features
 
-**Authentifizierung & Konto**
-- Login via E-Mail/Passwort, Demo-Zugänge sowie Social Buttons
-- Registrierung mit doppelter Passworteingabe und Live-Feedback
-- Account-Dashboard für Passwort-Reset und Konto-Löschung (mit E-Mail-Bestätigung)
-- Demo-Daten werden bei Konto-Löschung anonymisiert bzw. ersetzt
+#### Branding & Design
+- Taucher-Logo mit Ozean-Farbgradient (Cyan → Smaragd)
+- 5 Farbpaletten: Ocean, Abyss, Coral, Sand, Reef
+- Glasmorphe Header/Footer mit Backdrop-Blur
+- Wellenteiler-SVG zwischen Sektionen
+- Dynamische Favicon-Generierung (Browser + Apple)
 
-**Dashboard-Module**
-- Dive Logs mit Filteroptionen, Lognummern und Formular zum Hinzufügen
-- Equipment-, Site-, Community- und Notifications-Bereiche samt Mock-Content
-- Community-Posts mit Attachment-Uploads, Overlays und Foren-Verlinkungen
+#### Authentifizierung & Konto
+- Login via E-Mail/Passwort oder Demo-Zugänge (Member/Admin)
+- Sprach-Demos (DE/EN) mit automatischer Oberflächenumstellung
+- Social-Login-Buttons (Google, Microsoft, Facebook, LinkedIn, Amazon)
+- Registrierung mit Live-Passwort-Validierung
+- Profil mit Avatar-Einstellungen (Gravatar oder eigene URL)
+- Passwort-Reset und Konto-Löschung mit E-Mail-Bestätigung
 
-### 🛠️ Tech-Stack & Versionen
+#### Dashboard-Module
+- **Tauchgänge** — Erstellen, Bearbeiten, Sortieren und Filtern von Tauchlog-Einträgen
+- **Ausrüstung** — Geräteverwaltung mit Service-Status (bereit/wartung)
+- **Tauchplätze** — Galerie mit Schwierigkeitsgrad, interaktive Leaflet-Karte
+- **Medien** — Bild-/Video-Galerie mit Lightbox und Upload
+- **Community** — Blog-Beiträge mit Kommentaren und Like-System
+- **Forum** — Threads mit Kategorien, Antworten und Moderation
+- **Mitglieder** — Admin-Verzeichnis mit Inline-Bearbeitung und CRUD
+- **Suche** — Echtzeit-Filterung über Tauchgänge, Plätze und Ausrüstung
+- **Benachrichtigungen** — Chronologische Timeline mit Dismiss-Funktion
 
-| Technologie                  | Version |
-| ---------------------------- | ------- |
-| Next.js                      | 16.1.3  |
-| React                        | 19.2.3  |
-| TypeScript                   | 5.9.3   |
-| Tailwind CSS                 | 4.1.18  |
-| @tailwindcss/postcss         | 4.1.18  |
-| @tailwindcss/forms           | 0.5.11  |
-| eslint / eslint-config-next  | 9.39.2 / 16.1.3 |
-| Zod                          | 4.3.5   |
-| @tanstack/react-query        | 5.90.19 |
-| @azure/cosmos                | 4.9.0   |
-| @microsoft/teams-js          | 2.48.0  |
-| leaflet                      | 1.9.4   |
-| react-leaflet                | 5.0.0   |
+### 🛠️ Tech-Stack
 
-Weitere Bibliotheken: `lucide-react` (0.562.0), `clsx` (2.1.1), `autoprefixer` (10.4.23), `postcss` (8.5.6).
+| Technologie | Version | Zweck |
+|---|---|---|
+| Next.js | 16.2 | App Router, SSR, Turbopack |
+| React | 19.2 | UI-Rendering |
+| TypeScript | 6.0 | Typsicherheit |
+| Tailwind CSS | 4.2 | Utility-first Styling |
+| ESLint | 10.2 | Flat Config, Custom Rules |
+| Zod | 4.3 | Schema-Validierung |
+| Azure Cosmos DB | 4.9 SDK | Datenbank (vorbereitet) |
+| Teams JS SDK | 2.52 | Microsoft Teams-Integration |
+| Leaflet | 1.9 | Interaktive Karten |
+| Lucide React | 1.8 | Icon-System |
 
 ### 🧭 Projektstruktur
-- `app/` – App Router Seiten, Layouts und API-Stubs
-- `app/page.tsx` – Landing Page
-- `app/icon.tsx` – Dynamische Favicon-Generierung (32x32)
-- `app/apple-icon.tsx` – Apple Touch Icon Generierung (180x180)
-- `app/auth/*` – Login-, Logout- und Registrierungsseiten
-- `src/components/ui/app-logo.tsx` – Logo-Komponente mit Größenvarianten
-- `src/features/*` – Feature-Komponenten (Auth, Community, Dives usw.)
-- `src/features/sites/components/dive-site-map.tsx` – Interaktive Karte mit Leaflet
-- `src/providers/*` – State-Management für Auth & Demo-Daten
-- `src/data/mock-data.ts` – Mock-Datensätze inklusive Sequenzen und Attachments
-- `src/features/auth/components/social-providers.tsx` – Social-Login-Assets
-- `public/assets/` – Logo-Varianten (logo.svg, logo-icon.svg, logo-horizontal.svg)
 
-### 🧪 Entwicklungs-Workflow
-Verfügbare NPM-Skripte:
-```bash
-npm run dev       # Entwicklerserver mit Hot Reload
-npm run lint      # ESLint für TS/TSX
-npm run build     # Produktions-Build
-npm run start     # Produktiv-Server nach dem Build
-npm run typecheck # TypeScript ohne Emit im Strict-Modus
 ```
-Empfehlung: Während der Entwicklung `npm run dev` verwenden und regelmäßig `npm run lint` ausführen.
+app/                    → Next.js App Router
+├── page.tsx            → Landing Page mit Hero, Features, Galerie
+├── layout.tsx          → Root Layout mit allen Providern
+├── globals.css         → Tropisches Ozean-Theme (Light + Dark)
+├── auth/               → Login, Register, Logout
+├── dashboard/          → Alle Dashboard-Seiten
+│   ├── layout.tsx      → Auth-Guard für geschützte Bereiche
+│   ├── page.tsx        → Dashboard-Übersicht mit Hero-Banner
+│   ├── dives/          → Tauchgangs-Verwaltung
+│   ├── equipment/      → Ausrüstungs-Status
+│   ├── sites/          → Tauchplatz-Galerie
+│   ├── media/          → Medien-Galerie
+│   ├── community/      → Blog + Forum
+│   ├── members/        → Mitglieder-Verzeichnis (Admin)
+│   ├── profile/        → Persönliches Profil + Avatar
+│   └── ...
+├── api/                → API-Routen (Mock-Daten)
+└── (dashboard)/        → Legacy-Redirects für alte URLs
 
-### 📦 Demo-Daten & Verhalten
-- Alle Daten stammen aus `src/data/mock-data.ts` und bleiben clientseitig
-- Auth-Flows nutzen einen lokalen State (`AuthProvider`) und sind nicht persistent
-- Social Buttons starten Demo-Anmeldungen (LinkedIn → Admin, andere → Member)
-- Konto-Löschungen bereinigen Logs, Medien und Community-Inhalte; Blog/Forum erhalten Platzhalter
-- **Dual-Mode-Betrieb**: Erkennt Teams-Kontext automatisch und passt UI entsprechend an
+src/
+├── components/         → Wiederverwendbare UI-Komponenten
+│   ├── layout/         → Header, Footer
+│   └── ui/             → AppLogo, MemberAvatar
+├── features/           → Feature-Module
+│   ├── auth/           → Login/Register-Formulare, Account-Hooks
+│   ├── community/      → Forum-Board, Blog-Highlights, Post-Form
+│   ├── dives/          → Tauchlog-Liste, Erstellungsformular
+│   ├── equipment/      → Status-Widget
+│   ├── media/          → Medien-Grid mit Lightbox
+│   ├── members/        → Mitglieder-Verzeichnis
+│   ├── notifications/  → Timeline-Widget
+│   ├── search/         → Such-Panel
+│   └── sites/          → Karte + Galerie
+├── providers/          → React Context Provider
+│   ├── auth-provider   → Authentifizierung + Mitglieder-CRUD
+│   ├── demo-data       → Mock-Daten mit Client-State
+│   ├── i18n-provider   → Internationalisierung (DE/EN)
+│   ├── teams-provider  → Microsoft Teams-Erkennung
+│   └── theme-provider  → Dark/Light Mode
+├── lib/                → Hilfsfunktionen
+│   ├── cosmos-db.ts    → Azure Cosmos DB Client (2-Container)
+│   ├── gravatar.ts     → Gravatar SHA-256 Integration
+│   └── ...
+├── data/               → Mock-Daten (Cosmos DB Modell)
+└── i18n/               → Übersetzungen (DE + EN)
 
-### 🔗 Microsoft Teams-Integration
-Die App funktioniert nahtlos sowohl als eigenständige Web-App als auch als Microsoft Teams-App:
+proxy.ts                → Rate-Limiting + CSRF-Schutz
+tailwind.config.ts      → 5-Farben Ozean-Palette
+```
 
-**Web-Modus (Browser)**
-- Vollständige Landing Page mit Registrierung/Login
-- Manuelle Authentifizierung erforderlich
-- Standard-Web-Navigation
+### 🧪 Entwicklung
 
-**Teams-Modus (in Microsoft Teams)**
-- Auto-Weiterleitung von Landing Page zum Dashboard
-- Automatische SSO-Authentifizierung (Demo: Login als Member)
-- Teams-Badge im Header sichtbar
-- Optimiert für Teams-Viewport
+```bash
+npm run dev       # Dev-Server mit Hot Reload
+npm run lint      # ESLint (Flat Config)
+npm run typecheck # TypeScript Strict Mode
+npm run build     # Produktions-Build
+npm run start     # Produktiv-Server
+```
 
-**Setup für Teams**
-Siehe [`teams-app/README.md`](teams-app/README.md) für vollständige Anleitung zu:
-- Azure AD App-Registrierung
-- Manifest-Konfiguration
-- Icon-Erstellung
-- App-Package-Upload zu Teams
+### 📦 Demo-Daten
 
-Die App nutzt das `@microsoft/teams-js` SDK zur automatischen Kontext-Erkennung – keine Umgebungsvariablen oder Build-Flags erforderlich.
+- Alle Daten leben im Client-State (`DemoDataProvider`)
+- Auth ist clientseitig (`AuthProvider`) — nicht persistent
+- Social Buttons starten Demo-Anmeldungen (LinkedIn → Admin)
+- Konto-Löschung bereinigt zugehörige Inhalte
 
-### 🔮 Nächste Schritte
-1. Azure Cosmos DB integrieren (Container pro Modul, Partition Keys pro Nutzer/Team)
-2. NextAuth oder Entra ID für echte Social Logins und Teams-SSO-Validierung anbinden
-3. Formulare auf React Hook Form + Zod mit serverseitigen Mutationen umstellen
-4. Persistente Medienverwaltung via Azure Storage / Blob Storage
-5. E2E-Tests mit Playwright und CI/CD-Integration
-6. Erweiterte Teams-Features: Bot-Integration, Meeting-Extensions, Adaptive Cards
+### 🔗 Microsoft Teams
 
-### Schlusswort
-Die Demo vermittelt Produktteams, Design und Engineering das geplante Erlebnis von DiveLog Studio – inklusive zentraler Account-Flows, Social Sign-Ins, Dual-Mode Teams-Integration und einer Azure-ready Architektur.
+Die App erkennt Teams automatisch via `@microsoft/teams-js`:
+
+| Feature | Web-Modus | Teams-Modus |
+|---|---|---|
+| Landing Page | ✅ Vollständig | ↪️ Redirect zu Dashboard |
+| Authentifizierung | Manuell | SSO (automatisch) |
+| Header | Vollständig | Ausgeblendet |
+| Theme | Light/Dark Toggle | Übernimmt Teams-Theme |
+
+Setup: Siehe [`teams-app/README.md`](teams-app/README.md)
+
+### 🔐 Sicherheit
+
+- Rate-Limiting (in-memory, IP-basiert) via Proxy
+- CSRF-Schutz für mutating API-Requests
+- Security-Header (X-Frame-Options, CSP, HSTS)
+- Avatar-URLs nur über HTTPS erlaubt
+- npm audit: 0 bekannte Schwachstellen
+
+### 🔮 Roadmap
+
+1. Azure Cosmos DB anbinden (2-Container-Architektur vorbereitet)
+2. NextAuth / Entra ID für serverseitige Authentifizierung
+3. React Hook Form + Zod Server Actions
+4. Azure Blob Storage für Medienverwaltung
+5. Playwright E2E-Tests + CI/CD Pipeline
+6. Erweiterte Teams-Features (Bot, Adaptive Cards)
+
+---
+
+## 🇬🇧 English
+
+### 🚀 Quickstart
+
+```bash
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). The landing page links to registration, login, demo accounts, and the full dashboard.
+
+### ✨ Highlights
+
+- 🌊 **Tropical ocean theme** — Color palette inspired by coral reefs, turquoise waters, and tropical dive sites (light & dark mode)
+- 🖼️ **Thematic imagery** — Underwater hero, showcase gallery, and banners across all dashboard pages
+- 🤿 **Avatar system** — Custom avatar URL or automatic Gravatar integration (SHA-256)
+- 🏢 **Microsoft Teams integration** — Works as web app and Teams app with automatic SSO detection
+- 🌐 **Bilingual** — German and English with persistent language selection
+- 🌙 **Dark mode** — Deep ocean teal instead of generic gray
+- 📱 **Responsive design** — Mobile-first with hamburger navigation
+
+### 📋 Features
+
+#### Dashboard Modules
+- **Dive logs** — Create, edit, sort, and filter dive entries
+- **Equipment** — Gear management with service status
+- **Dive sites** — Gallery with difficulty ratings and interactive Leaflet map
+- **Media** — Image/video gallery with lightbox and upload
+- **Community** — Blog posts with comments and like system
+- **Forum** — Threaded discussions with categories and moderation
+- **Members** — Admin directory with inline editing
+- **Search** — Real-time filtering across dives, sites, and equipment
+- **Notifications** — Chronological timeline with dismiss
+
+#### Authentication
+- Email/password login with demo accounts (member/admin)
+- Language demos (DE/EN) with automatic UI switch
+- Social login buttons (Google, Microsoft, Facebook, LinkedIn, Amazon)
+- Profile with avatar settings (Gravatar or custom URL)
+- Password reset and account deletion with email confirmation
+
+### 🛠️ Tech Stack
+
+| Technology | Version | Purpose |
+|---|---|---|
+| Next.js | 16.2 | App Router, SSR, Turbopack |
+| React | 19.2 | UI rendering |
+| TypeScript | 6.0 | Type safety |
+| Tailwind CSS | 4.2 | Utility-first styling |
+| ESLint | 10.2 | Flat config, custom rules |
+| Zod | 4.3 | Schema validation |
+| Azure Cosmos DB | 4.9 SDK | Database (prepared) |
+| Teams JS SDK | 2.52 | Microsoft Teams integration |
+| Leaflet | 1.9 | Interactive maps |
+| Lucide React | 1.8 | Icon system |
+
+### 🔐 Security
+
+- Rate limiting (in-memory, IP-based) via proxy middleware
+- CSRF protection for mutating API requests
+- Security headers (X-Frame-Options, CSP, HSTS)
+- Avatar URLs restricted to HTTPS only
+- npm audit: 0 known vulnerabilities
+
+### 🔮 Roadmap
+
+1. Connect Azure Cosmos DB (2-container architecture prepared)
+2. NextAuth / Entra ID for server-side authentication
+3. React Hook Form + Zod Server Actions
+4. Azure Blob Storage for media management
+5. Playwright E2E tests + CI/CD pipeline
+6. Enhanced Teams features (bot, adaptive cards)
+
+---
+
+<div align="center">
+
+**Built with 🤿 by DiveLog Studio Team**
+
+</div>
