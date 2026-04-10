@@ -9,6 +9,8 @@ Always create a README.md for GitHub repositories. The README.md should include 
 - development guidelines
 - multilangual support (if applicable)
 
+Before each git commit rebuild the README.md file to ensure it is up to date with the latest features and changes in the project. The README.md should be comprehensive and provide clear instructions for users and developers.
+
 ## Features
 - User Management
 - Dive Log Management  
