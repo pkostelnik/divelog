@@ -49,3 +49,4 @@ node-v*/
 
 # macOS
 .DS_Store
+.eslintcache
