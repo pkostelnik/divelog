@@ -177,6 +177,26 @@ Setup: Siehe [`teams-app/README.md`](teams-app/README.md)
 - Avatar-URLs nur über HTTPS erlaubt
 - npm audit: 0 bekannte Schwachstellen
 
+### � Native Clients
+
+Neben der Web-App werden native Mobile-Clients entwickelt:
+
+| Plattform | Technologie | Architektur | Stand |
+|---|---|---|---:|
+| iOS / iPadOS | Swift 6 + SwiftUI | MVVM | 10% |
+| Android | Kotlin + Jetpack Compose | MVVM | 10% |
+| macOS | SwiftUI | MVVM | Geplant |
+| Windows | WinUI 3 / .NET | MVVM | Geplant |
+
+Alle Clients teilen:
+- Gemeinsame Domain-Modelle und API-Vertrag (`Clients/shared/`)
+- Zweisprachige Strings (DE/EN) als JSON
+- Dieselbe REST-API (`/api/*`)
+
+iOS und iPadOS sind **eine gemeinsame App** — SwiftUI passt das Layout automatisch an (iPhone: TabView, iPad: NavigationSplitView).
+
+Details: [`Clients/README.md`](Clients/README.md)
+
 ### 🔮 Roadmap
 
 1. Azure Cosmos DB anbinden (2-Container-Architektur vorbereitet)
@@ -185,6 +205,7 @@ Setup: Siehe [`teams-app/README.md`](teams-app/README.md)
 4. Azure Blob Storage für Medienverwaltung
 5. Playwright E2E-Tests + CI/CD Pipeline
 6. Erweiterte Teams-Features (Bot, Adaptive Cards)
+7. iOS / Android App Store Releases
 
 ---
 
@@ -252,6 +273,26 @@ Open [http://localhost:3000](http://localhost:3000). The landing page links to r
 - Avatar URLs restricted to HTTPS only
 - npm audit: 0 known vulnerabilities
 
+### � Native Clients
+
+In addition to the web app, native mobile clients are being developed:
+
+| Platform | Technology | Architecture | Progress |
+|---|---|---|---:|
+| iOS / iPadOS | Swift 6 + SwiftUI | MVVM | 10% |
+| Android | Kotlin + Jetpack Compose | MVVM | 10% |
+| macOS | SwiftUI | MVVM | Planned |
+| Windows | WinUI 3 / .NET | MVVM | Planned |
+
+All clients share:
+- Common domain models and API contract (`Clients/shared/`)
+- Bilingual strings (DE/EN) as JSON
+- The same REST API (`/api/*`)
+
+iOS and iPadOS are **a single app** — SwiftUI adapts the layout automatically (iPhone: TabView, iPad: NavigationSplitView).
+
+Details: [`Clients/README.md`](Clients/README.md)
+
 ### 🔮 Roadmap
 
 1. Connect Azure Cosmos DB (2-container architecture prepared)
@@ -260,6 +301,7 @@ Open [http://localhost:3000](http://localhost:3000). The landing page links to r
 4. Azure Blob Storage for media management
 5. Playwright E2E tests + CI/CD pipeline
 6. Enhanced Teams features (bot, adaptive cards)
+7. iOS / Android App Store releases
 
 ---
 
