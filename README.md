@@ -112,6 +112,60 @@ API-Routen → getRepository() → Repository-Interface → Adapter (Cosmos/Post
 
 Alle API-Routen rufen `getRepository()` auf — die Factory wählt automatisch den richtigen Adapter. PostgreSQL und MySQL nutzen ein JSONB/JSON-Schema mit automatischer Tabellenerstellung beim ersten Start.
 
+#### Setup: Mock (Standard — keine Konfiguration nötig)
+```bash
+# .env.local nicht nötig — Mock ist der Default
+npm run dev
+```
+
+#### Setup: PostgreSQL
+```bash
+# 1. Paket installieren
+npm install pg
+
+# 2. .env.local anlegen
+cat >> .env.local << 'EOF'
+DB_PROVIDER=postgres
+DATABASE_URL=postgres://user:password@localhost:5432/divelog
+EOF
+
+# 3. Starten — Tabellen werden automatisch erstellt
+npm run dev
+```
+
+#### Setup: MySQL
+```bash
+# 1. Paket installieren
+npm install mysql2
+
+# 2. .env.local anlegen
+cat >> .env.local << 'EOF'
+DB_PROVIDER=mysql
+DATABASE_URL=mysql://user:password@localhost:3306/divelog
+EOF
+
+# 3. Starten — Tabellen werden automatisch erstellt
+npm run dev
+```
+
+#### Setup: Azure Cosmos DB
+```bash
+# .env.local anlegen
+cat >> .env.local << 'EOF'
+DB_PROVIDER=cosmos
+AZURE_COSMOS_DB_ENDPOINT=https://your-account.documents.azure.com:443
+AZURE_COSMOS_DB_KEY=your-primary-key
+AZURE_COSMOS_DB_DATABASE=divelog
+EOF
+
+# Container einrichten (einmalig)
+npx ts-node src/scripts/setup-cosmos-containers.ts
+
+npm run dev
+```
+
+Detailliertes Cosmos-DB-Setup: [`docs/COSMOS_DB_SETUP.md`](docs/COSMOS_DB_SETUP.md)
+
 ### 🧭 Projektstruktur
 
 ```
@@ -303,10 +357,46 @@ Open [http://localhost:3000](http://localhost:3000). The landing page links to r
 | Tailwind CSS | 4.2 | Utility-first styling |
 | ESLint | 10.2 | Flat config, custom rules |
 | Zod | 4.3 | Schema validation |
-| Azure Cosmos DB | 4.9 SDK | Database (prepared) |
+| Azure Cosmos DB | 4.9 SDK | Database backend (optional) |
+| PostgreSQL | — | Database backend (optional, pg) |
+| MySQL | — | Database backend (optional, mysql2) |
 | Teams JS SDK | 2.52 | Microsoft Teams integration |
 | Leaflet | 1.9 | Interactive maps |
 | Lucide React | 1.8 | Icon system |
+
+### 🗄️ Multi-Backend Architecture
+
+The app supports **four database backends**, selectable via a single environment variable:
+
+```env
+DB_PROVIDER=mock    # mock | cosmos | postgres | mysql
+```
+
+| Provider | Package | Env Variables | Use Case |
+|---|---|---|---|
+| `mock` | — (default) | none | Demo, development |
+| `cosmos` | `@azure/cosmos` | `AZURE_COSMOS_DB_*` | Azure production |
+| `postgres` | `pg` | `DATABASE_URL` | Self-hosted, AWS, Supabase |
+| `mysql` | `mysql2` | `DATABASE_URL` | Self-hosted, PlanetScale |
+
+#### Setup: PostgreSQL
+```bash
+npm install pg
+echo 'DB_PROVIDER=postgres' >> .env.local
+echo 'DATABASE_URL=postgres://user:pass@localhost:5432/divelog' >> .env.local
+npm run dev   # tables are created automatically
+```
+
+#### Setup: MySQL
+```bash
+npm install mysql2
+echo 'DB_PROVIDER=mysql' >> .env.local
+echo 'DATABASE_URL=mysql://user:pass@localhost:3306/divelog' >> .env.local
+npm run dev   # tables are created automatically
+```
+
+#### Setup: Azure Cosmos DB
+See [`docs/COSMOS_DB_SETUP.md`](docs/COSMOS_DB_SETUP.md)
 
 ### 🔐 Security
 
