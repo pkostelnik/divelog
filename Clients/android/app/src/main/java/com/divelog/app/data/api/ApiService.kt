@@ -12,7 +12,7 @@ import kotlinx.serialization.json.Json
 
 object ApiService {
 
-    private const val BASE_URL = "https://divelog.copilot.ovh/api"
+    private const val BASE_URL = AppConfig.API_URL
 
     private val client = HttpClient(Android) {
         install(ContentNegotiation) {

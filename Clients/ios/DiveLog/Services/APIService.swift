@@ -23,7 +23,7 @@ enum APIError: Error, LocalizedError {
 actor APIService {
     static let shared = APIService()
 
-    private let baseURL = "https://divelog.copilot.ovh/api"
+    private let baseURL = AppConfig.apiURL
     private let decoder: JSONDecoder = {
         let d = JSONDecoder()
         return d

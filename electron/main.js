@@ -1,7 +1,8 @@
 const { app, BrowserWindow, nativeTheme, Menu } = require("electron");
 const path = require("path");
 
-const REMOTE_URL = "https://divelog.copilot.ovh";
+// Zentrale URL — änderbar über .env.local (NEXT_PUBLIC_SITE_URL)
+const REMOTE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://divelog.copilot.ovh";
 const APP_NAME = "DiveLog Studio";
 
 function createWindow() {

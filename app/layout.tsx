@@ -20,7 +20,9 @@ import { ThemeProvider } from "@/providers/theme-provider";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://divelog-studio.example.com";
+import { SITE_URL } from "@/lib/config";
+
+const siteUrl = SITE_URL;
 const siteName = "DiveLog Studio";
 const siteDescription = "Moderne Dive-Log-Plattform mit Dashboard, Community und Medienverwaltung. Verwalten Sie Ihre Tauchgänge, Ausrüstung, Tauchplätze und teilen Sie Ihre Erlebnisse mit der Community.";
 const siteKeywords = "Tauchen, Dive Log, Tauchlogbuch, Tauchplätze, Tauchausrüstung, Tauch-Community, Tauchgang verwalten, Dive Sites, Scuba Diving";
