@@ -134,7 +134,7 @@ export function SiteHeader() {
                         href={item.href}
                         aria-haspopup="menu"
                         aria-expanded="false"
-                        className="inline-flex items-center gap-1 transition-colors hover:text-ocean-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-500 dark:hover:text-ocean-300"
+                        className="inline-flex items-center gap-1 transition-colors hover:text-ocean-600 group-hover:text-ocean-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-500 dark:hover:text-ocean-300 dark:group-hover:text-ocean-300"
                       >
                         {t(item.labelKey)}
                         <span className="sr-only"> (has submenu)</span>
@@ -194,7 +194,7 @@ export function SiteHeader() {
                 <button
                   type="button"
                   onClick={toggleTheme}
-                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1 text-sm transition hover:border-ocean-300 hover:text-ocean-700 dark:border-slate-700 dark:text-slate-200 dark:hover:border-ocean-400 dark:hover:text-ocean-200"
+                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1 text-sm transition hover:border-ocean-300 hover:bg-ocean-50 hover:text-ocean-700 dark:border-slate-700 dark:text-slate-200 dark:hover:border-ocean-400 dark:hover:bg-ocean-900/30 dark:hover:text-ocean-200"
                   aria-label={isDark ? t("header.theme.toggle.light") : t("header.theme.toggle.dark")}
                 >
                   <span aria-hidden>{isDark ? "☀️" : "🌙"}</span>
@@ -361,7 +361,7 @@ export function SiteHeader() {
                     <button
                       type="button"
                       onClick={toggleTheme}
-                      className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm transition hover:border-ocean-300 hover:text-ocean-700 dark:border-slate-700 dark:text-slate-200 dark:hover:border-ocean-400 dark:hover:text-ocean-200"
+                      className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm transition hover:border-ocean-300 hover:bg-ocean-50 hover:text-ocean-700 dark:border-slate-700 dark:text-slate-200 dark:hover:border-ocean-400 dark:hover:bg-ocean-900/30 dark:hover:text-ocean-200"
                       aria-label={isDark ? t("header.theme.toggle.light") : t("header.theme.toggle.dark")}
                     >
                       <span aria-hidden>{isDark ? "☀️" : "🌙"}</span>
@@ -382,7 +382,7 @@ export function SiteHeader() {
                   <Link
                     href="/auth/login"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="rounded-lg border border-slate-200 px-4 py-3 text-center text-base font-medium transition hover:border-ocean-300 hover:text-ocean-700 dark:border-slate-700"
+                    className="rounded-lg border border-slate-200 px-4 py-3 text-center text-base font-medium transition hover:border-ocean-300 hover:bg-ocean-50 hover:text-ocean-700 dark:border-slate-700 dark:hover:border-ocean-400 dark:hover:bg-ocean-900/30 dark:hover:text-ocean-200"
                   >
                     {t("header.auth.login")}
                   </Link>
@@ -397,7 +397,7 @@ export function SiteHeader() {
                     <button
                       type="button"
                       onClick={toggleTheme}
-                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm transition hover:border-ocean-300 hover:text-ocean-700 dark:border-slate-700 dark:text-slate-200 dark:hover:border-ocean-400 dark:hover:text-ocean-200"
+                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm transition hover:border-ocean-300 hover:bg-ocean-50 hover:text-ocean-700 dark:border-slate-700 dark:text-slate-200 dark:hover:border-ocean-400 dark:hover:bg-ocean-900/30 dark:hover:text-ocean-200"
                       aria-label={isDark ? t("header.theme.toggle.light") : t("header.theme.toggle.dark")}
                     >
                       <span aria-hidden>{isDark ? "☀️" : "🌙"}</span>
@@ -462,7 +462,7 @@ function LanguageSwitcher({ currentLocale, setLocale, availableLocales, label }:
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-ocean-300 focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-ocean-300 hover:bg-ocean-50 hover:text-ocean-700 focus:border-ocean-400 focus:outline-none focus:ring-2 focus:ring-ocean-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-ocean-400 dark:hover:bg-ocean-900/30 dark:hover:text-ocean-200"
       >
         <FlagIcon locale={currentLocale} />
         <span>{currentOption?.label ?? currentLocale.toUpperCase()}</span>
@@ -487,7 +487,7 @@ function LanguageSwitcher({ currentLocale, setLocale, availableLocales, label }:
                     setLocale(option.value);
                     setIsOpen(false);
                   }}
-                  className={`flex w-full items-center gap-2 px-3 py-2 text-sm transition hover:bg-ocean-50 dark:hover:bg-ocean-900/30 ${
+                  className={`flex w-full items-center gap-2 px-3 py-2 text-sm transition hover:bg-ocean-50 hover:text-ocean-700 dark:hover:bg-ocean-900/30 dark:hover:text-ocean-200 ${
                     option.value === currentLocale
                       ? "font-semibold text-ocean-700 dark:text-ocean-300"
                       : "text-slate-600 dark:text-slate-300"
