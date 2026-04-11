@@ -2,6 +2,7 @@
   "name": "divelog",
   "version": "0.1.0",
   "private": true,
+  "main": "electron/main.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -12,7 +13,36 @@
     "cap:open:ios": "npx cap open ios",
     "cap:open:android": "npx cap open android",
     "cap:run:ios": "npx cap run ios",
-    "cap:run:android": "npx cap run android"
+    "cap:run:android": "npx cap run android",
+    "electron:dev": "electron .",
+    "electron:build:mac": "electron-builder --mac",
+    "electron:build:win": "electron-builder --win",
+    "electron:build:all": "electron-builder --mac --win"
+  },
+  "build": {
+    "appId": "com.divelog.studio",
+    "productName": "DiveLog Studio",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "electron/**/*",
+      "public/assets/Copilot_20260410_212123.png"
+    ],
+    "mac": {
+      "category": "public.app-category.sports",
+      "icon": "public/assets/Copilot_20260410_212123.png",
+      "target": ["dmg", "zip"]
+    },
+    "win": {
+      "icon": "public/assets/Copilot_20260410_212123.png",
+      "target": ["nsis", "portable"]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "public/assets/Copilot_20260410_212123.png"
+    }
   },
   "dependencies": {
     "@azure/cosmos": "^4.9.2",
@@ -46,6 +76,8 @@
     "@typescript-eslint/eslint-plugin": "^8.58.1",
     "@typescript-eslint/parser": "^8.58.1",
     "autoprefixer": "^10.4.27",
+    "electron": "^41.2.0",
+    "electron-builder": "^26.8.1",
     "eslint": "^10.2.0",
     "globals": "^17.4.0",
     "postcss": "^8.5.9",

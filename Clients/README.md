@@ -14,8 +14,10 @@ Die Prozentwerte sind als grobe Projektsteuerung gedacht und werden bei jedem re
 | Android (Capacitor) | Native Shell + WebView (Capacitor) | ../android/ | 15% | Plattform generiert |
 | iOS / iPadOS (Nativ) | Nativ (SwiftUI) — eine gemeinsame App für iPhone und iPad | ios/ | 10% | App-Skelett erstellt |
 | Android (Nativ) | Nativ (Kotlin + Jetpack Compose) | android/ | 10% | App-Skelett erstellt |
-| macOS | Nativ (SwiftUI/AppKit je nach Bedarf) | macos/ | 0% | Geplant |
-| Windows | Nativ (WinUI 3 / .NET) | windows/ | 0% | Geplant |
+| macOS (Electron) | Desktop Shell + WebView (Electron) | ../electron/ | 15% | App-Shell erstellt |
+| Windows (Electron) | Desktop Shell + WebView (Electron) | ../electron/ | 15% | App-Shell erstellt |
+| macOS (Nativ) | Nativ (SwiftUI/AppKit je nach Bedarf) | macos/ | 0% | Geplant |
+| Windows (Nativ) | Nativ (WinUI 3 / .NET) | windows/ | 0% | Geplant |
 | Shared Components | Wiederverwendbare Logik, UI-Bausteine, Typen, Services | shared/ | 15% | API-Vertrag + i18n Strings |
 
 ## Capacitor (PWA-Wrapper)
@@ -35,6 +37,24 @@ npm run cap:open:ios          # In Xcode öffnen
 npm run cap:open:android      # In Android Studio öffnen
 npm run cap:run:ios           # Auf iOS-Simulator starten
 npm run cap:run:android       # Auf Android-Emulator starten
+```
+
+## Electron (Desktop-Wrapper)
+
+Für macOS und Windows verwendet das Projekt [Electron](https://www.electronjs.org/) als nativen Desktop-Container.
+
+- Hauptprozess: `../electron/main.js`
+- Modus: Remote-URL — lädt `https://divelog.copilot.ovh`
+- macOS: `hiddenInset`-Titelleiste, natives Menü (Bearbeiten, Ansicht, Fenster)
+- Windows: Standard-Titelleiste mit Installer (NSIS) und Portable-Build
+- Build-Ausgabe: `../dist-electron/`
+
+**Befehle:**
+```bash
+npm run electron:dev          # Electron-Fenster starten (Entwicklung)
+npm run electron:build:mac    # macOS DMG + ZIP erzeugen
+npm run electron:build:win    # Windows Installer + Portable erzeugen
+npm run electron:build:all    # Beide Plattformen bauen
 ```
 
 ## Hinweis: iOS und iPadOS
