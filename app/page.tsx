@@ -110,12 +110,12 @@ export default function LandingPage() {
           <img
             src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1920&q=80"
             alt=""
-            className="h-full w-full object-cover opacity-50 dark:opacity-40"
+            className="h-full w-full object-cover opacity-35 dark:opacity-30"
             loading="eager"
           />
         </div>
         {/* Gradient overlays — lighter at top to show image, darker at bottom for text contrast */}
-        <div className="absolute inset-0 bg-gradient-to-b from-abyss-900/30 via-abyss-900/50 to-abyss-900/70 dark:from-[#051218]/40 dark:via-[#0a2030]/60 dark:to-[#0c2a35]/80" aria-hidden="true"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-abyss-900/60 via-abyss-900/75 to-abyss-900/90 dark:from-[#051218]/50 dark:via-[#0a2030]/70 dark:to-[#0c2a35]/85" aria-hidden="true"></div>
         
         {/* Animated Background Pattern — tropical reef bubbles */}
         <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
@@ -137,14 +137,14 @@ export default function LandingPage() {
 
         {/* Content */}
         <div className="relative mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-20 pb-28">
-          <div className="flex flex-col gap-6 text-center">
+          <div className="flex flex-col gap-6 rounded-2xl bg-abyss-900/40 px-6 py-8 text-center backdrop-blur-sm dark:bg-transparent">
             <span className="mx-auto inline-flex items-center gap-2 rounded-full border border-ocean-300/30 bg-ocean-500/20 px-4 py-1.5 text-sm font-medium text-ocean-100 backdrop-blur-sm">
               🐠 {t("landing.hero.badge")}
             </span>
-            <h1 className="text-4xl font-bold tracking-tight text-white drop-shadow-lg md:text-5xl lg:text-6xl">
+            <h1 className="text-4xl font-bold tracking-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] md:text-5xl lg:text-6xl">
               {t("landing.hero.title")}
             </h1>
-            <p className="mx-auto max-w-2xl text-lg text-ocean-100/90">
+            <p className="mx-auto max-w-2xl text-lg text-ocean-100 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
               {t("landing.hero.subtitle")}
             </p>
             {currentUser ? (
