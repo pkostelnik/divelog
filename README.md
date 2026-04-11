@@ -169,6 +169,21 @@ Die App erkennt Teams automatisch via `@microsoft/teams-js`:
 
 Setup: Siehe [`teams-app/README.md`](teams-app/README.md)
 
+### ⚙️ URL-Konfiguration
+
+Alle plattformübergreifenden URLs werden zentral verwaltet — ein Domain-Wechsel erfordert nur minimale Änderungen:
+
+| Plattform | Konfigurationsdatei | Variable / Feld |
+|---|---|---|
+| Web (Next.js) | `.env.local` | `NEXT_PUBLIC_SITE_URL` |
+| Capacitor (iOS/Android) | `capacitor.config.ts` | liest `NEXT_PUBLIC_SITE_URL` |
+| Electron (macOS/Windows) | `electron/main.js` | liest `NEXT_PUBLIC_SITE_URL` |
+| iOS Nativ | `Clients/ios/DiveLog/AppConfig.swift` | `AppConfig.siteURL` |
+| Android Nativ | `Clients/android/.../AppConfig.kt` | `AppConfig.SITE_URL` |
+| Teams Manifest | `teams-app/manifest.json` | Suchen/Ersetzen (JSON) |
+
+Zentrale Konfigurationsdatei: [`src/lib/config.ts`](src/lib/config.ts)
+
 ### 🔐 Sicherheit
 
 - Rate-Limiting (in-memory, IP-basiert) via Proxy
@@ -272,7 +287,20 @@ Open [http://localhost:3000](http://localhost:3000). The landing page links to r
 - Security headers (X-Frame-Options, CSP, HSTS)
 - Avatar URLs restricted to HTTPS only
 - npm audit: 0 known vulnerabilities
+### ⚙️ URL Configuration
 
+All cross-platform URLs are managed centrally — a domain change requires only minimal edits:
+
+| Platform | Config File | Variable / Field |
+|---|---|---|
+| Web (Next.js) | `.env.local` | `NEXT_PUBLIC_SITE_URL` |
+| Capacitor (iOS/Android) | `capacitor.config.ts` | reads `NEXT_PUBLIC_SITE_URL` |
+| Electron (macOS/Windows) | `electron/main.js` | reads `NEXT_PUBLIC_SITE_URL` |
+| iOS Native | `Clients/ios/DiveLog/AppConfig.swift` | `AppConfig.siteURL` |
+| Android Native | `Clients/android/.../AppConfig.kt` | `AppConfig.SITE_URL` |
+| Teams Manifest | `teams-app/manifest.json` | Find/Replace (JSON) |
+
+Central config module: [`src/lib/config.ts`](src/lib/config.ts)
 ### � Native Clients
 
 In addition to the web app, native mobile clients are being developed:
