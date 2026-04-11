@@ -8,6 +8,8 @@
 
 Verwalte Tauchgänge, Ausrüstung und Tauchplätze — teile Erlebnisse mit der Community.
 
+🌐 **Live-Demo:** [https://divelog.copilot.ovh](https://divelog.copilot.ovh)
+
 ![Screenshot](public/assets/screenshot-landing.png)
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.2-black?logo=next.js)](https://nextjs.org)
@@ -225,6 +227,8 @@ Details: [`Clients/README.md`](Clients/README.md)
 ---
 
 ## 🇬🇧 English
+
+🌐 **Live Demo:** [https://divelog.copilot.ovh](https://divelog.copilot.ovh)
 
 ### 🚀 Quickstart
 
