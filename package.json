@@ -7,10 +7,22 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx --cache",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "cap:sync": "npx cap sync",
+    "cap:open:ios": "npx cap open ios",
+    "cap:open:android": "npx cap open android",
+    "cap:run:ios": "npx cap run ios",
+    "cap:run:android": "npx cap run android"
   },
   "dependencies": {
     "@azure/cosmos": "^4.9.2",
+    "@capacitor/android": "^8.3.0",
+    "@capacitor/app": "^8.1.0",
+    "@capacitor/cli": "^8.3.0",
+    "@capacitor/core": "^8.3.0",
+    "@capacitor/ios": "^8.3.0",
+    "@capacitor/splash-screen": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.2",
     "@microsoft/teams-js": "^2.52.0",
     "@types/leaflet": "^1.9.21",
     "clsx": "^2.1.1",
