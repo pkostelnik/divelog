@@ -5,9 +5,9 @@
   "id": "0c905fbb-2a8a-491c-bf3a-55507ba84490",
   "developer": {
     "name": "DiveLog Studio",
-    "websiteUrl": "https://divelog.copilot.ovh",
-    "privacyUrl": "https://divelog.copilot.ovh/datenschutz",
-    "termsOfUseUrl": "https://divelog.copilot.ovh/impressum"
+    "websiteUrl": "${{SITE_URL}}",
+    "privacyUrl": "${{SITE_URL}}/datenschutz",
+    "termsOfUseUrl": "${{SITE_URL}}/impressum"
   },
   "name": {
     "short": "DiveLog Studio",
@@ -26,77 +26,77 @@
     {
       "entityId": "dashboard",
       "name": "Dashboard",
-      "contentUrl": "https://divelog.copilot.ovh/dashboard",
-      "websiteUrl": "https://divelog.copilot.ovh/dashboard",
+      "contentUrl": "${{SITE_URL}}/dashboard",
+      "websiteUrl": "${{SITE_URL}}/dashboard",
       "scopes": ["personal"]
     },
     {
       "entityId": "dives",
       "name": "Dive Logs",
-      "contentUrl": "https://divelog.copilot.ovh/dashboard/dives",
-      "websiteUrl": "https://divelog.copilot.ovh/dashboard/dives",
+      "contentUrl": "${{SITE_URL}}/dashboard/dives",
+      "websiteUrl": "${{SITE_URL}}/dashboard/dives",
       "scopes": ["personal"]
     },
     {
       "entityId": "community",
       "name": "Community",
-      "contentUrl": "https://divelog.copilot.ovh/dashboard/community",
-      "websiteUrl": "https://divelog.copilot.ovh/dashboard/community",
+      "contentUrl": "${{SITE_URL}}/dashboard/community",
+      "websiteUrl": "${{SITE_URL}}/dashboard/community",
       "scopes": ["personal"]
     },
     {
       "entityId": "blog",
       "name": "Blog",
-      "contentUrl": "https://divelog.copilot.ovh/dashboard/community/blog",
-      "websiteUrl": "https://divelog.copilot.ovh/dashboard/community/blog",
+      "contentUrl": "${{SITE_URL}}/dashboard/community/blog",
+      "websiteUrl": "${{SITE_URL}}/dashboard/community/blog",
       "scopes": ["personal"]
     },
     {
       "entityId": "forum",
       "name": "Forum",
-      "contentUrl": "https://divelog.copilot.ovh/dashboard/community/forum",
-      "websiteUrl": "https://divelog.copilot.ovh/dashboard/community/forum",
+      "contentUrl": "${{SITE_URL}}/dashboard/community/forum",
+      "websiteUrl": "${{SITE_URL}}/dashboard/community/forum",
       "scopes": ["personal"]
     },
     {
       "entityId": "media",
       "name": "Media",
-      "contentUrl": "https://divelog.copilot.ovh/dashboard/media",
-      "websiteUrl": "https://divelog.copilot.ovh/dashboard/media",
+      "contentUrl": "${{SITE_URL}}/dashboard/media",
+      "websiteUrl": "${{SITE_URL}}/dashboard/media",
       "scopes": ["personal"]
     },
     {
       "entityId": "equipment",
       "name": "Equipment",
-      "contentUrl": "https://divelog.copilot.ovh/dashboard/equipment",
-      "websiteUrl": "https://divelog.copilot.ovh/dashboard/equipment",
+      "contentUrl": "${{SITE_URL}}/dashboard/equipment",
+      "websiteUrl": "${{SITE_URL}}/dashboard/equipment",
       "scopes": ["personal"]
     },
     {
       "entityId": "sites",
       "name": "Dive Sites",
-      "contentUrl": "https://divelog.copilot.ovh/dashboard/sites",
-      "websiteUrl": "https://divelog.copilot.ovh/dashboard/sites",
+      "contentUrl": "${{SITE_URL}}/dashboard/sites",
+      "websiteUrl": "${{SITE_URL}}/dashboard/sites",
       "scopes": ["personal"]
     },
     {
       "entityId": "search",
       "name": "Search",
-      "contentUrl": "https://divelog.copilot.ovh/dashboard/search",
-      "websiteUrl": "https://divelog.copilot.ovh/dashboard/search",
+      "contentUrl": "${{SITE_URL}}/dashboard/search",
+      "websiteUrl": "${{SITE_URL}}/dashboard/search",
       "scopes": ["personal"]
     },
     {
       "entityId": "profile",
       "name": "Profile",
-      "contentUrl": "https://divelog.copilot.ovh/dashboard/profile",
-      "websiteUrl": "https://divelog.copilot.ovh/dashboard/profile",
+      "contentUrl": "${{SITE_URL}}/dashboard/profile",
+      "websiteUrl": "${{SITE_URL}}/dashboard/profile",
       "scopes": ["personal"]
     }
   ],
   "configurableTabs": [
     {
-      "configurationUrl": "https://divelog.copilot.ovh/dashboard",
+      "configurationUrl": "${{SITE_URL}}/dashboard",
       "canUpdateConfiguration": true,
       "scopes": ["team", "groupChat"]
     }

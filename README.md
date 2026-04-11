@@ -180,7 +180,7 @@ Alle plattformübergreifenden URLs werden zentral verwaltet — ein Domain-Wechs
 | Electron (macOS/Windows) | `electron/main.js` | liest `NEXT_PUBLIC_SITE_URL` |
 | iOS Nativ | `Clients/ios/DiveLog/AppConfig.swift` | `AppConfig.siteURL` |
 | Android Nativ | `Clients/android/.../AppConfig.kt` | `AppConfig.SITE_URL` |
-| Teams Manifest | `teams-app/manifest.json` | Suchen/Ersetzen (JSON) |
+| Teams Manifest | `teams-app/manifest.json` + `env/.env.dev` | `${{SITE_URL}}` (Platzhalter) |
 
 Zentrale Konfigurationsdatei: [`src/lib/config.ts`](src/lib/config.ts)
 
@@ -298,7 +298,7 @@ All cross-platform URLs are managed centrally — a domain change requires only 
 | Electron (macOS/Windows) | `electron/main.js` | reads `NEXT_PUBLIC_SITE_URL` |
 | iOS Native | `Clients/ios/DiveLog/AppConfig.swift` | `AppConfig.siteURL` |
 | Android Native | `Clients/android/.../AppConfig.kt` | `AppConfig.SITE_URL` |
-| Teams Manifest | `teams-app/manifest.json` | Find/Replace (JSON) |
+| Teams Manifest | `teams-app/manifest.json` + `env/.env.dev` | `${{SITE_URL}}` (placeholder) |
 
 Central config module: [`src/lib/config.ts`](src/lib/config.ts)
 ### � Native Clients
