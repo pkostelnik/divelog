@@ -18,6 +18,7 @@ Die Prozentwerte sind als grobe Projektsteuerung gedacht und werden bei jedem re
 | Windows (Electron) | Desktop Shell + WebView (Electron) | ../electron/ | 15% | App-Shell erstellt |
 | macOS (Nativ) | Nativ (SwiftUI/AppKit je nach Bedarf) | macos/ | 0% | Geplant |
 | Windows (Nativ) | Nativ (WinUI 3 / .NET) | windows/ | 0% | Geplant |
+| Linux | PWA (Installation via Chrome/Edge/Firefox) | ../ | 75% | Webapp als PWA installierbar |
 | Shared Components | Wiederverwendbare Logik, UI-Bausteine, Typen, Services | shared/ | 15% | API-Vertrag + i18n Strings |
 
 ## Capacitor (PWA-Wrapper)
