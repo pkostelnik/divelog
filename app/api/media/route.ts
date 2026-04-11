@@ -1,9 +1,11 @@
-/** GET /api/media — Gibt Medieneinträge aus den Mock-Daten zurück. */
-import { media } from "@/data/mock-data";
+/** GET /api/media — Gibt Medieneinträge zurück. */
+import { getRepository } from "@/lib/db";
 import { withErrorHandler } from "../_helpers";
 
 export const GET = withErrorHandler(async () => {
-  return Response.json(media, {
+  const repo = getRepository();
+  const items = await repo.getMedia();
+  return Response.json(items, {
     headers: { "Cache-Control": "private, no-store" }
   });
 });

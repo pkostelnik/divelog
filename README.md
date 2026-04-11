@@ -83,10 +83,34 @@ npm run dev
 | Tailwind CSS | 4.2 | Utility-first Styling |
 | ESLint | 10.2 | Flat Config, Custom Rules |
 | Zod | 4.3 | Schema-Validierung |
-| Azure Cosmos DB | 4.9 SDK | Datenbank (vorbereitet) |
+| Azure Cosmos DB | 4.9 SDK | Datenbank-Backend (optional) |
+| PostgreSQL | — | Datenbank-Backend (optional, pg-Paket) |
+| MySQL | — | Datenbank-Backend (optional, mysql2-Paket) |
 | Teams JS SDK | 2.52 | Microsoft Teams-Integration |
 | Leaflet | 1.9 | Interaktive Karten |
 | Lucide React | 1.8 | Icon-System |
+
+### 🗄️ Multi-Backend-Architektur
+
+Die App unterstützt **vier Datenbank-Backends**, wählbar über eine einzige Umgebungsvariable:
+
+```env
+DB_PROVIDER=mock    # mock | cosmos | postgres | mysql
+```
+
+| Provider | Paket | Env-Variablen | Einsatz |
+|---|---|---|---|
+| `mock` | — (Standard) | keine | Demo, Entwicklung |
+| `cosmos` | `@azure/cosmos` | `AZURE_COSMOS_DB_*` | Azure-Produktion |
+| `postgres` | `pg` | `DATABASE_URL` | Self-Hosted, AWS, Supabase |
+| `mysql` | `mysql2` | `DATABASE_URL` | Self-Hosted, PlanetScale |
+
+**Architektur:**
+```
+API-Routen → getRepository() → Repository-Interface → Adapter (Cosmos/Postgres/MySQL/Mock)
+```
+
+Alle API-Routen rufen `getRepository()` auf — die Factory wählt automatisch den richtigen Adapter. PostgreSQL und MySQL nutzen ein JSONB/JSON-Schema mit automatischer Tabellenerstellung beim ersten Start.
 
 ### 🧭 Projektstruktur
 

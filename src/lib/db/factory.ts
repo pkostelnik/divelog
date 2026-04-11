@@ -1,0 +1,54 @@
+/**
+ * Repository Factory — DiveLog Studio
+ *
+ * Wählt automatisch das Backend anhand der Umgebungsvariable DB_PROVIDER.
+ * Singleton-Pattern: Es wird nur eine Adapter-Instanz erzeugt.
+ *
+ * Unterstützte Provider:
+ *   mock     → In-Memory Mock-Daten (Standard / Demo-Modus)
+ *   cosmos   → Azure Cosmos DB (benötigt AZURE_COSMOS_DB_*)
+ *   postgres → PostgreSQL (benötigt DATABASE_URL)
+ *   mysql    → MySQL (benötigt DATABASE_URL)
+ */
+
+import type { DbProvider, Repository } from "./types";
+
+let instance: Repository | null = null;
+
+/**
+ * Gibt die aktive Repository-Instanz zurück.
+ * Beim ersten Aufruf wird der Adapter anhand von DB_PROVIDER erzeugt.
+ */
+export function getRepository(): Repository {
+  if (instance) return instance;
+
+  const provider = (process.env.DB_PROVIDER || "mock") as DbProvider;
+
+  switch (provider) {
+    case "cosmos": {
+      // Lazy-Import: Cosmos SDK wird nur geladen, wenn tatsächlich genutzt.
+      const { CosmosAdapter } = require("./cosmos-adapter");
+      instance = new CosmosAdapter();
+      break;
+    }
+    case "postgres": {
+      const { PostgresAdapter } = require("./postgres-adapter");
+      instance = new PostgresAdapter();
+      break;
+    }
+    case "mysql": {
+      const { MysqlAdapter } = require("./mysql-adapter");
+      instance = new MysqlAdapter();
+      break;
+    }
+    case "mock":
+    default: {
+      const { MockAdapter } = require("./mock-adapter");
+      instance = new MockAdapter();
+      break;
+    }
+  }
+
+  console.log(`[DB] Repository initialisiert: ${provider}`);
+  return instance!;
+}

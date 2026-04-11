@@ -1,9 +1,11 @@
-/** GET /api/equipment — Gibt die Ausrüstungsliste aus den Mock-Daten zurück. */
-import { equipment } from "@/data/mock-data";
+/** GET /api/equipment — Gibt die Ausrüstungsliste zurück. */
+import { getRepository } from "@/lib/db";
 import { withErrorHandler } from "../_helpers";
 
 export const GET = withErrorHandler(async () => {
-  return Response.json(equipment, {
+  const repo = getRepository();
+  const items = await repo.getEquipment();
+  return Response.json(items, {
     headers: { "Cache-Control": "private, no-store" }
   });
 });
