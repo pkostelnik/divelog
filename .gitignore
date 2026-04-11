@@ -51,3 +51,15 @@ node-v*/
 # macOS
 .DS_Store
 .eslintcache
+
+# Capacitor native projects (generiert via `npx cap add`)
+# Neu erzeugen: npx cap add ios && npx cap add android
+/ios/
+/android/
+
+# Native Client-Projekte (enthalten Java/Kotlin/Swift — stören Azure Oryx Build)
+# Werden separat entwickelt und nicht über Azure App Service deployed
+Clients/android/
+Clients/ios/
+Clients/macos/
+Clients/windows/
