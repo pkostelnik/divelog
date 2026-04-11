@@ -162,3 +162,299 @@ form textarea {
 .dark .border-ocean-100\/50 {
   border-color: rgba(6, 182, 212, 0.15) !important;
 }
+
+/* ═══════════════════════════════════════════════
+   3D / Plastische Karten- & Panel-Effekte
+   Zielt auf div/section/article/li mit shadow-sm
+   und rounded-2xl / rounded-3xl / rounded-xl.
+   Inputs, Selects und Buttons werden ausgeschlossen.
+   ═══════════════════════════════════════════════ */
+
+/* Light Mode — Karten */
+div.rounded-2xl.shadow-sm,
+div.rounded-3xl.shadow-sm,
+section.rounded-2xl.shadow-sm,
+section.rounded-3xl.shadow-sm,
+article.rounded-2xl.shadow-sm,
+article.rounded-3xl.shadow-sm,
+li.rounded-2xl.shadow-sm,
+li.rounded-3xl.shadow-sm,
+div.rounded-xl.shadow-sm:not(button):not([class*="px-3"]):not([class*="px-4"]) {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.07),
+    0 4px 10px rgba(0, 0, 0, 0.07),
+    0 10px 20px rgba(0, 0, 0, 0.04) !important;
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.6) 0%,
+    rgba(255, 255, 255, 0) 60%
+  );
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+div.rounded-2xl.shadow-sm:hover,
+div.rounded-3xl.shadow-sm:hover,
+section.rounded-2xl.shadow-sm:hover,
+section.rounded-3xl.shadow-sm:hover,
+article.rounded-2xl.shadow-sm:hover,
+article.rounded-3xl.shadow-sm:hover,
+li.rounded-2xl.shadow-sm:hover,
+div.rounded-xl.shadow-sm:not(button):not([class*="px-3"]):not([class*="px-4"]):hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.05),
+    0 2px 6px rgba(0, 0, 0, 0.1),
+    0 8px 18px rgba(0, 0, 0, 0.1),
+    0 16px 32px rgba(0, 0, 0, 0.06) !important;
+  transform: translateY(-2px);
+}
+
+/* Dark Mode — Karten */
+.dark div.rounded-2xl.shadow-sm,
+.dark div.rounded-3xl.shadow-sm,
+.dark section.rounded-2xl.shadow-sm,
+.dark section.rounded-3xl.shadow-sm,
+.dark article.rounded-2xl.shadow-sm,
+.dark article.rounded-3xl.shadow-sm,
+.dark li.rounded-2xl.shadow-sm,
+.dark li.rounded-3xl.shadow-sm,
+.dark div.rounded-xl.shadow-sm:not(button):not([class*="px-3"]):not([class*="px-4"]) {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.5),
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    0 6px 16px rgba(0, 0, 0, 0.35),
+    0 14px 30px rgba(0, 0, 0, 0.2) !important;
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.055) 0%,
+    rgba(255, 255, 255, 0) 50%
+  );
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.dark div.rounded-2xl.shadow-sm:hover,
+.dark div.rounded-3xl.shadow-sm:hover,
+.dark section.rounded-2xl.shadow-sm:hover,
+.dark section.rounded-3xl.shadow-sm:hover,
+.dark article.rounded-2xl.shadow-sm:hover,
+.dark article.rounded-3xl.shadow-sm:hover,
+.dark li.rounded-2xl.shadow-sm:hover,
+.dark div.rounded-xl.shadow-sm:not(button):not([class*="px-3"]):not([class*="px-4"]):hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.13),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.55),
+    0 4px 10px rgba(0, 0, 0, 0.5),
+    0 10px 24px rgba(0, 0, 0, 0.45),
+    0 20px 40px rgba(0, 0, 0, 0.28) !important;
+  transform: translateY(-2px);
+}
+
+/* ═══════════════════════════════════════════════
+   3D / Plastische Effekte — Einzelne Item-Karten
+   (article = Dive-Log-Einträge, li = Equipment)
+   Stärkerer Effekt als bei großen Panels.
+   ═══════════════════════════════════════════════ */
+
+/* Light Mode — Item-Karten */
+article.rounded-2xl,
+li.rounded-2xl {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.07),
+    inset 1px 0 0 rgba(255, 255, 255, 0.6),
+    0 1px 3px rgba(0, 0, 0, 0.09),
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    0 10px 22px rgba(0, 0, 0, 0.05) !important;
+  background-image: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.75) 0%,
+    rgba(255, 255, 255, 0.15) 40%,
+    rgba(255, 255, 255, 0) 100%
+  ) !important;
+  transition: box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+article.rounded-2xl:hover,
+li.rounded-2xl:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.09),
+    inset 1px 0 0 rgba(255, 255, 255, 0.65),
+    0 2px 6px rgba(0, 0, 0, 0.12),
+    0 8px 20px rgba(0, 0, 0, 0.12),
+    0 18px 36px rgba(0, 0, 0, 0.07) !important;
+  transform: translateY(-2px);
+}
+
+/* Dark Mode — Item-Karten */
+.dark article.rounded-2xl,
+.dark li.rounded-2xl {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.6),
+    inset 1px 0 0 rgba(255, 255, 255, 0.06),
+    0 2px 6px rgba(0, 0, 0, 0.45),
+    0 6px 16px rgba(0, 0, 0, 0.38),
+    0 14px 30px rgba(0, 0, 0, 0.22) !important;
+  background-image: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.09) 0%,
+    rgba(255, 255, 255, 0.02) 40%,
+    rgba(255, 255, 255, 0) 100%
+  ) !important;
+  transition: box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.dark article.rounded-2xl:hover,
+.dark li.rounded-2xl:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.65),
+    inset 1px 0 0 rgba(255, 255, 255, 0.08),
+    0 4px 10px rgba(0, 0, 0, 0.55),
+    0 10px 24px rgba(0, 0, 0, 0.48),
+    0 22px 44px rgba(0, 0, 0, 0.28) !important;
+  transform: translateY(-2px);
+}
+
+/* ═══════════════════════════════════════════════
+   3D / Plastische Schaltflächen-Effekte
+   Wirkt automatisch auf alle rounded button/link
+   Elemente – keine TSX-Änderungen nötig.
+   ═══════════════════════════════════════════════ */
+
+/* Ghost / Outline Schaltflächen (ohne gefüllten Hintergrund) */
+button.rounded-full, button.rounded-lg, button.rounded-xl,
+a.rounded-full:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
+a.rounded-lg:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
+a.rounded-xl:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]) {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08),
+    0 2px 4px rgba(0, 0, 0, 0.09),
+    0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+button.rounded-full:hover, button.rounded-lg:hover, button.rounded-xl:hover,
+a.rounded-full:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
+a.rounded-lg:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
+a.rounded-xl:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1),
+    0 4px 8px rgba(0, 0, 0, 0.12),
+    0 2px 4px rgba(0, 0, 0, 0.07);
+}
+
+button.rounded-full:active, button.rounded-lg:active, button.rounded-xl:active,
+a.rounded-full:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
+a.rounded-lg:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
+a.rounded-xl:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active {
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.15),
+    0 1px 1px rgba(0, 0, 0, 0.04);
+  transform: translateY(1px);
+}
+
+/* Primäre (gefüllte) Schaltflächen — Ocean und Gradient */
+button[class*="bg-ocean-"].rounded-full, button[class*="bg-ocean-"].rounded-lg, button[class*="bg-ocean-"].rounded-xl,
+a[class*="bg-ocean-"].rounded-full, a[class*="bg-ocean-"].rounded-lg, a[class*="bg-ocean-"].rounded-xl,
+a[class*="bg-gradient-"].rounded-full, a[class*="bg-gradient-"].rounded-lg, a[class*="bg-gradient-"].rounded-xl {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.2),
+    0 4px 10px rgba(0, 0, 0, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+button[class*="bg-ocean-"].rounded-full:hover, button[class*="bg-ocean-"].rounded-lg:hover, button[class*="bg-ocean-"].rounded-xl:hover,
+a[class*="bg-ocean-"].rounded-full:hover, a[class*="bg-ocean-"].rounded-lg:hover, a[class*="bg-ocean-"].rounded-xl:hover,
+a[class*="bg-gradient-"].rounded-full:hover, a[class*="bg-gradient-"].rounded-lg:hover, a[class*="bg-gradient-"].rounded-xl:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.22),
+    0 6px 14px rgba(0, 0, 0, 0.24),
+    0 3px 6px rgba(0, 0, 0, 0.14);
+}
+
+button[class*="bg-ocean-"].rounded-full:active, button[class*="bg-ocean-"].rounded-lg:active, button[class*="bg-ocean-"].rounded-xl:active,
+a[class*="bg-ocean-"].rounded-full:active, a[class*="bg-ocean-"].rounded-lg:active, a[class*="bg-ocean-"].rounded-xl:active,
+a[class*="bg-gradient-"].rounded-full:active, a[class*="bg-gradient-"].rounded-lg:active, a[class*="bg-gradient-"].rounded-xl:active {
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.3),
+    0 1px 2px rgba(0, 0, 0, 0.08);
+  transform: translateY(1px);
+}
+
+/* Dark Mode — Ghost Schaltflächen */
+.dark button.rounded-full:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
+.dark button.rounded-lg:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
+.dark button.rounded-xl:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
+.dark a.rounded-full:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
+.dark a.rounded-lg:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
+.dark a.rounded-xl:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]) {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.55),
+    0 2px 8px rgba(0, 0, 0, 0.55),
+    0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.dark button.rounded-full:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
+.dark button.rounded-lg:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
+.dark button.rounded-xl:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
+.dark a.rounded-full:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
+.dark a.rounded-lg:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
+.dark a.rounded-xl:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.6),
+    0 5px 14px rgba(0, 0, 0, 0.65),
+    0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.dark button.rounded-full:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
+.dark button.rounded-lg:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
+.dark button.rounded-xl:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
+.dark a.rounded-full:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
+.dark a.rounded-lg:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
+.dark a.rounded-xl:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active {
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(0, 0, 0, 0.4);
+  transform: translateY(1px);
+}
+
+/* Dark Mode — Primäre Schaltflächen (schlägt .dark .shadow-sm !important) */
+.dark button[class*="bg-ocean-"].rounded-full, .dark button[class*="bg-ocean-"].rounded-lg, .dark button[class*="bg-ocean-"].rounded-xl,
+.dark a[class*="bg-ocean-"].rounded-full, .dark a[class*="bg-ocean-"].rounded-lg, .dark a[class*="bg-ocean-"].rounded-xl,
+.dark a[class*="bg-gradient-"].rounded-full, .dark a[class*="bg-gradient-"].rounded-lg, .dark a[class*="bg-gradient-"].rounded-xl {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.5),
+    0 4px 14px rgba(8, 145, 178, 0.45),
+    0 2px 6px rgba(0, 0, 0, 0.45) !important;
+}
+
+.dark button[class*="bg-ocean-"].rounded-full:hover, .dark button[class*="bg-ocean-"].rounded-lg:hover, .dark button[class*="bg-ocean-"].rounded-xl:hover,
+.dark a[class*="bg-ocean-"].rounded-full:hover, .dark a[class*="bg-ocean-"].rounded-lg:hover, .dark a[class*="bg-ocean-"].rounded-xl:hover,
+.dark a[class*="bg-gradient-"].rounded-full:hover, .dark a[class*="bg-gradient-"].rounded-lg:hover, .dark a[class*="bg-gradient-"].rounded-xl:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.55),
+    0 7px 20px rgba(8, 145, 178, 0.55),
+    0 3px 8px rgba(0, 0, 0, 0.5) !important;
+}
+
+.dark button[class*="bg-ocean-"].rounded-full:active, .dark button[class*="bg-ocean-"].rounded-lg:active, .dark button[class*="bg-ocean-"].rounded-xl:active,
+.dark a[class*="bg-ocean-"].rounded-full:active, .dark a[class*="bg-ocean-"].rounded-lg:active, .dark a[class*="bg-ocean-"].rounded-xl:active,
+.dark a[class*="bg-gradient-"].rounded-full:active, .dark a[class*="bg-gradient-"].rounded-lg:active, .dark a[class*="bg-gradient-"].rounded-xl:active {
+  box-shadow:
+    inset 0 2px 7px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(0, 0, 0, 0.2),
+    0 1px 3px rgba(0, 0, 0, 0.3) !important;
+  transform: translateY(1px);
+}
