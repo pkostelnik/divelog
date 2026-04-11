@@ -10,11 +10,11 @@ Die Prozentwerte sind als grobe Projektsteuerung gedacht und werden bei jedem re
 | Plattform | Form | Pfad | Entwicklungsstand | Status |
 |---|---|---|---:|---|
 | Web | PWA (bestehende Next.js-Webapp, außerhalb von Clients) | ../ | 75% | In Betrieb / laufende Weiterentwicklung |
-| iOS / iPadOS | Nativ (SwiftUI) — eine gemeinsame App für iPhone und iPad | ios/ | 0% | Geplant |
+| iOS / iPadOS | Nativ (SwiftUI) — eine gemeinsame App für iPhone und iPad | ios/ | 10% | App-Skelett erstellt |
 | macOS | Nativ (SwiftUI/AppKit je nach Bedarf) | macos/ | 0% | Geplant |
-| Android | Nativ (Kotlin + Jetpack Compose) | android/ | 0% | Geplant |
+| Android | Nativ (Kotlin + Jetpack Compose) | android/ | 10% | App-Skelett erstellt |
 | Windows | Nativ (WinUI 3 / .NET) | windows/ | 0% | Geplant |
-| Shared Components | Wiederverwendbare Logik, UI-Bausteine, Typen, Services | shared/ | 5% | Struktur angelegt |
+| Shared Components | Wiederverwendbare Logik, UI-Bausteine, Typen, Services | shared/ | 15% | API-Vertrag + i18n Strings |
 
 ## Hinweis: iOS und iPadOS
 iOS und iPadOS werden als **eine einzige App** im Ordner `ios/` entwickelt. SwiftUI bietet adaptive Layouts (NavigationSplitView, horizontalSizeClass), sodass sich die App automatisch an iPhone und iPad anpasst. Ein separater iPadOS-Ordner ist daher nicht nötig.

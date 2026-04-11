@@ -1,0 +1,71 @@
+{
+  "app": {
+    "name": "DiveLog Studio",
+    "tagline": "Dein digitales Tauchlogbuch"
+  },
+  "tab": {
+    "dashboard": "Dashboard",
+    "dives": "Tauchgänge",
+    "equipment": "Ausrüstung",
+    "sites": "Tauchplätze",
+    "profile": "Profil"
+  },
+  "login": {
+    "title": "Anmelden",
+    "email": "E-Mail-Adresse",
+    "password": "Passwort",
+    "submit": "Einloggen",
+    "register": "Konto erstellen",
+    "forgotPassword": "Passwort vergessen?"
+  },
+  "dashboard": {
+    "welcome": "Willkommen zurück",
+    "heading": "Dein Dashboard",
+    "recentDives": "Letzte Tauchgänge",
+    "equipment": "Ausrüstung",
+    "notifications": "Benachrichtigungen"
+  },
+  "dives": {
+    "title": "Tauchgänge",
+    "add": "Neuer Tauchgang",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "empty": "Noch keine Tauchgänge vorhanden.",
+    "field": {
+      "date": "Datum",
+      "depth": "Tiefe",
+      "duration": "Dauer",
+      "buddy": "Buddy",
+      "location": "Ort",
+      "difficulty": "Schwierigkeit"
+    }
+  },
+  "equipment": {
+    "title": "Ausrüstung",
+    "add": "Hinzufügen",
+    "status": {
+      "bereit": "Bereit",
+      "wartung": "Wartung",
+      "defekt": "Defekt"
+    }
+  },
+  "sites": {
+    "title": "Tauchplätze",
+    "map": "Karte",
+    "list": "Liste"
+  },
+  "profile": {
+    "title": "Profil",
+    "logout": "Abmelden",
+    "settings": "Einstellungen",
+    "language": "Sprache",
+    "darkMode": "Dunkelmodus"
+  },
+  "common": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "loading": "Laden…",
+    "error": "Ein Fehler ist aufgetreten.",
+    "retry": "Erneut versuchen"
+  }
+}

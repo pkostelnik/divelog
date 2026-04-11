@@ -1,0 +1,71 @@
+{
+  "app": {
+    "name": "DiveLog Studio",
+    "tagline": "Your digital dive logbook"
+  },
+  "tab": {
+    "dashboard": "Dashboard",
+    "dives": "Dives",
+    "equipment": "Equipment",
+    "sites": "Dive Sites",
+    "profile": "Profile"
+  },
+  "login": {
+    "title": "Sign In",
+    "email": "Email Address",
+    "password": "Password",
+    "submit": "Log In",
+    "register": "Create Account",
+    "forgotPassword": "Forgot Password?"
+  },
+  "dashboard": {
+    "welcome": "Welcome back",
+    "heading": "Your Dashboard",
+    "recentDives": "Recent Dives",
+    "equipment": "Equipment",
+    "notifications": "Notifications"
+  },
+  "dives": {
+    "title": "Dives",
+    "add": "New Dive",
+    "edit": "Edit",
+    "delete": "Delete",
+    "empty": "No dives logged yet.",
+    "field": {
+      "date": "Date",
+      "depth": "Depth",
+      "duration": "Duration",
+      "buddy": "Buddy",
+      "location": "Location",
+      "difficulty": "Difficulty"
+    }
+  },
+  "equipment": {
+    "title": "Equipment",
+    "add": "Add",
+    "status": {
+      "bereit": "Ready",
+      "wartung": "Maintenance",
+      "defekt": "Defective"
+    }
+  },
+  "sites": {
+    "title": "Dive Sites",
+    "map": "Map",
+    "list": "List"
+  },
+  "profile": {
+    "title": "Profile",
+    "logout": "Sign Out",
+    "settings": "Settings",
+    "language": "Language",
+    "darkMode": "Dark Mode"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading…",
+    "error": "An error occurred.",
+    "retry": "Retry"
+  }
+}
