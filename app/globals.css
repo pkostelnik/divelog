@@ -326,11 +326,13 @@ li.rounded-2xl:hover {
    Elemente – keine TSX-Änderungen nötig.
    ═══════════════════════════════════════════════ */
 
-/* Ghost / Outline Schaltflächen (ohne gefüllten Hintergrund) */
-button.rounded-full, button.rounded-lg, button.rounded-xl,
-a.rounded-full:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
-a.rounded-lg:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
-a.rounded-xl:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]) {
+/* Ghost / Outline Schaltflächen (ohne gefüllten Hintergrund)
+   Nur Elemente mit explizitem Border – schließt Nav-Links und
+   Dropdown-Menüpunkte aus, die keinen Border haben. */
+button.rounded-full[class*="border"], button.rounded-lg[class*="border"], button.rounded-xl[class*="border"],
+a.rounded-full[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
+a.rounded-lg[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
+a.rounded-xl[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]) {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.28),
     inset 0 -1px 0 rgba(0, 0, 0, 0.08),
@@ -338,10 +340,10 @@ a.rounded-xl:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*=
     0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-button.rounded-full:hover, button.rounded-lg:hover, button.rounded-xl:hover,
-a.rounded-full:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
-a.rounded-lg:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
-a.rounded-xl:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover {
+button.rounded-full[class*="border"]:hover, button.rounded-lg[class*="border"]:hover, button.rounded-xl[class*="border"]:hover,
+a.rounded-full[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
+a.rounded-lg[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
+a.rounded-xl[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.28),
     inset 0 -1px 0 rgba(0, 0, 0, 0.1),
@@ -349,10 +351,10 @@ a.rounded-xl:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*=
     0 2px 4px rgba(0, 0, 0, 0.07);
 }
 
-button.rounded-full:active, button.rounded-lg:active, button.rounded-xl:active,
-a.rounded-full:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
-a.rounded-lg:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
-a.rounded-xl:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active {
+button.rounded-full[class*="border"]:active, button.rounded-lg[class*="border"]:active, button.rounded-xl[class*="border"]:active,
+a.rounded-full[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
+a.rounded-lg[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
+a.rounded-xl[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active {
   box-shadow:
     inset 0 1px 3px rgba(0, 0, 0, 0.15),
     0 1px 1px rgba(0, 0, 0, 0.04);
@@ -390,12 +392,12 @@ a[class*="bg-gradient-"].rounded-full:active, a[class*="bg-gradient-"].rounded-l
 }
 
 /* Dark Mode — Ghost Schaltflächen */
-.dark button.rounded-full:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
-.dark button.rounded-lg:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
-.dark button.rounded-xl:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
-.dark a.rounded-full:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
-.dark a.rounded-lg:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
-.dark a.rounded-xl:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]) {
+.dark button.rounded-full[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
+.dark button.rounded-lg[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
+.dark button.rounded-xl[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
+.dark a.rounded-full[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
+.dark a.rounded-lg[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]),
+.dark a.rounded-xl[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]) {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.18),
     inset 0 -2px 0 rgba(0, 0, 0, 0.55),
@@ -403,12 +405,12 @@ a[class*="bg-gradient-"].rounded-full:active, a[class*="bg-gradient-"].rounded-l
     0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
-.dark button.rounded-full:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
-.dark button.rounded-lg:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
-.dark button.rounded-xl:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
-.dark a.rounded-full:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
-.dark a.rounded-lg:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
-.dark a.rounded-xl:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover {
+.dark button.rounded-full[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
+.dark button.rounded-lg[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
+.dark button.rounded-xl[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
+.dark a.rounded-full[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
+.dark a.rounded-lg[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover,
+.dark a.rounded-xl[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):hover {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
     inset 0 -2px 0 rgba(0, 0, 0, 0.6),
@@ -416,12 +418,12 @@ a[class*="bg-gradient-"].rounded-full:active, a[class*="bg-gradient-"].rounded-l
     0 2px 6px rgba(0, 0, 0, 0.5);
 }
 
-.dark button.rounded-full:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
-.dark button.rounded-lg:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
-.dark button.rounded-xl:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
-.dark a.rounded-full:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
-.dark a.rounded-lg:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
-.dark a.rounded-xl:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active {
+.dark button.rounded-full[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
+.dark button.rounded-lg[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
+.dark button.rounded-xl[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
+.dark a.rounded-full[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
+.dark a.rounded-lg[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active,
+.dark a.rounded-xl[class*="border"]:not([class*="bg-ocean-"]):not([class*="bg-gradient-"]):not([class*="bg-rose-"]):active {
   box-shadow:
     inset 0 2px 6px rgba(0, 0, 0, 0.7),
     inset 0 1px 0 rgba(0, 0, 0, 0.4);

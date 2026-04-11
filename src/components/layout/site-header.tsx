@@ -109,7 +109,7 @@ export function SiteHeader() {
           {!teams.isInTeams && (
             <>
               {/* Desktop Navigation - sichtbar ab 1080px */}
-              <nav aria-label="Main navigation" className="hidden items-center gap-6 text-sm font-medium text-slate-600 transition-colors dark:text-slate-300 xl:flex">
+              <nav aria-label="Main navigation" className="hidden items-center gap-1 text-sm font-medium text-slate-600 transition-colors dark:text-slate-300 xl:flex">
                 {visibleLinks.map((item) => {
                   // Skip dashboard and data navigation for non-logged-in users
                   if (!currentUser && (item.href === "/dashboard" || item.href === "/dashboard/data" || item.href === "/dashboard/dives" || item.href === "/dashboard/search")) {
@@ -121,7 +121,7 @@ export function SiteHeader() {
                       <Link
                         key={item.href}
                         href={item.href}
-                        className="transition-colors hover:text-ocean-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-500 dark:hover:text-ocean-300"
+                        className="rounded-full border border-transparent px-3 py-1.5 transition-colors hover:border-ocean-200 hover:bg-ocean-50 hover:text-ocean-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-500 dark:hover:border-ocean-700 dark:hover:bg-ocean-900/30 dark:hover:text-ocean-300"
                       >
                         {t(item.labelKey)}
                       </Link>
@@ -134,18 +134,18 @@ export function SiteHeader() {
                         href={item.href}
                         aria-haspopup="menu"
                         aria-expanded="false"
-                        className="inline-flex items-center gap-1 transition-colors hover:text-ocean-600 group-hover:text-ocean-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-500 dark:hover:text-ocean-300 dark:group-hover:text-ocean-300"
+                        className="inline-flex items-center gap-1 rounded-full border border-transparent px-3 py-1.5 transition-colors hover:border-ocean-200 hover:bg-ocean-50 hover:text-ocean-700 group-hover:border-ocean-200 group-hover:bg-ocean-50 group-hover:text-ocean-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-500 dark:hover:border-ocean-700 dark:hover:bg-ocean-900/30 dark:hover:text-ocean-300 dark:group-hover:border-ocean-700 dark:group-hover:bg-ocean-900/30 dark:group-hover:text-ocean-300"
                       >
                         {t(item.labelKey)}
                         <span className="sr-only"> (has submenu)</span>
                       </Link>
-                        <div role="menu" aria-label={`${t(item.labelKey)} submenu`} className="pointer-events-none absolute left-0 top-full z-40 hidden w-52 -translate-y-1 flex-col rounded-xl border border-ocean-100 bg-white/95 py-2 text-sm opacity-0 shadow-2xl backdrop-blur-sm transition will-change-transform group-hover:pointer-events-auto group-hover:flex group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:flex group-focus-within:translate-y-0 group-focus-within:opacity-100 dark:border-ocean-800/40 dark:bg-[#0c1f2e]/95">
+                        <div role="menu" aria-label={`${t(item.labelKey)} submenu`} className="pointer-events-none absolute left-0 top-full z-40 hidden w-52 -translate-y-1 flex-col gap-1 rounded-xl border border-ocean-100 bg-white/95 p-1 text-sm opacity-0 shadow-2xl backdrop-blur-sm transition will-change-transform group-hover:pointer-events-auto group-hover:flex group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:flex group-focus-within:translate-y-0 group-focus-within:opacity-100 dark:border-ocean-800/40 dark:bg-[#0c1f2e]/95">
                         {item.children.map((child) => (
                           <Link
                             key={child.href}
                             href={child.href}
                             role="menuitem"
-                            className="px-4 py-2 text-slate-600 transition hover:bg-ocean-50 hover:text-ocean-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-500 dark:text-slate-300 dark:hover:bg-ocean-900/30 dark:hover:text-ocean-200"
+                            className="mx-1 rounded-lg px-3 py-2 text-slate-600 transition-colors hover:bg-ocean-50 hover:text-ocean-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ocean-500 dark:text-slate-300 dark:hover:bg-ocean-900/30 dark:hover:text-ocean-200"
                           >
                             {t(child.labelKey)}
                           </Link>
@@ -477,7 +477,7 @@ function LanguageSwitcher({ currentLocale, setLocale, availableLocales, label }:
           <ul
             role="listbox"
             aria-label={label}
-            className="absolute right-0 top-full z-50 mt-1 min-w-[140px] rounded-xl border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-900"
+            className="absolute right-0 top-full z-50 mt-1 min-w-[140px] flex flex-col gap-1 rounded-xl border border-slate-200 bg-white p-1 shadow-lg dark:border-slate-700 dark:bg-slate-900"
           >
             {availableLocales.map((option) => (
               <li key={option.value} role="option" aria-selected={option.value === currentLocale}>
@@ -487,7 +487,7 @@ function LanguageSwitcher({ currentLocale, setLocale, availableLocales, label }:
                     setLocale(option.value);
                     setIsOpen(false);
                   }}
-                  className={`flex w-full items-center gap-2 px-3 py-2 text-sm transition hover:bg-ocean-50 hover:text-ocean-700 dark:hover:bg-ocean-900/30 dark:hover:text-ocean-200 ${
+                  className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-ocean-50 hover:text-ocean-700 dark:hover:bg-ocean-900/30 dark:hover:text-ocean-200 ${
                     option.value === currentLocale
                       ? "font-semibold text-ocean-700 dark:text-ocean-300"
                       : "text-slate-600 dark:text-slate-300"
