@@ -27,7 +27,7 @@ let mysql2: any = null;
 async function getMysql() {
   if (!mysql2) {
     try {
-      // Dynamic require — mysql2 ist eine optionale Abhängigkeit
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       mysql2 = require("mysql2/promise");
     } catch {
       throw new Error(

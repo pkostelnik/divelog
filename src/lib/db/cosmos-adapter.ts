@@ -27,8 +27,6 @@ import {
   updateUsersSocialItem,
   deleteDiveContentItem,
   deleteUsersSocialItem,
-  readDiveContentItem,
-  readUsersSocialItem,
   type CosmosEntity,
 } from "../cosmos-db";
 

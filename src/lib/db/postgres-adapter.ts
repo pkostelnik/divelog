@@ -29,7 +29,7 @@ let Pool: any;
 async function getPool() {
   if (!Pool) {
     try {
-      // Dynamic require — pg ist eine optionale Abhängigkeit
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const pg = require("pg");
       Pool = pg.Pool;
     } catch {
@@ -134,13 +134,11 @@ async function insertItem<T>(table: string, item: Omit<T, "id">, extraColumns?: 
   const id = generateId();
   const full = { ...item, id } as T;
   const cols = ["id", "data"];
-  const vals = [id, JSON.stringify(full)];
-  let paramIdx = 3;
+  const vals: unknown[] = [id, JSON.stringify(full)];
   if (extraColumns) {
     for (const [col, val] of Object.entries(extraColumns)) {
       cols.push(col);
-      vals.push(val as string);
-      paramIdx++;
+      vals.push(val);
     }
   }
   const placeholders = vals.map((_, i) => `$${i + 1}`).join(", ");
