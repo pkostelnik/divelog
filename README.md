@@ -210,6 +210,8 @@ src/
 │   └── theme-provider  → Dark/Light Mode
 ├── lib/                → Hilfsfunktionen
 │   ├── cosmos-db.ts    → Azure Cosmos DB Client (2-Container)
+│   ├── db/             → Multi-Backend Repository (Cosmos/Postgres/MySQL/Mock)
+│   ├── config.ts       → Zentrale URL-Konfiguration
 │   ├── gravatar.ts     → Gravatar SHA-256 Integration
 │   └── ...
 ├── data/               → Mock-Daten (Cosmos DB Modell)
@@ -272,6 +274,14 @@ Zentrale Konfigurationsdatei: [`src/lib/config.ts`](src/lib/config.ts)
 - Avatar-URLs nur über HTTPS erlaubt
 - npm audit: 0 bekannte Schwachstellen
 
+### 🚀 CI/CD & Deployment
+
+- **GitHub Actions** baut und deployed automatisch bei jedem Push auf `main`
+- Workflow: [`.github/workflows/deploy-azure.yml`](.github/workflows/deploy-azure.yml)
+- Azure App Service Oryx-Build ist deaktiviert (`SCM_DO_BUILD_DURING_DEPLOYMENT=false`)
+- Native Projekte (Java/Kotlin/Swift) im Repo ohne Einfluss auf den Webapp-Build
+- Secrets: `AZURE_WEBAPP_NAME` + `AZURE_WEBAPP_PUBLISH_PROFILE` in GitHub Actions konfiguriert
+
 ### � Native Clients
 
 Neben der Web-App werden native Mobile-Clients entwickelt:
@@ -298,7 +308,7 @@ Details: [`Clients/README.md`](Clients/README.md)
 2. NextAuth / Entra ID für serverseitige Authentifizierung
 3. React Hook Form + Zod Server Actions
 4. Azure Blob Storage für Medienverwaltung
-5. Playwright E2E-Tests + CI/CD Pipeline
+5. ~~Playwright E2E-Tests + CI/CD Pipeline~~
 6. Erweiterte Teams-Features (Bot, Adaptive Cards)
 7. iOS / Android App Store Releases
 
@@ -405,6 +415,14 @@ See [`docs/COSMOS_DB_SETUP.md`](docs/COSMOS_DB_SETUP.md)
 - Security headers (X-Frame-Options, CSP, HSTS)
 - Avatar URLs restricted to HTTPS only
 - npm audit: 0 known vulnerabilities
+
+### 🚀 CI/CD & Deployment
+
+- **GitHub Actions** builds and deploys automatically on every push to `main`
+- Workflow: [`.github/workflows/deploy-azure.yml`](.github/workflows/deploy-azure.yml)
+- Azure App Service Oryx build is disabled (`SCM_DO_BUILD_DURING_DEPLOYMENT=false`)
+- Native projects (Java/Kotlin/Swift) stay in the repo without affecting the webapp build
+- Secrets: `AZURE_WEBAPP_NAME` + `AZURE_WEBAPP_PUBLISH_PROFILE` configured in GitHub Actions
 ### ⚙️ URL Configuration
 
 All cross-platform URLs are managed centrally — a domain change requires only minimal edits:
@@ -445,7 +463,7 @@ Details: [`Clients/README.md`](Clients/README.md)
 2. NextAuth / Entra ID for server-side authentication
 3. React Hook Form + Zod Server Actions
 4. Azure Blob Storage for media management
-5. Playwright E2E tests + CI/CD pipeline
+5. ~~Playwright E2E tests + CI/CD pipeline~~
 6. Enhanced Teams features (bot, adaptive cards)
 7. iOS / Android App Store releases
 
