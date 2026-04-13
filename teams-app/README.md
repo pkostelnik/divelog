@@ -5,8 +5,8 @@ This folder contains the Microsoft Teams app manifest and assets for deploying D
 ## Files
 
 - `manifest.json` - Teams app manifest (requires placeholder replacement)
-- `color.png` - 192x192px color icon (TODO: replace with actual icon)
-- `outline.png` - 32x32px transparent outline icon (TODO: replace with actual icon)
+- `color.png` - 192x192px color icon
+- `outline.png` - 32x32px transparent outline icon
 
 ## Setup Instructions
 
