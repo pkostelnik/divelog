@@ -17,7 +17,7 @@ const fullDimensions = {
   lg: { width: 240, height: 48 }
 };
 
-const logoAsset = "/assets/Copilot_20260410_212123.png";
+const logoAsset = "/assets/divelog-logo.png";
 
 export function AppLogo({ variant = "icon", size = "md" }: AppLogoProps) {
   const dimensions = variant === "full" ? fullDimensions[size] : iconDimensions[size];

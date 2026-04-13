@@ -11,7 +11,7 @@ class AuthViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
 
-        // TODO: Echte API-Authentifizierung implementieren
+        // Platzhalter — wird durch echte API-Authentifizierung ersetzt
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
             self?.isAuthenticated = true
             self?.isLoading = false

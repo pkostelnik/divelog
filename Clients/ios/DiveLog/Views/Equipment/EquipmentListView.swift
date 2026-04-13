@@ -39,7 +39,7 @@ struct EquipmentListView: View {
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
-                        // TODO: Add equipment sheet
+                        // Equipment-Erstellen-Sheet öffnen
                     } label: {
                         Image(systemName: "plus")
                     }

@@ -12,7 +12,7 @@ export const contentType = "image/png";
 
 export default async function Icon() {
   const imageBuffer = await readFile(
-    path.join(process.cwd(), "public/assets/Copilot_20260410_212123.png")
+    path.join(process.cwd(), "public/assets/divelog-logo.png")
   );
   const dataUrl = `data:image/png;base64,${imageBuffer.toString("base64")}`;
 

@@ -1,14 +1,5 @@
 /**
- * Repository Factory — DiveLog Studio
- *
- * Wählt automatisch das Backend anhand der Umgebungsvariable DB_PROVIDER.
- * Singleton-Pattern: Es wird nur eine Adapter-Instanz erzeugt.
- *
- * Unterstützte Provider:
- *   mock     → In-Memory Mock-Daten (Standard / Demo-Modus)
- *   cosmos   → Azure Cosmos DB (benötigt AZURE_COSMOS_DB_*)
- *   postgres → PostgreSQL (benötigt DATABASE_URL)
- *   mysql    → MySQL (benötigt DATABASE_URL)
+ * Repository Factory — wählt das Backend anhand DB_PROVIDER.
  */
 
 import type { DbProvider, Repository } from "./types";

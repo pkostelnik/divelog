@@ -27,21 +27,21 @@
     },
     "files": [
       "electron/**/*",
-      "public/assets/Copilot_20260410_212123.png"
+      "public/assets/divelog-logo.png"
     ],
     "mac": {
       "category": "public.app-category.sports",
-      "icon": "public/assets/Copilot_20260410_212123.png",
+      "icon": "public/assets/divelog-logo.png",
       "target": ["dmg", "zip"]
     },
     "win": {
-      "icon": "public/assets/Copilot_20260410_212123.png",
+      "icon": "public/assets/divelog-logo.png",
       "target": ["nsis", "portable"]
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "installerIcon": "public/assets/Copilot_20260410_212123.png"
+      "installerIcon": "public/assets/divelog-logo.png"
     }
   },
   "dependencies": {

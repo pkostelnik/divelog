@@ -13,7 +13,7 @@ fun DiveSiteMapScreen() {
     Scaffold(
         topBar = { TopAppBar(title = { Text("Tauchplätze") }) }
     ) { padding ->
-        // TODO: Google Maps Compose integration
+        // Google Maps Compose wird in einem späteren Schritt integriert
         Box(
             modifier = Modifier.fillMaxSize().padding(padding),
             contentAlignment = Alignment.Center

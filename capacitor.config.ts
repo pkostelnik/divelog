@@ -1,6 +1,5 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
-// Zentrale URL — änderbar über .env.local (NEXT_PUBLIC_SITE_URL)
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://divelog.copilot.ovh";
 
 const config: CapacitorConfig = {

@@ -17,7 +17,7 @@ class AuthViewModel : ViewModel() {
     fun login(email: String, password: String) {
         _isLoading.value = true
         _error.value = null
-        // TODO: Echte API-Authentifizierung implementieren
+        // Platzhalter — wird durch echte API-Authentifizierung ersetzt
         _isAuthenticated.value = true
         _isLoading.value = false
     }

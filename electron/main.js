@@ -2,7 +2,6 @@
 const { app, BrowserWindow, nativeTheme, Menu } = require("electron");
 const path = require("path");
 
-// Zentrale URL — änderbar über .env.local (NEXT_PUBLIC_SITE_URL)
 const REMOTE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://divelog.copilot.ovh";
 const APP_NAME = "DiveLog Studio";
 
@@ -13,7 +12,7 @@ function createWindow() {
     minWidth: 800,
     minHeight: 600,
     title: APP_NAME,
-    icon: path.join(__dirname, "../public/assets/Copilot_20260410_212123.png"),
+    icon: path.join(__dirname, "../public/assets/divelog-logo.png"),
     titleBarStyle: process.platform === "darwin" ? "hiddenInset" : "default",
     backgroundColor: nativeTheme.shouldUseDarkColors ? "#0c1f2e" : "#f8fafc",
     webPreferences: {

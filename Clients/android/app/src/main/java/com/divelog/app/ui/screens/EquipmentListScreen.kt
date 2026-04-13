@@ -25,7 +25,7 @@ fun EquipmentListScreen(viewModel: EquipmentViewModel = viewModel()) {
     Scaffold(
         topBar = { TopAppBar(title = { Text("Ausrüstung") }) },
         floatingActionButton = {
-            FloatingActionButton(onClick = { /* TODO: Add equipment */ }) {
+            FloatingActionButton(onClick = { /* Equipment-Erstellen-Sheet öffnen */ }) {
                 Icon(Icons.Default.Add, contentDescription = "Ausrüstung hinzufügen")
             }
         }

@@ -81,7 +81,7 @@ fun LoginScreen(authViewModel: AuthViewModel) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            TextButton(onClick = { /* TODO: Register */ }) {
+            TextButton(onClick = { /* Registrierung öffnen */ }) {
                 Text("Konto erstellen")
             }
         }

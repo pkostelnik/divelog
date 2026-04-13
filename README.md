@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![DiveLog Studio](public/assets/Copilot_20260410_212123.png)
+![DiveLog Studio](public/assets/divelog-logo.png)
 
 **Moderne Dive-Log-Plattform für Gerätetaucher**
 

@@ -39,7 +39,7 @@ struct DiveListView: View {
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
-                        // TODO: Add dive sheet
+                        // Dive-Erstellen-Sheet öffnen
                     } label: {
                         Image(systemName: "plus")
                     }

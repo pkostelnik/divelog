@@ -44,8 +44,8 @@ export const metadata: Metadata = {
     telephone: false,
   },
   icons: {
-    icon: '/assets/Copilot_20260410_212123.png?v=2',
-    apple: '/assets/Copilot_20260410_212123.png?v=2',
+    icon: '/assets/divelog-logo.png?v=2',
+    apple: '/assets/divelog-logo.png?v=2',
   },
   manifest: '/manifest.json',
   

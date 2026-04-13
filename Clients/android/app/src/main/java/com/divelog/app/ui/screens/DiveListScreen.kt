@@ -25,7 +25,7 @@ fun DiveListScreen(viewModel: DiveViewModel = viewModel()) {
     Scaffold(
         topBar = { TopAppBar(title = { Text("Tauchgänge") }) },
         floatingActionButton = {
-            FloatingActionButton(onClick = { /* TODO: Add dive */ }) {
+            FloatingActionButton(onClick = { /* Dive-Erstellen-Sheet öffnen */ }) {
                 Icon(Icons.Default.Add, contentDescription = "Neuer Tauchgang")
             }
         }
